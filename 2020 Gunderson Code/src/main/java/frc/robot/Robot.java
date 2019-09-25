@@ -58,7 +58,7 @@ import java.awt.Color;
 
     // Pneumatics
     comp = new Compressor();
-    comp.start();
+   // comp.start();
     mechUpDown = new DoubleSolenoid(0, 1);
     hatchGrabRelease = new DoubleSolenoid(2, 3);
     HABClimbFront = new DoubleSolenoid(4, 5);
