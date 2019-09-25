@@ -8,12 +8,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 
 public class Robot extends TimedRobot {
-  
+
   private DifferentialDrive m_drive;
 
   private Joystick m_joystick = new Joystick(0);
@@ -25,15 +22,12 @@ public class Robot extends TimedRobot {
   private CANSparkMax f_rightMotor;
   private CANSparkMax r_rightMotor;
 
-
-  
   @Override
   public void robotInit() {
 
     drive_speed = -1 * m_joystick.getRawAxis(1);
     drive_rotate = m_joystick.getRawAxis(2);
 
-    
     f_leftMotor = new CANSparkMax(3, MotorType.kBrushless);
     r_leftMotor = new CANSparkMax(5, MotorType.kBrushless);
     f_rightMotor = new CANSparkMax(6, MotorType.kBrushless);
@@ -46,15 +40,13 @@ public class Robot extends TimedRobot {
 
   }
 
- 
   @Override
   public void robotPeriodic() {
   }
 
-
   @Override
   public void autonomousInit() {
-    
+
   }
 
   /**
@@ -62,7 +54,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    
+
   }
 
   /**
