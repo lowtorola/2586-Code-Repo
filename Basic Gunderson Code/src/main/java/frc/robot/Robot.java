@@ -19,19 +19,11 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.cameraserver.CameraServer;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.mach.LightDrive.LightDrivePWM;
-import java.awt.Color;
-
 
 
   public class Robot extends TimedRobot {
   
   Joystick operatorController, driverController;
-
-  // LightDrive 
-  LightDrivePWM ldrive_pwm;
-  Servo servo1;
-	Servo servo2;
 
   // Camera
   CameraServer cameraServer;
@@ -68,12 +60,6 @@ import java.awt.Color;
     UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
     camera.setResolution(1200, 900);
     camera.setFPS(30);
-
-    //Initialize a new PWM LightDrive
-    //Initialize 2 Servo outputs for a PWM LightDrive
-		servo1 = new Servo(3);
-		servo2 = new Servo(4);
-    ldrive_pwm = new LightDrivePWM(servo1, servo2);
 
     // Elevator winch
     elevatorWinch = new WPI_TalonSRX(5);
@@ -129,11 +115,6 @@ import java.awt.Color;
   }
 
   public void auxilaries() { // Method containing all mechs except for elevator and intake
-
-    // LEDs
-    if (operatorController.getRawButton(2)) {
-      ldrive_pwm.SetColor(1, Color.RED);
-    }
 
     // Elevator will stop when it hits the bottom limit
 
