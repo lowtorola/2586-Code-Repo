@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 
 public class Robot extends TimedRobot {
 
@@ -28,8 +27,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    drive_speed = -1 * m_joystick.getRawAxis(1);
-    drive_rotate = m_joystick.getRawAxis(2);
 
     f_leftMotor = new CANSparkMax(3, MotorType.kBrushless);
     r_leftMotor = new CANSparkMax(5, MotorType.kBrushless);
@@ -70,9 +67,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+  
+    drive_speed = -1 * m_joystick.getRawAxis(1);
+    drive_rotate = m_joystick.getRawAxis(2);
 
-    m_drive.arcadeDrive(drive_speed, drive_rotate, true);
-
+    m_drive.arcadeDrive(drive_speed, drive_rotate);
 
   }
 
