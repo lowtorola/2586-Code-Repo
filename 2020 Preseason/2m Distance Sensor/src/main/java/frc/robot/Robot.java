@@ -8,22 +8,24 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.*;
 import com.revrobotics.Rev2mDistanceSensor.Port;
-
 
 public class Robot extends TimedRobot {
 
   private Rev2mDistanceSensor distOnboard;
 
+  private double onboardRange;
+
   @Override
   public void robotInit() {
-    
-  distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
 
-    
+    distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
+
+
+
+
   }
 
   @Override
@@ -35,7 +37,6 @@ public class Robot extends TimedRobot {
 
   }
 
- 
   @Override
   public void autonomousPeriodic() {
 
@@ -46,13 +47,30 @@ public class Robot extends TimedRobot {
 
     distOnboard.setAutomaticMode(true);
 
-    System.out.println(distOnboard.isRangeValid());
-    
-
-      System.out.println(distOnboard.getRange());
-    
+    readSensorRange();
 
   }
+
+  public void readSensorRange() {
+    onboardRange = distOnboard.getRange();
+    try {
+      double rangeOutput = checkDistError(onboardRange);
+      SmartDashboard.putNumber("Range is:", rangeOutput);
+    }
+    catch (DistanceInvalidException die) {
+      System.out.println(die.getMessage());
+    }
+  }
+
+  public double checkDistError(double x) throws DistanceInvalidException {
+      Math.round(x);
+      if (x == -1) {
+        throw new DistanceInvalidException("Sensor Distance Invalid!");
+      }
+      return x;
+  }
+
+
 
   @Override
   public void testPeriodic() {
