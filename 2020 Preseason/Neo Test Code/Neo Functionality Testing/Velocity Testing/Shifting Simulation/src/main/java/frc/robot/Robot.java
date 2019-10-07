@@ -10,38 +10,45 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.revrobotics.*;
-import com.revrobotics.Rev2mDistanceSensor.Port;
 
 
 public class Robot extends TimedRobot {
 
-  private Rev2mDistanceSensor distOnboard;
-
+  
   @Override
   public void robotInit() {
-    
+
   }
+
 
   @Override
   public void robotPeriodic() {
   }
+
 
   @Override
   public void autonomousInit() {
 
   }
 
- 
+  /**
+   * This function is called periodically during autonomous.
+   */
   @Override
   public void autonomousPeriodic() {
 
   }
 
+  /**
+   * This function is called periodically during operator control.
+   */
   @Override
   public void teleopPeriodic() {
   }
 
+  /**
+   * This function is called periodically during test mode.
+   */
   @Override
   public void testPeriodic() {
   }
