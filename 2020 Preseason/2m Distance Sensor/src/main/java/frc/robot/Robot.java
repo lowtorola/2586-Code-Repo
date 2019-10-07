@@ -21,6 +21,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     
+  distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
+
+    
   }
 
   @Override
@@ -40,6 +43,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+
+    distOnboard.setAutomaticMode(true);
+
+    System.out.println(distOnboard.isRangeValid());
+    
+
+      System.out.println(distOnboard.getRange());
+    
+
   }
 
   @Override
