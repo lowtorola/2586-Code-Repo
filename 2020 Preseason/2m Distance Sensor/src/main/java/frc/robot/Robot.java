@@ -7,12 +7,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.*;
 import com.revrobotics.Rev2mDistanceSensor.Port;
 
 public class Robot extends TimedRobot {
+
+  private Joystick operatorStick;
 
   private Rev2mDistanceSensor distOnboard;
 
@@ -21,10 +24,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
+    operatorStick = new Joystick(0);
+
     distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
+    distOnboard.setAutomaticMode(true);
 
-
-
+    onboardRange = 0;
 
   }
 
@@ -45,32 +50,12 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    distOnboard.setAutomaticMode(true);
-
-    readSensorRange();
-
-  }
-
-  public void readSensorRange() {
     onboardRange = distOnboard.getRange();
-    try {
-      double rangeOutput = checkDistError(onboardRange);
-      SmartDashboard.putNumber("Range is:", rangeOutput);
-    }
-    catch (DistanceInvalidException die) {
-      System.out.println(die.getMessage());
-    }
+
+
+    SmartDashboard.putNumber("Sensor Range:", onboardRange);
+
   }
-
-  public double checkDistError(double x) throws DistanceInvalidException {
-      Math.round(x);
-      if (x == -1) {
-        throw new DistanceInvalidException("Sensor Distance Invalid!");
-      }
-      return x;
-  }
-
-
 
   @Override
   public void testPeriodic() {
