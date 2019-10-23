@@ -5,6 +5,8 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -24,6 +26,10 @@ public class Robot extends TimedRobot {
    CANSparkMax f_rightMotor;
    CANSparkMax r_rightMotor;
 
+   Compressor comp;
+
+   DoubleSolenoid shifter;
+
   @Override
   public void robotInit() {
 
@@ -31,7 +37,12 @@ public class Robot extends TimedRobot {
     f_leftMotor = new CANSparkMax(3, MotorType.kBrushless);
     r_leftMotor = new CANSparkMax(5, MotorType.kBrushless);
     f_rightMotor = new CANSparkMax(6, MotorType.kBrushless);
-    r_rightMotor = new CANSparkMax(2, MotorType.kBrushless);
+    r_rightMotor = new CANSparkMax(5, MotorType.kBrushless);
+
+    comp = new Compressor();
+    comp.start();
+
+    shifter = new DoubleSolenoid(0, 1);
 
     f_leftMotor.setSmartCurrentLimit(40);
     r_leftMotor.setSmartCurrentLimit(40);
@@ -68,10 +79,18 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
   
+    /*
     drive_speed = -1 * m_joystick.getRawAxis(1);
     drive_rotate = m_joystick.getRawAxis(2);
 
-    m_drive.arcadeDrive(drive_speed, drive_rotate);
+    m_drive.arcadeDrive(drive_speed, drive_rotate, true);
+
+    if (m_joystick.getRawButton(5)) {
+      shifter.set(DoubleSolenoid.Value.kForward);
+    } else if (m_joystick.getRawButton(6)) {
+      shifter.set(DoubleSolenoid.Value.kReverse);
+    }
+    */
 
   }
 
@@ -80,5 +99,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    if (m_joystick.getRawButton(1)) {
+      f_leftMotor.set(m_joystick.getRawAxis(1));
+    }
+    if (m_joystick.getRawButton(2)) {
+      r_leftMotor.set(m_joystick.getRawAxis(1));
+    }
+    if (m_joystick.getRawButton(3)) {
+      r_rightMotor.set(m_joystick.getRawAxis(1));
+    }
+    if (m_joystick.getRawButton(4)) {
+      f_rightMotor.set(m_joystick.getRawAxis(1));
+    }
   }
 }
