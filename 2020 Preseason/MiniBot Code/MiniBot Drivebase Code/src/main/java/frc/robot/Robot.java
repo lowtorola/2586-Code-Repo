@@ -5,6 +5,8 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
@@ -33,6 +35,8 @@ public class Robot extends TimedRobot {
    Encoder rightEncoder;
 
    AHRS gyro;
+   double gyroYaw;
+   double gyroVelocity;
 
    Compressor comp;
 
@@ -68,7 +72,6 @@ public class Robot extends TimedRobot {
     rightEncoder.setSamplesToAverage(3);
 
     gyro = new AHRS(SPI.Port.kMXP);
-    gyro.calibrate();
     gyro.reset();
 
     // comp = new Compressor();
@@ -159,6 +162,11 @@ public class Robot extends TimedRobot {
   }
 
   public void sensorPrint() {
+    
+    gyroYaw = gyro.getYaw();
+    gyroVelocity = convertVelocity(gyro.getVelocityX());
+
+
 
     SmartDashboard.putNumber("left encoder raw", leftEncoder.getRaw());
     SmartDashboard.putNumber("right encoder raw", rightEncoder.getRaw());
@@ -169,8 +177,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("left encoder distance", leftEncoder.getDistance());
     SmartDashboard.putNumber("right encoder distance", rightEncoder.getDistance());
 
-    SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
-    SmartDashboard.putNumber("Robot Velocity", gyro.getVelocityX());
+    SmartDashboard.putNumber("Gyro Angle", gyroYaw);
+    SmartDashboard.putNumber("Robot Velocity", gyroVelocity);
 
   }
 
@@ -197,4 +205,55 @@ public class Robot extends TimedRobot {
     } */
     
   }
+
+  public double convertVelocity(double x) {
+    x *= 3.28;
+    return x;
+  }
+
+  public void visionAim() {
+    
+    double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+
+    // System.out.println(tx);
+
+    double drive_power = -m_joystick.getRawAxis(2);
+    double drive_rotate = m_joystick.getRawAxis(1);
+    boolean autoAim = m_joystick.getRawButton(1);
+
+    double leftCommand = 0;
+    double rightCommand = 0;
+
+    float Kp = -0.05f;
+    float min_command = 0.05f;
+
+    f_leftMotor.setIdleMode(IdleMode.kCoast);
+    r_leftMotor.setIdleMode(IdleMode.kCoast);
+    f_rightMotor.setIdleMode(IdleMode.kCoast);
+    r_rightMotor.setIdleMode(IdleMode.kCoast);
+
+    if (m_joystick.getRawButton(1)) {
+            float heading_error = (float) -tx;
+            float steering_adjust = 0.0f;
+            if (tx > 1.0) {
+                    steering_adjust = Kp * heading_error - min_command;
+            } else if (tx < 1.0) {
+                    steering_adjust = Kp * heading_error + min_command;
+            }
+
+            leftCommand += steering_adjust;
+            rightCommand -= steering_adjust;
+
+            System.out.println(steering_adjust);
+           
+            m_drive.tankDrive(-leftCommand, rightCommand);
+    }
+    else{
+            m_drive.arcadeDrive(drive_power, drive_rotate, true);
+    }
+
+  }
+
+
 }
