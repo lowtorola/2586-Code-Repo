@@ -3,8 +3,10 @@ package frc.robot;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.Rev2mDistanceSensor.Port;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
@@ -37,6 +39,10 @@ public class Robot extends TimedRobot {
    AHRS gyro;
    double gyroYaw;
    double gyroVelocity;
+   
+  private Rev2mDistanceSensor distOnboard;
+  private double onboardRange;
+  private double rangeAdjust;
 
    Compressor comp;
 
@@ -73,6 +79,10 @@ public class Robot extends TimedRobot {
 
     gyro = new AHRS(SPI.Port.kMXP);
     gyro.reset();
+
+    distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
+    distOnboard.setAutomaticMode(true);
+    onboardRange = 0;
 
     // comp = new Compressor();
     // comp.start();
@@ -119,13 +129,14 @@ public class Robot extends TimedRobot {
     }
 
   
-    driveBase();
     shifting();
     motorStatus();
     sensorPrint();
+    visionAim();
 
   }
 
+  /*
   public void driveBase() {
 
     drive_speed = -1 * m_joystick.getRawAxis(1);
@@ -133,7 +144,7 @@ public class Robot extends TimedRobot {
 
     m_drive.arcadeDrive(drive_speed, drive_rotate, true);
 
-  }
+  } */
 
   public void shifting() {
     if (m_joystick.getRawButton(5)) {
@@ -166,8 +177,6 @@ public class Robot extends TimedRobot {
     gyroYaw = gyro.getYaw();
     gyroVelocity = convertVelocity(gyro.getVelocityX());
 
-
-
     SmartDashboard.putNumber("left encoder raw", leftEncoder.getRaw());
     SmartDashboard.putNumber("right encoder raw", rightEncoder.getRaw());
 
@@ -178,7 +187,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right encoder distance", rightEncoder.getDistance());
 
     SmartDashboard.putNumber("Gyro Angle", gyroYaw);
-    SmartDashboard.putNumber("Robot Velocity", gyroVelocity);
+    SmartDashboard.putNumber("Robot Velocity", gyroVelocity);    
+    SmartDashboard.putNumber("Sensor Range:", onboardRange);
 
   }
 
@@ -218,20 +228,18 @@ public class Robot extends TimedRobot {
 
     // System.out.println(tx);
 
-    double drive_power = -m_joystick.getRawAxis(2);
-    double drive_rotate = m_joystick.getRawAxis(1);
+    double drive_power = -m_joystick.getRawAxis(1);
+    double drive_rotate = m_joystick.getRawAxis(2);
     boolean autoAim = m_joystick.getRawButton(1);
+
+    onboardRange = distOnboard.getRange();
+
 
     double leftCommand = 0;
     double rightCommand = 0;
 
-    float Kp = -0.05f;
-    float min_command = 0.05f;
-
-    f_leftMotor.setIdleMode(IdleMode.kCoast);
-    r_leftMotor.setIdleMode(IdleMode.kCoast);
-    f_rightMotor.setIdleMode(IdleMode.kCoast);
-    r_rightMotor.setIdleMode(IdleMode.kCoast);
+    float Kp = -0.02f;
+    float min_command = 0.07f;
 
     if (m_joystick.getRawButton(1)) {
             float heading_error = (float) -tx;
@@ -242,12 +250,25 @@ public class Robot extends TimedRobot {
                     steering_adjust = Kp * heading_error + min_command;
             }
 
-            leftCommand += steering_adjust;
-            rightCommand -= steering_adjust;
+            if (onboardRange > 10 && onboardRange < 200) {
+              rangeAdjust = onboardRange * Kp -min_command;
+            } else {
+              rangeAdjust = 0;
+              System.out.println("Warning! Range is too far!");
+            }
+
+            leftCommand += steering_adjust += rangeAdjust;
+            rightCommand -= steering_adjust += rangeAdjust;
+       
+            f_leftMotor.setIdleMode(IdleMode.kCoast);
+            r_leftMotor.setIdleMode(IdleMode.kCoast);
+            f_rightMotor.setIdleMode(IdleMode.kCoast);
+            r_rightMotor.setIdleMode(IdleMode.kCoast);
 
             System.out.println(steering_adjust);
-           
-            m_drive.tankDrive(-leftCommand, rightCommand);
+            SmartDashboard.putNumber("Left Vision Drive", leftCommand);
+            SmartDashboard.putNumber("Right Vision Drive", rightCommand);
+            m_drive.tankDrive(leftCommand, rightCommand);
     }
     else{
             m_drive.arcadeDrive(drive_power, drive_rotate, true);
