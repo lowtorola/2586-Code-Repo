@@ -22,9 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
 
   private CANSparkMax f_leftMotor;
-  private CANSparkMax r_leftMotor;
   private CANSparkMax f_rightMotor;
-  private CANSparkMax r_rightMotor;
 
   private final double ROTS_PER_DEGREE = 1 / 12.86; // rotations per degree
 
@@ -32,9 +30,7 @@ public class Robot extends TimedRobot {
   private CANPIDController right_pidController;
 
   private CANEncoder f_leftEncoder;
-  private CANEncoder r_leftEncoder;
   private CANEncoder f_rightEncoder;
-  private CANEncoder r_rightEncoder;
 
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
@@ -47,17 +43,10 @@ public class Robot extends TimedRobot {
 
     // initialize motor
     f_leftMotor = new CANSparkMax(3, MotorType.kBrushless);
-    r_leftMotor = new CANSparkMax(2, MotorType.kBrushless);
     f_rightMotor = new CANSparkMax(6, MotorType.kBrushless);
-    r_rightMotor = new CANSparkMax(5, MotorType.kBrushless);
 
     f_leftMotor.setIdleMode(IdleMode.kCoast);
-    r_leftMotor.setIdleMode(IdleMode.kCoast);
     f_rightMotor.setIdleMode(IdleMode.kCoast);
-    r_rightMotor.setIdleMode(IdleMode.kCoast);
-
-    r_leftMotor.follow(f_leftMotor);
-    r_rightMotor.follow(f_rightMotor);
 
     /**
      * In order to use PID functionality for a controller, a CANPIDController object
@@ -69,16 +58,14 @@ public class Robot extends TimedRobot {
 
     // Encoder object created to display position values
     f_leftEncoder = f_leftMotor.getEncoder();
-    r_leftEncoder = r_leftMotor.getEncoder();
     f_rightEncoder = f_rightMotor.getEncoder();
-    r_rightEncoder = r_rightMotor.getEncoder();
 
     // PID coefficients
-    kP = 0.3;
-    kI = 1e-4;
-    kD = 1;
+    kP = .3;
+    kI = 0;
+    kD = 0;
     kIz = 0;
-    kFF = .1;
+    kFF = 0;
     kMaxOutput = 1;
     kMinOutput = -1;
 
@@ -119,12 +106,22 @@ public class Robot extends TimedRobot {
     double max = SmartDashboard.getNumber("Max Output", 0);
     double min = SmartDashboard.getNumber("Min Output", 0);
     double rotations = SmartDashboard.getNumber("Set Rotations", 0);
+    SmartDashboard.putNumber("Left Output", f_leftMotor.getAppliedOutput());
+    SmartDashboard.putNumber("Right Output", f_rightMotor.getAppliedOutput());
 
     double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
     double x_ref = degreesToRotations(-tx);
 
     SmartDashboard.putNumber("X Error Degrees", tx);
     SmartDashboard.putNumber("X Error Rotations", x_ref);
+
+    if (m_joystick.getRawButton(4)) {
+      left_pidController.setReference(x_ref, ControlType.kPosition);
+      right_pidController.setReference(-x_ref, ControlType.kPosition);
+    }
+    SmartDashboard.putNumber("SetPoint", x_ref);
+    SmartDashboard.putNumber("LeftProcessVariable", f_leftEncoder.getPosition());
+    SmartDashboard.putNumber("RightProcessVariable", f_rightEncoder.getPosition());
 
     // if PID coefficients on SmartDashboard have changed, write new values to
     // controller
@@ -193,13 +190,7 @@ public class Robot extends TimedRobot {
        * com.revrobotics.ControlType.kVoltage
        */
 
-      if (m_joystick.getRawButton(4)) {
-        left_pidController.setReference(-x_ref, ControlType.kPosition);
-        right_pidController.setReference(x_ref, ControlType.kPosition);
-      }
-      SmartDashboard.putNumber("SetPoint", x_ref);
-      SmartDashboard.putNumber("LeftProcessVariable", f_leftEncoder.getPosition());
-      SmartDashboard.putNumber("RightProcessVariable", f_rightEncoder.getPosition());
+      
     }
   }
 
