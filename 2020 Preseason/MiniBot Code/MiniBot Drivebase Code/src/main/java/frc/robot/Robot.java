@@ -3,7 +3,7 @@ package frc.robot;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.Rev2mDistanceSensor;
+// import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.Rev2mDistanceSensor.Port;
@@ -33,6 +33,9 @@ public class Robot extends TimedRobot {
    CANSparkMax f_rightMotor;
    CANSparkMax r_rightMotor;
 
+   private CANEncoder f_leftEncoder;
+   private CANEncoder f_rightEncoder;
+
    Encoder leftEncoder;
    Encoder rightEncoder;
 
@@ -40,7 +43,7 @@ public class Robot extends TimedRobot {
    double gyroYaw;
    double gyroVelocity;
    
-  private Rev2mDistanceSensor distOnboard;
+ // private Rev2mDistanceSensor distOnboard;
   private double onboardRange;
   private double rangeAdjust;
 
@@ -65,7 +68,9 @@ public class Robot extends TimedRobot {
     leftEncoder = new Encoder(6, 7);
     rightEncoder = new Encoder(8, 9);
 
-    
+    f_leftEncoder = f_leftMotor.getEncoder();
+    f_rightEncoder = f_rightMotor.getEncoder();
+
     double kPulsesPerRevolution = 360;
 		double kInchesPerRevolution = 12.5;
 		double kInchesPerPulse = kInchesPerRevolution / kPulsesPerRevolution;
@@ -80,8 +85,8 @@ public class Robot extends TimedRobot {
     gyro = new AHRS(SPI.Port.kMXP);
     gyro.reset();
 
-    distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
-    distOnboard.setAutomaticMode(true);
+  //  distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
+  //  distOnboard.setAutomaticMode(true);
     onboardRange = 0;
 
     // comp = new Compressor();
@@ -122,6 +127,8 @@ public class Robot extends TimedRobot {
     if(m_joystick.getRawButton(1)) {
       leftEncoder.reset();
       rightEncoder.reset();
+      f_leftEncoder.setPosition(0);
+      f_rightEncoder.setPosition(0);
     }
 
     if(m_joystick.getRawButton(2)) {
@@ -186,9 +193,13 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("left encoder distance", leftEncoder.getDistance());
     SmartDashboard.putNumber("right encoder distance", rightEncoder.getDistance());
 
+    SmartDashboard.putNumber("left NEO encoder rotations", f_leftEncoder.getPosition());
+    SmartDashboard.putNumber("right NEO encoder rotations", f_rightEncoder.getPosition());
+
     SmartDashboard.putNumber("Gyro Angle", gyroYaw);
-    SmartDashboard.putNumber("Robot Velocity", gyroVelocity);    
+    SmartDashboard.putNumber("Robot Velocity", gyroVelocity);
     SmartDashboard.putNumber("Sensor Range:", onboardRange);
+
 
   }
 
@@ -223,8 +234,7 @@ public class Robot extends TimedRobot {
 
   public void visionAim() {
     
-    double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
-    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+]\[]    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
 
     // System.out.println(tx);
 
@@ -232,7 +242,7 @@ public class Robot extends TimedRobot {
     double drive_rotate = m_joystick.getRawAxis(2);
     boolean autoAim = m_joystick.getRawButton(1);
 
-    onboardRange = distOnboard.getRange();
+  //  onboardRange = distOnboard.getRange();
 
 
     double leftCommand = 0;
@@ -250,15 +260,15 @@ public class Robot extends TimedRobot {
                     steering_adjust = Kp * heading_error + min_command;
             }
 
-            if (onboardRange > 10 && onboardRange < 200) {
+         /*   if (onboardRange > 10 && onboardRange < 200) {
               rangeAdjust = onboardRange * Kp -min_command;
             } else {
               rangeAdjust = 0;
               System.out.println("Warning! Range is too far!");
             }
-
-            leftCommand += steering_adjust += rangeAdjust;
-            rightCommand -= steering_adjust += rangeAdjust;
+              */
+            leftCommand += steering_adjust;
+            rightCommand -= steering_adjust;
        
             f_leftMotor.setIdleMode(IdleMode.kCoast);
             r_leftMotor.setIdleMode(IdleMode.kCoast);
