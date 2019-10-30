@@ -60,10 +60,10 @@ public class Robot extends TimedRobot {
     f_rightMotor = new CANSparkMax(6, MotorType.kBrushless);
     r_rightMotor = new CANSparkMax(5, MotorType.kBrushless);
 
-    f_leftMotor.setIdleMode(IdleMode.kBrake);
-    r_leftMotor.setIdleMode(IdleMode.kBrake);
-    f_rightMotor.setIdleMode(IdleMode.kBrake);
-    r_rightMotor.setIdleMode(IdleMode.kBrake);
+    f_leftMotor.setIdleMode(IdleMode.kCoast);
+    r_leftMotor.setIdleMode(IdleMode.kCoast);
+    f_rightMotor.setIdleMode(IdleMode.kCoast);
+    r_rightMotor.setIdleMode(IdleMode.kCoast);
 
     leftEncoder = new Encoder(6, 7);
     rightEncoder = new Encoder(8, 9);
@@ -234,7 +234,9 @@ public class Robot extends TimedRobot {
 
   public void visionAim() {
     
-]\[]    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+    double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+    double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+
 
     // System.out.println(tx);
 
