@@ -212,4 +212,8 @@ public class Robot extends TimedRobot {
     return x;
   }
 
+  public void () {
+    
+  }
+
 }
