@@ -7,9 +7,15 @@
 
 package frc.robot;
 
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -20,35 +26,65 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
-  
-  Encoder leftEnc;
-  
-  Encoder rightEnc;
+
+  Encoder leftUSD;
+  Encoder rightUSD;
+
+  CANEncoder leftNEO;
+  CANEncoder rightNEO;
 
   Joystick joy1;
 
-  
+  CANSparkMax leftMaster;
+  CANSparkMax leftSlave;
+  CANSparkMax rightMaster;
+  CANSparkMax rightSlave;
+
+  DifferentialDrive drive;
+
+  final double kInchesPerRevolution = 12.56;
+
+  final double gear_Ratio = 4.16;
 
   @Override
   public void robotInit() {
 
-    final double kCountsPerRevolution = 800;
-    final double kInchesPerRevolution = 12.56;
-    final double kInchesPerCount = kInchesPerRevolution / kCountsPerRevolution;
+    final double usd_CountsPerRevolution = 1440;
+    final double usd_InchesPerCount = kInchesPerRevolution / usd_CountsPerRevolution;
 
-    leftEnc = new Encoder(6, 7);
-    leftEnc.setDistancePerPulse(kInchesPerCount);
-    leftEnc.setSamplesToAverage(3);
-    leftEnc.reset();
+    leftUSD = new Encoder(6, 7);
+    leftUSD.setDistancePerPulse(usd_InchesPerCount);
+    leftUSD.reset();
 
-    rightEnc = new Encoder(8, 9);
-    rightEnc.setDistancePerPulse(kInchesPerCount);
-    rightEnc.setReverseDirection(true);
-    rightEnc.setSamplesToAverage(3);
-    rightEnc.reset();
+    rightUSD = new Encoder(8, 9);
+    rightUSD.setDistancePerPulse(usd_InchesPerCount);
+    rightUSD.setReverseDirection(true);
+    rightUSD.reset();
 
     joy1 = new Joystick(0);
 
+    leftMaster = new CANSparkMax(3, MotorType.kBrushless);
+    leftSlave = new CANSparkMax(2, MotorType.kBrushless);
+    rightMaster = new CANSparkMax(6, MotorType.kBrushless);
+    rightSlave = new CANSparkMax(5, MotorType.kBrushless);
+
+    leftMaster.setIdleMode(IdleMode.kCoast);
+    leftMaster.setInverted(true);
+    leftSlave.setIdleMode(IdleMode.kCoast);
+    leftSlave.setInverted(true);
+    rightMaster.setIdleMode(IdleMode.kCoast);
+    rightSlave.setIdleMode(IdleMode.kCoast);
+
+    leftSlave.follow(leftMaster);
+    rightSlave.follow(rightMaster);
+
+    leftNEO = leftMaster.getEncoder();
+    leftNEO.setPosition(0);
+    rightNEO = rightMaster.getEncoder();
+    rightNEO.setPosition(0);
+
+    drive = new DifferentialDrive(leftMaster, rightMaster);
+    drive.setDeadband(0.2);
   }
 
   @Override
@@ -68,9 +104,15 @@ public class Robot extends TimedRobot {
     sensorPrints();
 
     if (joy1.getRawButton(1)) {
-      leftEnc.reset();
-      rightEnc.reset();
+      leftUSD.reset();
+      rightUSD.reset();
+      leftNEO.setPosition(0);
+      rightNEO.setPosition(0);
     }
+
+    double drivePower = joy1.getRawAxis(1);
+    double driveSteer = -joy1.getRawAxis(2);
+    drive.arcadeDrive(drivePower, driveSteer, true);
 
   }
 
@@ -79,10 +121,28 @@ public class Robot extends TimedRobot {
   }
 
   public void sensorPrints() {
-    
-    SmartDashboard.putNumber("Left Distance", leftEnc.getDistance());
-    SmartDashboard.putNumber("Right Distance", rightEnc.getDistance());
-    
+
+    SmartDashboard.putNumber("Left USD Distance", leftUSD.getDistance());
+    SmartDashboard.putNumber("Right USD Distance", rightUSD.getDistance());
+
+    SmartDashboard.putNumber("Left USD Ticks", leftUSD.getRaw());
+    SmartDashboard.putNumber("Right USD Ticks", rightUSD.getRaw());
+
+    SmartDashboard.putNumber("Left USD Sampling", leftUSD.getEncodingScale());
+    SmartDashboard.putNumber("Right USD Sampling", rightUSD.getEncodingScale());
+
+    SmartDashboard.putNumber("Left NEO Distance", neoDistConv(-leftNEO.getPosition()));
+    SmartDashboard.putNumber("Right NEO Distance", neoDistConv(rightNEO.getPosition()));
+
+    SmartDashboard.putNumber("Left NEO Position", -leftNEO.getPosition());
+    SmartDashboard.putNumber("Right NEO Position", rightNEO.getPosition());
+
+  }
+
+  public double neoDistConv (double x) {
+    x /= gear_Ratio;
+    x *= kInchesPerRevolution;
+    return x;
   }
 
   @Override
