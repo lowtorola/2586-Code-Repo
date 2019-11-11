@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
-  DifferentialDrive m_drive;
+//  DifferentialDrive m_drive;
 
   Joystick m_joystick = new Joystick(0);
   double drive_speed;
@@ -53,10 +53,6 @@ public class Robot extends TimedRobot {
   AHRS gyro;
   double gyroYaw;
   double gyroVelocity;
-
-  private Rev2mDistanceSensor distOnboard;
-  private double onboardRange;
-  private double rangeAdjust;
 
   Compressor comp;
 
@@ -120,37 +116,33 @@ public class Robot extends TimedRobot {
     gyro = new AHRS(SPI.Port.kMXP);
     gyro.reset();
 
-    distOnboard = new Rev2mDistanceSensor(Port.kOnboard);
-    distOnboard.setAutomaticMode(true);
-    onboardRange = 0;
-
-    comp = new Compressor();
-    comp.start();
+    //comp = new Compressor();
+   // comp.start();
 
     shifter = new DoubleSolenoid(6, 7);
 
-    m_drive = new DifferentialDrive(leftMaster, rightMaster);
+  //  m_drive = new DifferentialDrive(leftMaster, rightMaster);
 
   }
 
   @Override
   public void autonomousInit() {
-    
+    SmartDashboard.putNumber("Position Setpoint", 0);
   }
 
   @Override
   public void autonomousPeriodic() {
     double setPoint, processVariable;
-    SmartDashboard.putNumber("Position Setpoint", 0);
+    
     setPoint = SmartDashboard.getNumber("Set Position", 0);
     boolean mode = false;
-
+    
     if (mode) {
       autoPIDdrive_L.setReference(setPoint, ControlType.kSmartMotion);
       autoPIDdrive_R.setReference(setPoint, ControlType.kSmartMotion);
     } else {
-      autoPIDdrive_L.setReference(0, ControlType.kSmartMotion);
-      autoPIDdrive_R.setReference(0, ControlType.kSmartMotion);
+      leftMaster.set(0);
+      rightMaster.set(0);
     }
     
     processVariable = f_leftEncoder.getPosition();
