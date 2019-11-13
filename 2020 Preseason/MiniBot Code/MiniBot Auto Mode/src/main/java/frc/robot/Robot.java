@@ -50,6 +50,8 @@ public class Robot extends TimedRobot {
   CANPIDController autoPIDdrive_L;
   CANPIDController autoPIDdrive_R;
 
+  double setPoint, processVariable;
+
   AHRS gyro;
   double gyroYaw;
   double gyroVelocity;
@@ -61,8 +63,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    boolean leftMotorsInverted = true;
-    boolean rightMotorsInverted = false;
+    boolean leftMotorsInverted = false;
+    boolean rightMotorsInverted = true;
 
     leftMaster = new CANSparkMax(3, MotorType.kBrushless);
     leftMaster.setInverted(leftMotorsInverted);
@@ -85,7 +87,7 @@ public class Robot extends TimedRobot {
     f_rightEncoder = rightMaster.getEncoder();
 
     autoPIDdrive_L = leftMaster.getPIDController();
-    autoPIDdrive_R = rightMaster.getPIDController();
+   // autoPIDdrive_R = rightMaster.getPIDController();
 
     autoPIDdrive_L.setP(Constants.kP);
     autoPIDdrive_L.setI(Constants.kI);
@@ -94,25 +96,24 @@ public class Robot extends TimedRobot {
     autoPIDdrive_L.setFF(Constants.kFF);
     autoPIDdrive_L.setOutputRange(Constants.kMinOutput, Constants.kMaxOutput);
 
+    /*
     autoPIDdrive_R.setP(Constants.kP);
     autoPIDdrive_R.setI(Constants.kI);
     autoPIDdrive_R.setD(Constants.kD);
     autoPIDdrive_R.setIZone(Constants.kIz);
     autoPIDdrive_R.setFF(Constants.kFF);
     autoPIDdrive_R.setOutputRange(Constants.kMinOutput, Constants.kMaxOutput);
-
-    int smartMotionSlot_L = 0;
-    autoPIDdrive_L.setSmartMotionMaxVelocity(Constants.maxVel, smartMotionSlot_L);
-    autoPIDdrive_L.setSmartMotionMinOutputVelocity(Constants.minVel, smartMotionSlot_L);
-    autoPIDdrive_L.setSmartMotionMaxAccel(Constants.maxAcc, smartMotionSlot_L);
-    autoPIDdrive_L.setSmartMotionAllowedClosedLoopError(Constants.allowedErr, smartMotionSlot_L);
-
-    int smartMotionSlot_R = 1;
-    autoPIDdrive_R.setSmartMotionMaxVelocity(Constants.maxVel, smartMotionSlot_R);
-    autoPIDdrive_R.setSmartMotionMinOutputVelocity(Constants.minVel, smartMotionSlot_R);
-    autoPIDdrive_R.setSmartMotionMaxAccel(Constants.maxAcc, smartMotionSlot_R);
-    autoPIDdrive_R.setSmartMotionAllowedClosedLoopError(Constants.allowedErr, smartMotionSlot_R);
-
+*/
+    //autoPIDdrive_L.setSmartMotionMinOutputVelocity(Constants.minVel, Constants.smartMotionSlot_L);
+    autoPIDdrive_L.setSmartMotionMaxAccel(Constants.maxAcc, Constants.smartMotionSlot_L);
+    autoPIDdrive_L.setSmartMotionAllowedClosedLoopError(Constants.allowedErr, Constants.smartMotionSlot_L);    
+    //autoPIDdrive_L.setSmartMotionMaxVelocity(Constants.maxVel, Constants.smartMotionSlot_L);
+/*
+    autoPIDdrive_R.setSmartMotionMinOutputVelocity(Constants.minVel, Constants.smartMotionSlot_R);
+    autoPIDdrive_R.setSmartMotionMaxAccel(Constants.maxAcc, Constants.smartMotionSlot_R);
+    autoPIDdrive_R.setSmartMotionAllowedClosedLoopError(Constants.allowedErr, Constants.smartMotionSlot_R);   
+    autoPIDdrive_R.setSmartMotionMaxVelocity(Constants.maxVel, Constants.smartMotionSlot_R);
+   */
     gyro = new AHRS(SPI.Port.kMXP);
     gyro.reset();
 
@@ -127,25 +128,44 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    SmartDashboard.putNumber("Position Setpoint", 0);
+    
   }
 
   @Override
   public void autonomousPeriodic() {
-    double setPoint, processVariable;
     
-    setPoint = SmartDashboard.getNumber("Set Position", 0);
-    boolean mode = false;
+  }
+
+  @Override
+  public void teleopInit() {
+  }
+
+  @Override
+  public void teleopPeriodic() {    
     
-    if (mode) {
+    setPoint = 100;
+    
+    if (m_joystick.getRawButton(1)) {
       autoPIDdrive_L.setReference(setPoint, ControlType.kSmartMotion);
-      autoPIDdrive_R.setReference(setPoint, ControlType.kSmartMotion);
+      //autoPIDdrive_R.setReference(setPoint, ControlType.kSmartMotion);
+      rightMaster.follow(leftMaster);
     } else {
       leftMaster.set(0);
       rightMaster.set(0);
     }
+
+    if(m_joystick.getRawButton(2)) {
+      f_leftEncoder.setPosition(0);
+      f_rightEncoder.setPosition(0);
+    }
+
+    sensorPrints();
     
+  }
+
+  public void sensorPrints() {
     processVariable = f_leftEncoder.getPosition();
+
     SmartDashboard.putNumber("SetPoint", setPoint);
     SmartDashboard.putNumber("Process Variable", processVariable);
     SmartDashboard.putNumber("Left Output", leftMaster.getAppliedOutput());
@@ -154,11 +174,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopInit() {
-  }
-
-  @Override
-  public void teleopPeriodic() {
+  public void disabledInit() {
+    super.disabledInit();
+    leftMaster.setIdleMode(IdleMode.kCoast);
+    leftSlave.setIdleMode(IdleMode.kCoast);
+    rightMaster.setIdleMode(IdleMode.kCoast);
+    rightSlave.setIdleMode(IdleMode.kCoast);
   }
 
   @Override
