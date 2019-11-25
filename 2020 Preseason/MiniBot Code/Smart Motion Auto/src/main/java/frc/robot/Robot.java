@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
@@ -20,11 +21,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.PIDOutput;
 
-public class Robot extends TimedRobot {
+public class Robot extends TimedRobot implements PIDOutput {
 
   DifferentialDrive myRobot;
-  AHRS ahrs;
+  AHRS gyro;
   PIDController turnController;
   double rotateToAngleRate;
   private CANSparkMax leftMaster, leftSlave, rightMaster, rightSlave;
@@ -33,9 +35,13 @@ public class Robot extends TimedRobot {
   public double sm_kP, sm_kI, sm_kD, sm_kIz, sm_kFF, sm_kMaxOutput, sm_kMinOutput, sm_maxRPM, sm_maxVel, sm_minVel,
       sm_maxAcc, sm_allowedErr;
   Joystick joystick;
+  double drive_Power, drive_Rotate;
   double setPoint_L, setPoint_R, processVariable_L, processVariable_R;
   final double kInchesPerRevolution = 12.56;
   final double gear_Ratio = 4.16;
+
+  Timer autoTimer, stepTimer;
+  int autoStep;
 
   // Turn coefficients
   static final double kP = 0.0275;
@@ -51,8 +57,9 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     joystick = new Joystick(0);
+
     // initialize motor
-    boolean leftMotorsInverted = false;
+    boolean leftMotorsInverted = true;
     boolean rightMotorsInverted = true;
 
     leftMaster = new CANSparkMax(3, MotorType.kBrushless);
@@ -66,7 +73,10 @@ public class Robot extends TimedRobot {
     rightSlave.setInverted(rightMotorsInverted);
     rightSlave.follow(rightMaster);
 
-    ahrs = new AHRS(SPI.Port.kMXP);
+    gyro = new AHRS(SPI.Port.kMXP);
+
+    autoTimer = new Timer();
+    stepTimer = new Timer();
 
     /**
      * The RestoreFactoryDefaults method can be used to reset the configuration
@@ -159,34 +169,39 @@ public class Robot extends TimedRobot {
     right_pidController.setSmartMotionMaxAccel(sm_maxAcc, 0);
     right_pidController.setSmartMotionAllowedClosedLoopError(sm_allowedErr, 0);
 
-    setPoint_L = neoDistConv(20);
-    setPoint_R = neoDistConv(20);
+    setPoint_L = neoDistConv(5);
+    setPoint_R = neoDistConv(5);
 
-    turnController = new PIDController(kP, kI, kD, ahrs, this);
+    turnController = new PIDController(kP, kI, kD, gyro, this);
     turnController.setInputRange(-180.0f, 180.0f);
     turnController.setOutputRange(-0.5, 0.5);
     turnController.setAbsoluteTolerance(kToleranceDegrees);
     turnController.setContinuous(true);
     turnController.disable();
 
-    myRobot = new DifferentialDrive(leftMaster, rightMaster);
-    myRobot.setExpiration(0.1);
-
   }
 
   @Override
   public void autonomousInit() {
+    autoTimer.start();
+    gyro.reset();
+    zeroEncoders();
+    autoStep = 0;
+    leftMaster.setInverted(false);
   }
 
   @Override
   public void autonomousPeriodic() {
-    left_pidController.setReference(setPoint_L, ControlType.kSmartMotion);
-    right_pidController.setReference(setPoint_R, ControlType.kSmartMotion);
+    autonDriveForwardReverse();
+    sensorPrints();
+    SmartDashboard.putNumber("Process Variable Left", left_encoder.getPosition());
+    SmartDashboard.putNumber("Process Variable Right", right_encoder.getPosition());
   }
 
   @Override
   public void teleopInit() {
-
+    myRobot = new DifferentialDrive(leftMaster, rightMaster);
+    myRobot.setExpiration(0.5);
   }
 
   @Override
@@ -194,15 +209,10 @@ public class Robot extends TimedRobot {
 
     sensorPrints();
 
-    if (joystick.getRawButton(1)) {
-      left_pidController.setReference(setPoint_L, ControlType.kSmartMotion);
-      right_pidController.setReference(setPoint_R, ControlType.kSmartMotion);
-    } else {
-      leftMaster.set(0);
-      rightMaster.set(0);
-    }
-    processVariable_L = left_encoder.getPosition();
-    processVariable_R = right_encoder.getPosition();
+    drive_Power = joystick.getRawAxis(1);
+    drive_Rotate = joystick.getRawAxis(2);
+
+    myRobot.arcadeDrive(drive_Power, drive_Rotate, true);
 
     if (joystick.getRawButton(2)) {
       zeroEncoders();
@@ -226,6 +236,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Process Variable Right", processVariable_R);
     SmartDashboard.putNumber("Left Output", leftMaster.getAppliedOutput());
     SmartDashboard.putNumber("Right Output", rightMaster.getAppliedOutput());
+    SmartDashboard.putNumber("Step Timer", stepTimer.get());
+    SmartDashboard.putNumber("Auton Timer", autoTimer.get());
   }
 
   @Override
@@ -233,15 +245,106 @@ public class Robot extends TimedRobot {
   }
 
   public double neoDistConv(double x) {
-    x /= gear_Ratio;
-    x *= kInchesPerRevolution;
+    x /= kInchesPerRevolution;
+    x *= gear_Ratio;
+    x *= 42;
+
     return x;
   }
 
-  public void autonDriveTurn() {
-    left_pidController.setReference(setPoint_L, ControlType.kSmartMotion);
-    right_pidController.setReference(setPoint_R, ControlType.kSmartMotion);
+  public void autonDriveForwardReverse() {
+    SmartDashboard.putNumber("Auto Step", autoStep);
+    switch (autoStep) {
+    case 0:
+      autoDriveForward();
+      if (autoTimer.get() > 6) {
+        autoNextStep();
+        stepTimer.reset();
+      }
+      break;
+    case 1:
+      autoDriveReverse();
+      if (autoTimer.get() > 6) {
+        autoNextStep();
+        stepTimer.reset();
+      }
+      break;
+    case 2:
+      stopRobot();
+      break;
+    }
+  }
 
+  public void autonDriveTurn() {
+    double driveError_L, driveError_R;
+
+    driveError_L = setPoint_L -= processVariable_L;
+    driveError_R = setPoint_R -= processVariable_R;
+
+    switch (autoStep) {
+    case 0:
+      autoDriveForward();
+      autoNextStep();
+      break;
+
+    case 1:
+      autonDriveTurn();
+      autoNextStep();
+      break;
+
+    case 2:
+      autoDriveForward();
+      autoNextStep();
+      break;
+    }
+
+  }
+
+  public void autoDriveForward() {
+    stepTimer.start();
+    final double TARGET = neoDistConv(5);
+    left_pidController.setReference(TARGET, ControlType.kSmartMotion);
+    right_pidController.setReference(TARGET, ControlType.kSmartMotion);
+  }
+
+  public void stopRobot() {
+    leftMaster.set(0);
+    rightMaster.set(0);
+    autoTimer.stop();
+  }
+
+  public void autoDriveReverse() {
+    stepTimer.start();
+    final double TARGET = neoDistConv(-5);
+    left_pidController.setReference(TARGET, ControlType.kSmartMotion);
+    right_pidController.setReference(TARGET, ControlType.kSmartMotion);
+  }
+
+  public void autoTurn180() {
+    turnController.setSetpoint(180);
+    rotateToAngleRate = 0;
+    turnController.enable();
+    double leftStickValue = -rotateToAngleRate;
+    double rightStickValue = -rotateToAngleRate;
+    myRobot.tankDrive(leftStickValue, rightStickValue);
+    autoNextStep();
+  }
+
+  public void autoNextStep() {
+    autoStep++;
+    autoTimer.reset();
+    autoTimer.start();
+    gyro.reset();
+    zeroEncoders();
+    turnController.disable();
+    left_pidController.setReference(0, ControlType.kDutyCycle);
+    right_pidController.setReference(0, ControlType.kDutyCycle);
+  }
+
+  /* This function is invoked periodically by the PID Controller, */
+  /* based upon navX MXP yaw angle input and PID Coefficients. */
+  public void pidWrite(double output) {
+    rotateToAngleRate = output;
   }
 
 }
