@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -28,6 +29,7 @@ public class Robot extends TimedRobot implements PIDOutput {
   DifferentialDrive myRobot;
   AHRS gyro;
   PIDController turnController;
+  Compressor comp;
   double rotateToAngleRate;
   private CANSparkMax leftMaster, leftSlave, rightMaster, rightSlave;
   private CANPIDController left_pidController, right_pidController;
@@ -46,8 +48,8 @@ public class Robot extends TimedRobot implements PIDOutput {
   // Turn coefficients
   static final double kP = 0.0275;
   static final double kI = 0.000035;
-  static final double kD = 0.115;
-  static final double kF = 0;
+  static final double kD = 0;
+  static final double kF = 0.00002;
 
   static final double kToleranceDegrees = 2.0f;
 
@@ -57,6 +59,9 @@ public class Robot extends TimedRobot implements PIDOutput {
   public void robotInit() {
 
     joystick = new Joystick(0);
+
+    comp = new Compressor();
+    comp.start();
 
     // initialize motor
     boolean leftMotorsInverted = true;
@@ -97,15 +102,15 @@ public class Robot extends TimedRobot implements PIDOutput {
     right_encoder.setPosition(0);
 
     // PID coefficients
-    sm_kP = 3e-5;
-    sm_kI = 3e-7;
+    sm_kP = 2e-5;
+    sm_kI = 1e-7;
     sm_kD = 0;
     sm_kIz = 0;
     sm_kFF = 0.00002;
     sm_kMaxOutput = 0.5;
     sm_kMinOutput = -0.5;
     sm_maxRPM = 5700;
-    sm_allowedErr = 2;
+    sm_allowedErr = 3;
 
     // Smart Motion Coefficients
     sm_maxVel = 2000; // rpm
@@ -169,8 +174,8 @@ public class Robot extends TimedRobot implements PIDOutput {
     right_pidController.setSmartMotionMaxAccel(sm_maxAcc, 0);
     right_pidController.setSmartMotionAllowedClosedLoopError(sm_allowedErr, 0);
 
-    setPoint_L = neoDistConv(5);
-    setPoint_R = neoDistConv(5);
+    setPoint_L = driveInchToRots(20);
+    setPoint_R = driveInchToRots(20);
 
     turnController = new PIDController(kP, kI, kD, gyro, this);
     turnController.setInputRange(-180.0f, 180.0f);
@@ -182,30 +187,15 @@ public class Robot extends TimedRobot implements PIDOutput {
   }
 
   @Override
-  public void autonomousInit() {
-    autoTimer.start();
-    gyro.reset();
-    zeroEncoders();
-    autoStep = 0;
-    leftMaster.setInverted(false);
-  }
-
-  @Override
-  public void autonomousPeriodic() {
-    autonDriveForwardReverse();
-    sensorPrints();
-    SmartDashboard.putNumber("Process Variable Left", left_encoder.getPosition());
-    SmartDashboard.putNumber("Process Variable Right", right_encoder.getPosition());
-  }
-
-  @Override
   public void teleopInit() {
-    myRobot = new DifferentialDrive(leftMaster, rightMaster);
-    myRobot.setExpiration(0.5);
+    
   }
 
   @Override
   public void teleopPeriodic() {
+    myRobot = new DifferentialDrive(leftMaster, rightMaster);
+    myRobot.setExpiration(0.5);
+    leftMaster.setInverted(true);
 
     sensorPrints();
 
@@ -242,14 +232,61 @@ public class Robot extends TimedRobot implements PIDOutput {
 
   @Override
   public void testPeriodic() {
+    leftMaster.setIdleMode(IdleMode.kCoast);
+    leftSlave.setIdleMode(IdleMode.kCoast);
+    rightMaster.setIdleMode(IdleMode.kCoast);
+    rightSlave.setIdleMode(IdleMode.kCoast);
+    double leftTicks = left_encoder.getPosition();
+    double rightTicks = right_encoder.getPosition();
+    double leftDistance = driveInchToRots(leftTicks);
+    double rightDistance = driveInchToRots(rightTicks);
+    double leftConversion = leftTicks / 20;
+
+    SmartDashboard.putNumber("Left Ticks", leftTicks);
+    SmartDashboard.putNumber("Right Ticks", rightTicks);
+    SmartDashboard.putNumber("Left Distance", leftDistance);
+    SmartDashboard.putNumber("Right Distance", rightDistance);
+    SmartDashboard.putNumber("Left Conversion", leftConversion);
+
+    if(joystick.getRawButton(1)) {
+      zeroEncoders();
+    }
+
   }
 
-  public double neoDistConv(double x) {
-    x /= kInchesPerRevolution;
+  public double driveInchToRots(double x) {
+    x /= 1.29;
+  /*  x /= kInchesPerRevolution;
     x *= gear_Ratio;
     x *= 42;
-
+*/
     return x;
+  }
+
+  public double driveRotsToInches(double x) {
+    x /= 0.33;
+    return x;
+  }
+
+  @Override
+  public void autonomousInit() {
+    autoTimer.start();
+    gyro.reset();
+    zeroEncoders();
+    autoStep = 0;
+    leftMaster.setInverted(false);
+  }
+
+  @Override
+  public void autonomousPeriodic() {
+    if (autoTimer.get() < 3) {
+      autoDriveForward();
+    } else {
+      stopRobot();
+    }
+    sensorPrints();
+    SmartDashboard.putNumber("Process Variable Left", left_encoder.getPosition());
+    SmartDashboard.putNumber("Process Variable Right", right_encoder.getPosition());
   }
 
   public void autonDriveForwardReverse() {
@@ -301,8 +338,7 @@ public class Robot extends TimedRobot implements PIDOutput {
   }
 
   public void autoDriveForward() {
-    stepTimer.start();
-    final double TARGET = neoDistConv(5);
+    final double TARGET = driveInchToRots(30);
     left_pidController.setReference(TARGET, ControlType.kSmartMotion);
     right_pidController.setReference(TARGET, ControlType.kSmartMotion);
   }
@@ -315,7 +351,7 @@ public class Robot extends TimedRobot implements PIDOutput {
 
   public void autoDriveReverse() {
     stepTimer.start();
-    final double TARGET = neoDistConv(-5);
+    final double TARGET = driveInchToRots(-5);
     left_pidController.setReference(TARGET, ControlType.kSmartMotion);
     right_pidController.setReference(TARGET, ControlType.kSmartMotion);
   }
@@ -328,6 +364,15 @@ public class Robot extends TimedRobot implements PIDOutput {
     double rightStickValue = -rotateToAngleRate;
     myRobot.tankDrive(leftStickValue, rightStickValue);
     autoNextStep();
+  }
+
+  public void autoTurnLeft() {
+    turnController.setSetpoint(90);
+    rotateToAngleRate = 0;
+    turnController.enable();
+    double leftStickValue = -rotateToAngleRate;
+    double rightStickValue = -rotateToAngleRate; 
+    myRobot.tankDrive(leftStickValue, rightStickValue);
   }
 
   public void autoNextStep() {

@@ -52,12 +52,12 @@ public class Robot extends TimedRobot {
     final double usd_CountsPerRevolution = 1440;
     final double usd_InchesPerCount = kInchesPerRevolution / usd_CountsPerRevolution;
 
-    leftUSD = new Encoder(6, 7);
-    leftUSD.setDistancePerPulse(usd_InchesPerCount);
+    leftUSD = new Encoder(7, 6);
+    leftUSD.setDistancePerPulse(.017);
     leftUSD.reset();
 
-    rightUSD = new Encoder(8, 9);
-    rightUSD.setDistancePerPulse(usd_InchesPerCount);
+    rightUSD = new Encoder(9, 8);
+    rightUSD.setDistancePerPulse(.017);
     rightUSD.setReverseDirection(true);
     rightUSD.reset();
 
@@ -68,12 +68,12 @@ public class Robot extends TimedRobot {
     rightMaster = new CANSparkMax(6, MotorType.kBrushless);
     rightSlave = new CANSparkMax(5, MotorType.kBrushless);
 
-    leftMaster.setIdleMode(IdleMode.kCoast);
-    leftMaster.setInverted(true);
-    leftSlave.setIdleMode(IdleMode.kCoast);
-    leftSlave.setInverted(true);
-    rightMaster.setIdleMode(IdleMode.kCoast);
-    rightSlave.setIdleMode(IdleMode.kCoast);
+    leftMaster.setIdleMode(IdleMode.kBrake);
+    leftMaster.setInverted(false);
+    leftSlave.setIdleMode(IdleMode.kBrake);
+    leftSlave.setInverted(false);
+    rightMaster.setIdleMode(IdleMode.kBrake);
+    rightSlave.setIdleMode(IdleMode.kBrake);
 
     leftSlave.follow(leftMaster);
     rightSlave.follow(rightMaster);
@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
       rightNEO.setPosition(0);
     }
 
-    double drivePower = joy1.getRawAxis(1);
+    double drivePower = -joy1.getRawAxis(1);
     double driveSteer = -joy1.getRawAxis(2);
     drive.arcadeDrive(drivePower, driveSteer, true);
 
