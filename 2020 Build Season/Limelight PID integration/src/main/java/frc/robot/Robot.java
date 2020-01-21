@@ -10,13 +10,16 @@ package frc.robot;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpiutil.math.MathUtil;
 
 
 public class Robot extends TimedRobot {
@@ -27,12 +30,17 @@ public class Robot extends TimedRobot {
   private Encoder rightDrive;
 
   private PIDController limeLightController;
-  private double tx, ty;
-  private double pidOutput;
-  final double TARGET_ANGLE = 0;
+  private double tx, ty, tv;
+  private double pidOutputX;
+  private double pidOutputY;
+  final double TARGET_ANGLE_X = 0;
+  final double TARGET_ANGLE_Y = 0;
   final double DEADBAND = 0.2;
   final double MAX_OUTPUT = 0.4;
   final double MIN_OUTPUT = -0.4;
+  private boolean isOnTarget = false;
+  private boolean targetAcquired = false;
+  private boolean isInRange = false;
 
   private boolean kLeftMotorsInverted = true;
   private boolean kRightMotorsInverted = true;
@@ -40,6 +48,8 @@ public class Robot extends TimedRobot {
   private DifferentialDrive drive;
 
   private Joystick stick;
+
+  private Timer aimTimer;
   
   @Override
   public void robotInit() {
@@ -69,20 +79,31 @@ public class Robot extends TimedRobot {
     leftDrive.reset();
     rightDrive.reset();
 
-    final double iP = 0.036;
-    // final double iI = 0.000035;
-    final double iI = 0.000001;
-    // final double iD = 0.115;
+    final double iP = 0.03;
+    final double iI = 0.08;
     final double iD = 0;
 
-    limeLightController.setPID(iP, iI, iD);
+    limeLightController = new PIDController(iP, iI, iD);
+    limeLightController.setTolerance(2.5);
 
+    aimTimer = new Timer();
 
   }
 
   @Override
   public void robotPeriodic() {
     tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+    tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);
+    SmartDashboard.putNumber("tx", tx);
+    SmartDashboard.putNumber("ty", ty);
+    SmartDashboard.putNumber("tv", tv);
+    SmartDashboard.putBoolean("Target Acquired", targetAcquired);
+    SmartDashboard.putBoolean("On Target", isOnTarget);
+    SmartDashboard.putBoolean("In Range", isInRange);
+    SmartDashboard.putNumber("pid Output X", pidOutputX);
+    SmartDashboard.putNumber("pid Output Y", pidOutputY);
+    SmartDashboard.putNumber("Aiming Time", aimTimer.get());
   }
 
   @Override
@@ -95,25 +116,43 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
+    aimTimer.reset();
   }
 
   @Override
   public void teleopPeriodic() {
-    
+
+    ledCheck();
+    targetCheck();
+    alignmentCheck();
+    distCheck();
+
     if (stick.getRawButton(6)) {
+      aimTimeCalc();
+    }
+    
+    if (stick.getRawButton(6) && targetAcquired) {
+
       leftMaster.setIdleMode(IdleMode.kCoast);
       leftSlave.setIdleMode(IdleMode.kCoast);
       rightMaster.setIdleMode(IdleMode.kCoast);
       rightSlave.setIdleMode(IdleMode.kCoast);
 
-      pidOutput = limeLightController.calculate(tx, TARGET_ANGLE);
+      pidOutputX = MathUtil.clamp(limeLightController.calculate(tx, TARGET_ANGLE_X), -0.4, 0.4);
+      pidOutputY = MathUtil.clamp(limeLightController.calculate(ty, TARGET_ANGLE_Y), -0.4, 0.4);
 
-      drive.arcadeDrive(0, pidOutput);
+      drive.arcadeDrive(-pidOutputY, pidOutputX);
+
     } else { 
+
       leftMaster.setIdleMode(IdleMode.kBrake);
       leftSlave.setIdleMode(IdleMode.kBrake);
       rightMaster.setIdleMode(IdleMode.kBrake);
       rightSlave.setIdleMode(IdleMode.kBrake);
+
+      limeLightController.reset();
 
       drive.arcadeDrive(stick.getRawAxis(1), -stick.getRawAxis(2), true);
     }
@@ -122,6 +161,55 @@ public class Robot extends TimedRobot {
       leftDrive.reset();
       rightDrive.reset();
     }
+  }
+
+  public void ledCheck() {
+    if(stick.getRawButton(6)) {
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
+    } else {
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1);
+    }
+  }
+
+  public void targetCheck() {
+    if (tv == 1) {
+      targetAcquired = true;
+    } else {
+      targetAcquired = false;
+    }
+  }
+
+  public void alignmentCheck() {
+    if (tx == 0.0) {
+      isOnTarget = false;
+    } else if (Math.abs(tx) < 3) {
+      isOnTarget = true;
+    } else {
+      isOnTarget = false;
+    }
+  }
+
+  public void distCheck() {
+    if (ty == 0.0) {
+      isInRange = false;
+    } else if (Math.abs(ty) < 5) {
+      isInRange = true;
+    } else {
+      isInRange = false;
+    }
+  }
+
+  public void aimTimeCalc() {
+    aimTimer.start();
+    if (targetAcquired && isOnTarget && isInRange) {
+      aimTimer.stop();
+    }
+  }
+
+  public void disabledPeriodic() {
+    aimTimer.stop();
   }
 
   @Override
