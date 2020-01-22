@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
   private Encoder leftDrive;
   private Encoder rightDrive;
 
-  private PIDController limeLightController;
+  private PIDController limeLightControllerX, limeLightControllerY;
   private double tx, ty, tv;
   private double pidOutputX;
   private double pidOutputY;
@@ -83,8 +83,11 @@ public class Robot extends TimedRobot {
     final double iI = 0.08;
     final double iD = 0;
 
-    limeLightController = new PIDController(iP, iI, iD);
-    limeLightController.setTolerance(2.5);
+    limeLightControllerX = new PIDController(iP, iI, iD);
+    limeLightControllerX.setTolerance(2.5);
+
+    limeLightControllerY = new PIDController(iP, iI, iD);
+    limeLightControllerY.setTolerance(2.5);
 
     aimTimer = new Timer();
 
@@ -133,15 +136,15 @@ public class Robot extends TimedRobot {
       aimTimeCalc();
     }
     
-    if (stick.getRawButton(6) && targetAcquired) {
+    if (stick.getRawButton(6)) {
 
       leftMaster.setIdleMode(IdleMode.kCoast);
       leftSlave.setIdleMode(IdleMode.kCoast);
       rightMaster.setIdleMode(IdleMode.kCoast);
       rightSlave.setIdleMode(IdleMode.kCoast);
 
-      pidOutputX = MathUtil.clamp(limeLightController.calculate(tx, TARGET_ANGLE_X), -0.4, 0.4);
-      pidOutputY = MathUtil.clamp(limeLightController.calculate(ty, TARGET_ANGLE_Y), -0.4, 0.4);
+      pidOutputX = MathUtil.clamp(limeLightControllerX.calculate(tx, TARGET_ANGLE_X), -0.4, 0.4);
+      pidOutputY = MathUtil.clamp(limeLightControllerY.calculate(ty, TARGET_ANGLE_Y), -0.4, 0.4);
 
       drive.arcadeDrive(-pidOutputY, pidOutputX);
 
@@ -152,7 +155,8 @@ public class Robot extends TimedRobot {
       rightMaster.setIdleMode(IdleMode.kBrake);
       rightSlave.setIdleMode(IdleMode.kBrake);
 
-      limeLightController.reset();
+      limeLightControllerX.reset();
+      limeLightControllerY.reset();
 
       drive.arcadeDrive(stick.getRawAxis(1), -stick.getRawAxis(2), true);
     }
