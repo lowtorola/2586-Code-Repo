@@ -12,6 +12,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -28,6 +30,7 @@ public class Robot extends TimedRobot {
 
   private Encoder leftDrive;
   private Encoder rightDrive;
+  private DoubleSolenoid shifter;
 
   private PIDController limeLightControllerX, limeLightControllerY;
   private double tx, ty, tv;
@@ -68,6 +71,8 @@ public class Robot extends TimedRobot {
     
     drive = new DifferentialDrive(leftMaster, rightMaster);
 
+    shifter = new DoubleSolenoid(7, 6);
+
     leftMaster.setInverted(kLeftMotorsInverted);
     leftSlave.setInverted(kLeftMotorsInverted);
     rightMaster.setInverted(kRightMotorsInverted);
@@ -79,7 +84,7 @@ public class Robot extends TimedRobot {
     leftDrive.reset();
     rightDrive.reset();
 
-    final double iP = 0.03;
+    final double iP = 0.028;
     final double iI = 0.08;
     final double iD = 0;
 
@@ -127,16 +132,17 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    shifters();
     ledCheck();
     targetCheck();
     alignmentCheck();
     distCheck();
 
-    if (stick.getRawButton(6)) {
+    if (stick.getRawButton(1)) {
       aimTimeCalc();
     }
     
-    if (stick.getRawButton(6)) {
+    if (stick.getRawButton(1)) {
 
       leftMaster.setIdleMode(IdleMode.kCoast);
       leftSlave.setIdleMode(IdleMode.kCoast);
@@ -168,7 +174,7 @@ public class Robot extends TimedRobot {
   }
 
   public void ledCheck() {
-    if(stick.getRawButton(6)) {
+    if(stick.getRawButton(1)) {
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
     } else {
@@ -214,6 +220,14 @@ public class Robot extends TimedRobot {
 
   public void disabledPeriodic() {
     aimTimer.stop();
+  }
+
+  public void shifters() {
+    if (stick.getRawButton(5)) {
+      shifter.set(DoubleSolenoid.Value.kReverse);
+    } else if (stick.getRawButton(6)) {
+      shifter.set(DoubleSolenoid.Value.kForward);
+    }
   }
 
   @Override

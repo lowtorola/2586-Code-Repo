@@ -7,44 +7,51 @@
 
 package frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint.MinMax;
 import edu.wpi.first.wpiutil.math.MathUtil;
 
 
 public class Robot extends TimedRobot {
-
+  
   private CANSparkMax leftMaster, rightMaster, leftSlave, rightSlave;
 
-    private Encoder leftDrive;
-    private Encoder rightDrive;
-    private double leftDist;
-    private double rightDist;
+  private Encoder leftDrive;
+  private Encoder rightDrive;
+
+  AHRS ahrs;
+
+
+  private PIDController gyroTurnController;
+  private double currentAngle;
+  private double pidTurnOutput;
+  final double TARGET_ANGLE = -65;
+  final double DEADBAND = 0.2;
+  final double MAX_OUTPUT = 0.4;
+  final double MIN_OUTPUT = -0.4;
+  private boolean isAtAngle;
 
   private boolean kLeftMotorsInverted = true;
   private boolean kRightMotorsInverted = true;
 
   private DifferentialDrive drive;
 
-  PIDController autoDriveControllerL;
-  PIDController autoDriveControllerR;
-  private double leftAutoOutput;
-  private double rightAutoOutput;
-  final double MAX_OUTPUT = 0.4;
-  final double MIN_OUTPUT = -0.4;
-  final double TARGET_DIST = 36; // inches
-
-
   private Joystick stick;
 
+  private Timer aimTimer;
+  
   @Override
   public void robotInit() {
     leftMaster = new CANSparkMax(3, MotorType.kBrushless); //3, 2, 6, 5
@@ -52,23 +59,22 @@ public class Robot extends TimedRobot {
     rightMaster = new CANSparkMax(6, MotorType.kBrushless);
     rightSlave = new CANSparkMax(5, MotorType.kBrushless);
 
+    leftSlave.follow(leftMaster);
+    rightSlave.follow(rightMaster);
+
     leftDrive = new Encoder(7, 6);
     rightDrive = new Encoder(9, 8);
 
-    stick = new Joystick(0);
+    ahrs = new AHRS(SPI.Port.kMXP);
 
-    leftSlave.follow(leftMaster);
-    rightSlave.follow(rightMaster);
+    stick = new Joystick(0);
+    
+    drive = new DifferentialDrive(leftMaster, rightMaster);
 
     leftMaster.setInverted(kLeftMotorsInverted);
     leftSlave.setInverted(kLeftMotorsInverted);
     rightMaster.setInverted(kRightMotorsInverted);
     rightSlave.setInverted(kRightMotorsInverted);
-
-    leftMaster.setIdleMode(IdleMode.kBrake);
-    leftSlave.setIdleMode(IdleMode.kBrake);
-    rightMaster.setIdleMode(IdleMode.kBrake);
-    rightSlave.setIdleMode(IdleMode.kBrake);
 
     leftDrive.setDistancePerPulse(12.56/1024);
     rightDrive.setDistancePerPulse(12.56/1024);
@@ -76,30 +82,28 @@ public class Robot extends TimedRobot {
     leftDrive.reset();
     rightDrive.reset();
 
-    final double kP = 0.035;
-    final double kI = 0.008;
-    final double kD = 0;
+    final double iP = 0.05;
+    final double iI = 0.0;
+    final double iD = 0.001;
 
-    final double PID_TOLERANCE = 0.2;
-    autoDriveControllerL = new PIDController(kP, kI, kD);
-    autoDriveControllerR = new PIDController(kP, kI, kD);
+    gyroTurnController = new PIDController(iP, iI, iD);
+    gyroTurnController.setTolerance(2.5);
+    gyroTurnController.enableContinuousInput(-180, 180);
 
-    autoDriveControllerL.setTolerance(PID_TOLERANCE);
-    autoDriveControllerR.setTolerance(PID_TOLERANCE);
+    aimTimer = new Timer();
 
-    drive = new DifferentialDrive(leftMaster, rightMaster);
-    drive.setSafetyEnabled(false);
+    leftMaster.setIdleMode(IdleMode.kBrake);
+    leftSlave.setIdleMode(IdleMode.kBrake);
+    rightMaster.setIdleMode(IdleMode.kBrake);
+    rightSlave.setIdleMode(IdleMode.kBrake);
 
   }
 
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumber("Left Encoder distance", leftDrive.getDistance());
-    SmartDashboard.putNumber("right Encoder distance", rightDrive.getDistance());
-    SmartDashboard.putNumber("Left encoder counts", leftDrive.getRaw());
-    SmartDashboard.putNumber("right encoder counts", rightDrive.getRaw());
-    SmartDashboard.putNumber("left output", leftAutoOutput);
-    SmartDashboard.putNumber("right output", rightAutoOutput);
+    SmartDashboard.putNumber("pid Output X", pidTurnOutput);
+    SmartDashboard.putNumber("Aiming Time", aimTimer.get());
+    SmartDashboard.putNumber("gyro angle", ahrs.getAngle());
   }
 
   @Override
@@ -108,36 +112,39 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    
   }
 
   @Override
   public void teleopInit() {
+    aimTimer.reset();
+    ahrs.reset();
   }
 
   @Override
   public void teleopPeriodic() {
+    
+    if (stick.getRawButton(6)) {
 
-    encDistCheck();
-    if (stick.getRawButton(1)) {
+      pidTurnOutput = MathUtil.clamp(gyroTurnController.calculate(ahrs.getAngle(), TARGET_ANGLE), MIN_OUTPUT, MAX_OUTPUT);
 
-      leftAutoOutput = MathUtil.clamp(autoDriveControllerL.calculate(leftDist, TARGET_DIST), MIN_OUTPUT, MAX_OUTPUT);
-      rightAutoOutput = MathUtil.clamp(autoDriveControllerR.calculate(rightDist, TARGET_DIST), MIN_OUTPUT, MAX_OUTPUT);
+      drive.arcadeDrive(0, -pidTurnOutput);
 
-      drive.tankDrive(-leftAutoOutput, -rightAutoOutput);
+    } else { 
 
-    } else {
-      drive.arcadeDrive(stick.getRawAxis(1), -stick.getRawAxis(2));
+      gyroTurnController.reset();
+
+      drive.arcadeDrive(stick.getRawAxis(1), -stick.getRawAxis(2), true);
     }
-    if(stick.getRawButton(4)) {
+
+    if(stick.getRawButton(1)) {
       leftDrive.reset();
       rightDrive.reset();
+      ahrs.reset();
     }
   }
 
-  public void encDistCheck() {
-    leftDist = leftDrive.getDistance();
-    rightDist = rightDrive.getDistance();
+  public void disabledPeriodic() {
+    aimTimer.stop();
   }
 
   @Override
