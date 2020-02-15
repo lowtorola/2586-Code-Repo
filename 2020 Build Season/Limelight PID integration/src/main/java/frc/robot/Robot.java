@@ -144,13 +144,13 @@ public class Robot extends TimedRobot {
     
     if (stick.getRawButton(1)) {
 
-      leftMaster.setIdleMode(IdleMode.kCoast);
-      leftSlave.setIdleMode(IdleMode.kCoast);
-      rightMaster.setIdleMode(IdleMode.kCoast);
-      rightSlave.setIdleMode(IdleMode.kCoast);
+      leftMaster.setIdleMode(IdleMode.kBrake);
+      leftSlave.setIdleMode(IdleMode.kBrake);
+      rightMaster.setIdleMode(IdleMode.kBrake);
+      rightSlave.setIdleMode(IdleMode.kBrake);
 
-      pidOutputX = MathUtil.clamp(limeLightControllerX.calculate(tx, TARGET_ANGLE_X), -0.4, 0.4);
-      pidOutputY = MathUtil.clamp(limeLightControllerY.calculate(ty, TARGET_ANGLE_Y), -0.4, 0.4);
+      pidOutputX = MathUtil.clamp(limeLightControllerX.calculate(tx, TARGET_ANGLE_X), -0.3, 0.3);
+      pidOutputY = MathUtil.clamp(limeLightControllerY.calculate(ty, TARGET_ANGLE_Y), -0.3, 0.3);
 
       drive.arcadeDrive(-pidOutputY, pidOutputX);
 
@@ -174,7 +174,7 @@ public class Robot extends TimedRobot {
   }
 
   public void ledCheck() {
-    if(stick.getRawButton(1)) {
+    if(stick.getRawButton(1) || stick.getRawButton(6)) {
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0);
     } else {
