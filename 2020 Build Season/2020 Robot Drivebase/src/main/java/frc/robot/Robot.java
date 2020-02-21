@@ -43,12 +43,14 @@ public class Robot extends TimedRobot {
 
     stick = new Joystick(0);
 
-    leftSlave.follow(leftMaster);
+    // leftSlave.follow(leftMaster);
     rightSlave.follow(rightMaster);
     leftMaster.setInverted(false);
+    leftSlave.setInverted(false);
     rightMaster.setInverted(false);
 
     drive = new DifferentialDrive(leftMaster, rightMaster);
+    drive.setSafetyEnabled(false);
   }
 
   @Override
@@ -74,14 +76,19 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
+    leftMaster.set(stick.getRawAxis(1));
+
     // rightSlave.set(stick.getRawAxis(1));
-    shooter.set(Math.pow(stick.getRawAxis(5), 2));
-    shooterFeeder.set(stick.getRawAxis(5));
+   // shooter.set(Math.pow(stick.getRawAxis(5), 2));
+    //shooterFeeder.set(stick.getRawAxis(5));
   }
 
   public void robotPeriodic() {
     SmartDashboard.putNumber("Shooter Current", shooter.getOutputCurrent());
     SmartDashboard.putNumber("Shooter RPM", shooterEncoder.getVelocity());
+    SmartDashboard.putNumber("Left Master Output", leftMaster.getAppliedOutput());
+    SmartDashboard.putNumber("LeftSlave Output", leftSlave.getAppliedOutput());
+    SmartDashboard.putNumber("Joystick", stick.getRawAxis(1));
   }
 
 }
