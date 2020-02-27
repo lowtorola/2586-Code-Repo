@@ -7,6 +7,6 @@ public class PneumaticSubsystem extends SubsystemBase {
     Compressor comp = new Compressor();
 
     public PneumaticSubsystem() {
-        comp.stop();
+        comp.start();
     }
 }

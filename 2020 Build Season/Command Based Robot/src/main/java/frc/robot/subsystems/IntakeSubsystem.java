@@ -8,10 +8,10 @@ import frc.robot.Constants.IntakeConstants;
 public class IntakeSubsystem extends SubsystemBase {
 
     Spark intakeRoller = new Spark(IntakeConstants.kIntakeID);
-    DoubleSolenoid intakeDeploy = new DoubleSolenoid(1, 0);
+    DoubleSolenoid intakeDeploy = new DoubleSolenoid(0, 1);
 
  public IntakeSubsystem() {
-    intakeDeploy.set(DoubleSolenoid.Value.kReverse);
+    intakeDeploy.set(DoubleSolenoid.Value.kForward); // TODO: change to reverse
  }
 
  public void startIntake() {

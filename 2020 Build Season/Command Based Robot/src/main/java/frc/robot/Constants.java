@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 /**
@@ -43,6 +44,13 @@ public final class Constants {
         public static final double kEncoderDistancePerPulse =
                 // Assumes the encoders are directly mounted on the wheel shafts
                 (kWheelDiameterInches * Math.PI) / (double) kEncoderCPR * 0.48;
+
+        public static final double kDriveP = 0;
+        public static final double kDriveI = 0;
+        public static final double kDriveD = 0;
+        public static final double kTurnP = 0;
+        public static final double kTurnI = 0;
+        public static final double kTurnD = 0;
     }
 
     public final static class OIConstants {
@@ -54,6 +62,8 @@ public final class Constants {
         public static final int kIntakeDeployButton = 9; // Share
         public static final int kIntakeRetractButton = 10; // Options
         public static final int kLimelightAimButton = 6; // Right Bumper
+        public static final int kClimbPowerButton = 4; // Triangle
+        public static final int kShooterAutoButton = 2; // X
     }
 
     public final static class ShooterConstants {
@@ -62,15 +72,18 @@ public final class Constants {
         public static final int kFeederMotorID = 3;
         public static final int kFeederBbRecPort = 0;
         public static final int kFeederBbBlastPort = 1;
-        public static final double kFeederMotorSpeed = 0.4;
-        public static final double kFeederPreloadSpeed = 0.4;
+        public static final int kShooterExitRecPort = 2;
+        public static final int kShooterExitBlastPort = 3;
+        public static final double kFeederMotorSpeed = 0.6;
+        public static final double kFeederPreloadSpeed = 0.35;
         public static final double kP = 1;
         public static final int kI = 0;
         public static final int kD = 0;
         public static final int kFF = 0;
-        public static final int kTargetRPM = 1550;
+        public static final int kTargetRPM = 1500; // 3559 for 40 inches from LL
         public static final int kMaxRPM = 5676;
-        public static final double kToleranceRPM = 120;
+        public static final double kToleranceRPM = 180;
+        public static final int kBallsToExit = 3;
     }
 
     public final static class IndexerConstants {
@@ -85,10 +98,19 @@ public final class Constants {
     }
 
     public static class LimelightConstants {
-        public final static double kTurnP = 0;
+        public final static double kTurnP = 0.01;
         public final static double kTurnI = 0;
         public final static double kTurnD = 0;
         public final static double kTargetAngle = 0;
-        public final static int kTurnToleranceDeg = 10;
+        public final static double kDriveP = 0.01;
+        public final static double kDriveI = 0;
+        public final static double kDriveD = 0;
+        public final static int kTurnToleranceDeg = 3;
+        public final static int kDriveToleranceDeg = 3;
+        public final static int kPracticePipeline = 0;
+    }
+
+    public static class ClimbConstants {
+        public final static int kWinchID = 11;
     }
 }

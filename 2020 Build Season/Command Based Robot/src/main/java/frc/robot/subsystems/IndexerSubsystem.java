@@ -15,7 +15,7 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public void runIndexer() {
-        indexerLeft.set(0.4);
+        indexerLeft.set(0.6);
         indexerRight.set(0.4);
     }
 

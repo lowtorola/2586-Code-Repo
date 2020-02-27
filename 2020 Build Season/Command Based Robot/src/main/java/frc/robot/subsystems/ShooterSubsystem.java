@@ -20,8 +20,10 @@ public class ShooterSubsystem extends PIDSubsystem {
 
     private final CANEncoder shooterEncoder = shooterMotor.getEncoder();
 
-    private final DigitalInput feederBbReceiver = new DigitalInput(ShooterConstants.kFeederBbRecPort);
-    private DigitalOutput feederBbBlaster = new DigitalOutput(ShooterConstants.kFeederBbBlastPort);
+    private final DigitalInput feederBbRec = new DigitalInput(ShooterConstants.kFeederBbRecPort);
+    private final DigitalOutput feederBbBlast = new DigitalOutput(ShooterConstants.kFeederBbBlastPort);
+    private final DigitalInput shooterExitBbRec = new DigitalInput(ShooterConstants.kShooterExitRecPort);
+    private final DigitalOutput shooterExitBbBlast = new DigitalOutput(ShooterConstants.kShooterExitBlastPort);
 
     public ShooterSubsystem() {
         super(new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD));
@@ -35,17 +37,26 @@ public class ShooterSubsystem extends PIDSubsystem {
     }
     
     public void printBB() {
-      SmartDashboard.putBoolean("Feeder BB", feederBbReceiver.get());
-      feederBbBlaster.set(true);
+      SmartDashboard.putBoolean("Feeder BB", feederBbRec.get());
+      SmartDashboard.putBoolean("Exit BB", getShooterExitBB());
+       
     }
 
-    public boolean getBB() {
-      return feederBbReceiver.get();
+    public boolean getFeederBB() {
+      return feederBbRec.get();
+    }
+
+    public boolean getShooterExitBB() {
+      return shooterExitBbRec.get();
     }
 
       @Override
     public double getMeasurement() {
         return (shooterEncoder.getVelocity());
+      }
+
+      public boolean isAtSpeed() {
+        return (Math.abs(ShooterConstants.kTargetRPM - shooterEncoder.getVelocity()) <  ShooterConstants.kToleranceRPM); // TODO: change to full speed values
       }
 
       public void runFeeder() {
@@ -58,6 +69,10 @@ public class ShooterSubsystem extends PIDSubsystem {
 
       public void stopFeeder() {
         feederMotor.set(0);
+      }
+
+      public void printShooterRPM() {
+        SmartDashboard.putNumber("Shooter RPM", shooterEncoder.getVelocity());
       }
 
 }

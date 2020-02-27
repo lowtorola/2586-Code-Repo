@@ -8,15 +8,24 @@ public class FeederPreload extends CommandBase {
 
     public FeederPreload(ShooterSubsystem subsystem) {
         shooterControl = subsystem;
-
     }
 
     @Override
     public void execute() {
-        if (shooterControl.getBB() == true) {
+        if (shooterControl.getFeederBB()) {
             shooterControl.preloadFeeder();
         } else {
             shooterControl.stopFeeder();
         }
     }
+
+    @Override
+    public boolean isFinished() {
+        if (!shooterControl.getFeederBB()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
