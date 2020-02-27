@@ -34,8 +34,8 @@ public final class Constants {
 
         public final static MotorType kDriveMotorType = MotorType.kBrushless;
 
-        public final static int[] kLeftEncoderPorts = new int[] { 9, 8 };
-        public final static int[] kRightEncoderPorts = new int[] { 7, 6 };
+        public final static int[] kLeftEncoderPorts = new int[] { 7, 6 };
+        public final static int[] kRightEncoderPorts = new int[] { 5, 4 };
         public static final boolean kLeftEncoderReversed = false;
         public static final boolean kRightEncoderReversed = true;
 
