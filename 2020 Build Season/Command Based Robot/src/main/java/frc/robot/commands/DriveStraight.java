@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
-public class DriveStraightOrTurn extends CommandBase {
+public class DriveStraight extends CommandBase {
 
     private final DriveSubsystem driveBase;
 
@@ -14,17 +14,15 @@ public class DriveStraightOrTurn extends CommandBase {
     private final PIDController turn = new PIDController(
         DriveConstants.kTurnP, DriveConstants.kTurnI, DriveConstants.kTurnD);
 
-    public DriveStraightOrTurn(DriveSubsystem driveSub, double driveDist, double driveAngle) {
+    public DriveStraight(DriveSubsystem driveSub, double driveDist) {
         driveBase = driveSub;
         drive.setSetpoint(driveDist);
-        turn.setSetpoint(driveAngle);
+        turn.setSetpoint(0);
     }
 
     @Override
     public boolean isFinished() {
-        if (Math.abs(drive.getPositionError()) < 5 && Math.abs(drive.getPositionError()) < 5) {
-            drive.reset();
-            turn.reset();
+        if (Math.abs(drive.getPositionError()) < 1) {
             return true;
         } else {
             return false;
