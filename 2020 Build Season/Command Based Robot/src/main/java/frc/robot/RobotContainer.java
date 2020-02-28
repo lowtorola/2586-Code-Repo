@@ -10,11 +10,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DefaultDrive;
-import frc.robot.commands.DriveStraight;
+import frc.robot.commands.DriveStraightOrTurn;
 import frc.robot.commands.FeederPreload;
 import frc.robot.commands.LimelightTarget;
 import frc.robot.commands.WaitForExit;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -47,6 +49,7 @@ public class RobotContainer {
   private final ClimbSubsystem climbControl = new ClimbSubsystem();
 
   Joystick drive_Stick = new Joystick(OIConstants.kDriveControllerPort);
+  SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -54,6 +57,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    autoChooser.setDefaultOption("Straight Drive", new DriveStraightOrTurn(robotDrive, 20, 0));
     robotDrive.setDeadband(DriveConstants.kDriveDeadband);
     robotDrive.setDefaultCommand(
       // A split-stick arcade command, with forward/backward controlled by the left
@@ -72,20 +76,6 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-
-    new JoystickButton(drive_Stick, OIConstants.kShooterOnButton) // O
-      .whenPressed(new InstantCommand(shooterControl::enable, shooterControl))
-      .whenReleased(new InstantCommand(shooterControl::disable, shooterControl));      
-
-    new JoystickButton(drive_Stick, OIConstants.kFeederOnButton) // left bumper
-    .whenPressed(new InstantCommand(shooterControl::runFeeder, shooterControl))
-    .whenReleased(new InstantCommand(shooterControl::stopFeeder, shooterControl))
-    .whenPressed(new InstantCommand(indexerControl::runIndexer))
-    .whenReleased(new InstantCommand(indexerControl::stopIndexer));
-
-    new JoystickButton(drive_Stick, OIConstants.kIntakeOnButton) // left trigger button
-    .whenPressed(new InstantCommand(intakeControl::startIntake))
-    .whenReleased(new InstantCommand(intakeControl::stopIntake));
 
     new JoystickButton(drive_Stick, OIConstants.kIntakeDeployButton) // share
     .whenPressed(new InstantCommand(intakeControl::deployIntake));
@@ -108,7 +98,7 @@ public class RobotContainer {
     .whenPressed(new ParallelCommandGroup(
       new InstantCommand(shooterControl::enable, shooterControl),
       new SequentialCommandGroup(
-        new WaitForShooter(shooterControl),
+        new WaitUntilCommand(shooterControl::isAtSpeed),
         new ParallelCommandGroup(
           new InstantCommand(indexerControl::runIndexer, indexerControl),
           new InstantCommand(shooterControl::runFeeder))),
@@ -135,7 +125,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
    // An ExampleCommand will run in autonomous
-    return new DriveStraight(robotDrive, 36);
+    return autoChooser.getSelected();
   }
    
 }
