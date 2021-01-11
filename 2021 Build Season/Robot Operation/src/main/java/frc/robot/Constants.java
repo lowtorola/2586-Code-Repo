@@ -80,7 +80,7 @@ public final class Constants {
         public static final int kI = 0;
         public static final int kD = 0;
         public static final int kFF = 0;
-        public static final int kTargetRPM = 2500; // 3559 for 40 inches from LL, was set to 1500
+        public static final int kTargetRPM = 1500; // 3559 for 40 inches from LL
         public static final int kMaxRPM = 5676;
         public static final double kToleranceRPM = 180;
         public static final int kBallsToExit = 3;
