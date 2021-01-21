@@ -96,6 +96,14 @@ public class DriveSubsystem extends SubsystemBase {
     return (leftDriveEncoder.getDistance() + rightDriveEncoder.getDistance()) / 2;
   }
 
+  public double getDistLeft() {
+    return leftDriveEncoder.getDistance();
+  }
+
+  public double getDistRight() {
+    return rightDriveEncoder.getDistance();
+  }
+
   public double getAngle() {
     return gyro.getAngle();
   }

@@ -6,8 +6,8 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class WaitForShooter extends CommandBase {
     private final ShooterSubsystem shooter;
-    public WaitForShooter(ShooterSubsystem shooterSub) {
-        shooter = shooterSub;
+    public WaitForShooter(ShooterSubsystem shooterControl2) {
+        shooter = shooterControl2;
     }
     @Override
     public boolean isFinished() {
