@@ -4,15 +4,14 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.PIDSubsystem;
-import frc.robot.Constants.ShooterConstants;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.*;
 
-public class ShooterSubsystem extends PIDSubsystem {
-
+public class ShooterSubsystem extends SubsystemBase {
+    
     private final CANSparkMax shooterMotor = new CANSparkMax(
         ShooterConstants.kShooterMotorID, ShooterConstants.kShooterMotorType);
 
@@ -21,42 +20,25 @@ public class ShooterSubsystem extends PIDSubsystem {
     private final CANEncoder shooterEncoder = shooterMotor.getEncoder();
 
     private final DigitalInput feederBbRec = new DigitalInput(ShooterConstants.kFeederBbRecPort);
-    private final DigitalOutput feederBbBlast = new DigitalOutput(ShooterConstants.kFeederBbBlastPort);
     private final DigitalInput shooterExitBbRec = new DigitalInput(ShooterConstants.kShooterExitRecPort);
-    private final DigitalOutput shooterExitBbBlast = new DigitalOutput(ShooterConstants.kShooterExitBlastPort);
+
+    private SimpleMotorFeedforward feedforward = 
+    new SimpleMotorFeedforward(ShooterConstants.kS,
+                               ShooterConstants.kV,
+                               ShooterConstants.kA);
 
     public ShooterSubsystem() {
-        super(new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD));
-        getController().setTolerance(ShooterConstants.kToleranceRPM);
-        setSetpoint(ShooterConstants.kTargetRPM);
+    }
+
+      // -- methods for setting shooter in motion
+
+      public void runShooter(double output) {
+       shooterMotor.set(output);
+      // System.out.println(output);
       }
 
-      @Override
-    public void useOutput(double setpoint, double output) {
-        shooterMotor.set(output / ShooterConstants.kMaxRPM);
-    }
-    
-    public void printBB() {
-      SmartDashboard.putBoolean("Feeder BB", feederBbRec.get());
-      SmartDashboard.putBoolean("Exit BB", getShooterExitBB());
-       
-    }
-
-    public boolean getFeederBB() {
-      return feederBbRec.get();
-    }
-
-    public boolean getShooterExitBB() {
-      return shooterExitBbRec.get();
-    }
-
-      @Override
-    public double getMeasurement() {
-        return (shooterEncoder.getVelocity());
-      }
-
-      public boolean isAtSpeed() {
-        return (Math.abs(ShooterConstants.kTargetRPM - shooterEncoder.getVelocity()) <  ShooterConstants.kToleranceRPM); // TODO: change to full speed values
+      public void stopShooter() {
+        shooterMotor.set(0);
       }
 
       public void runFeeder() {
@@ -71,8 +53,46 @@ public class ShooterSubsystem extends PIDSubsystem {
         feederMotor.set(0);
       }
 
+      // -- methods for getting values: static and dynamic
+
+      public boolean getFeederBB() {
+        return feederBbRec.get();
+      }
+  
+    public boolean getShooterExitBB() {
+        return shooterExitBbRec.get();
+      }
+
+    public double getMeasurement() {
+        return (shooterEncoder.getVelocity());
+    }
+
+    public double getFeedForward() {
+        return feedforward.calculate(ShooterConstants.kTargetRPM) / ShooterConstants.kMaxRPM;
+    }
+
+    public double getTargetRPM() {
+        return ShooterConstants.kTargetRPM; // When adjustable shooter is done, this will need to be dynamic
+    }
+
+    public double getToleranceRPM() {
+        return ShooterConstants.kToleranceRPM;
+    }
+
+    public boolean isAtSpeed() {
+        return (Math.abs(ShooterConstants.kTargetRPM - shooterEncoder.getVelocity()) <  ShooterConstants.kToleranceRPM); // TODO: change to full speed values
+    }
+
+      // -- print outs
+
       public void printShooterRPM() {
         SmartDashboard.putNumber("Shooter RPM", shooterEncoder.getVelocity());
+        SmartDashboard.putNumber("Shooter Output", shooterMotor.getAppliedOutput());
       }
+
+      public void printBB() {
+        SmartDashboard.putBoolean("Feeder BB", feederBbRec.get());
+        SmartDashboard.putBoolean("Exit BB", getShooterExitBB());
+     }
 
 }

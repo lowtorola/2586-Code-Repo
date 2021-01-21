@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 /**
@@ -34,10 +33,10 @@ public final class Constants {
 
         public final static MotorType kDriveMotorType = MotorType.kBrushless;
 
-        public final static int[] kLeftEncoderPorts = new int[] { 9, 8 };
+        public final static int[] kLeftEncoderPorts = new int[] { 5, 4 };
         public final static int[] kRightEncoderPorts = new int[] { 7, 6 };
-        public static final boolean kLeftEncoderReversed = false;
-        public static final boolean kRightEncoderReversed = true;
+        public static final boolean kLeftEncoderReversed = true;
+        public static final boolean kRightEncoderReversed = false;
 
         public static final int kEncoderCPR = 1024;
         public static final double kWheelDiameterInches = 6;
@@ -67,29 +66,38 @@ public final class Constants {
     }
 
     public final static class ShooterConstants {
+        
         public static final int kShooterMotorID = 9;
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
         public static final int kFeederMotorID = 3;
+
         public static final int kFeederBbRecPort = 0;
         public static final int kFeederBbBlastPort = 1;
         public static final int kShooterExitRecPort = 2;
         public static final int kShooterExitBlastPort = 3;
+
         public static final double kFeederMotorSpeed = 0.6;
         public static final double kFeederPreloadSpeed = 0.35;
-        public static final double kP = 1;
+
+        public static final double kP = 0.1575; // should be 1.61
         public static final int kI = 0;
         public static final int kD = 0;
-        public static final int kFF = 0;
-        public static final int kTargetRPM = 1500; // 3559 for 40 inches from LL, was set to 1500
-        public static final int kMaxRPM = 5676;
-        public static final double kToleranceRPM = 180;
+
+        public static final double kV = 0.132; // should be .132
+        public static final double kS = 0.174; // should be .174
+        public static final double kA = 0.0387; // should be .0387
+
+        public static final int kTargetRPM = 2000; // 3559 for 40 inches from LL, was set to 1500
+        public static final int kMaxRPM = 750; // on website is 5676
+        public static final double kToleranceRPM = 150;
+
         public static final int kBallsToExit = 3;
     }
 
     public final static class IndexerConstants {
         public final static int kIndexerLeftID = 0;
         public final static int kIndexerRightID = 1;
-        public final static double kIndexerPower = 0.4;
+        public final static double kIndexerPower = 0.55;
     }
 
     public final static class IntakeConstants {
