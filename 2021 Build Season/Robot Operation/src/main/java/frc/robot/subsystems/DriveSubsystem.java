@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.lib.limelight;
 
 public class DriveSubsystem extends SubsystemBase {
     //left Motors
@@ -28,7 +27,6 @@ public class DriveSubsystem extends SubsystemBase {
     private final CANSparkMax rightSlave = new CANSparkMax(
         DriveConstants.kRightSlavePort, DriveConstants.kDriveMotorType);
 
-    private final limelight limelight = new limelight();
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
@@ -62,10 +60,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     defaultDrive.setSafetyEnabled(false);
 
-    limelight.setLEDMode(0);
-    limelight.setCAMMode(0);
-    limelight.setPipeline(0);
-
     leftDriveEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
     rightDriveEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
   }
@@ -84,14 +78,6 @@ public class DriveSubsystem extends SubsystemBase {
     deadBand = dB;
   }
 
-  public double getLimelightAngleDegX() {
-    return limelight.getTX();
-  }
-
-  public double getLimelightAngleDegY() {
-    return limelight.getTY();
-  }
-
   public double getDistAvg() {
     return (leftDriveEncoder.getDistance() + rightDriveEncoder.getDistance()) / 2;
   }
@@ -108,16 +94,6 @@ public class DriveSubsystem extends SubsystemBase {
     return gyro.getAngle();
   }
 
-  public void limelightAimConfig(double pipeline) {
-    limelight.setLEDMode(0);
-    limelight.setCAMMode(0);
-    limelight.setPipeline(pipeline);
-  }
-
-  public void limelightDriveConfig() {
-    limelight.setLEDMode(1);
-    limelight.setCAMMode(1);
-  }
  /*
   public double distFromTarget() {
     return 90.75 / Math.tan(limelight.getTY() + 60.5);

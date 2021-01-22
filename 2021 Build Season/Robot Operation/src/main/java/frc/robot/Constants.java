@@ -65,6 +65,24 @@ public final class Constants {
         public static final int kShooterAutoButton = 2; // X
     }
 
+    public final static class LimelightConstants {
+        public static final int kDisabledPipeline = 0; // Everything off, increase exposure
+        public static final int kCompTarget = 1; // Competition target at comp height
+        public static final int kPracticeTarget = 2; // Two vertical lines at 71 inches high 
+
+        public static final double kP = 0.075;
+        public static final double kI = 0.0;
+        public static final double kD = 0.008; 
+        public static final double kTurnToleranceDeg = 0.5;
+        public static final double kTargetAngle = 0;
+
+        public static final double kLLheight = 19;
+        public static final double kTargetHeight = 71; // change if target changes
+        public static final double kCalcHeight = kTargetHeight - kLLheight;
+        public static final double kBaseDegree = 20.65;
+        public static final double kLimelightOffset = 18.0;
+    }
+
     public final static class ShooterConstants {
         
         public static final int kShooterMotorID = 9;
@@ -103,19 +121,6 @@ public final class Constants {
     public final static class IntakeConstants {
         public final static int kIntakeID = 2;
         public final static double kIntakeSpeed = -0.6;
-    }
-
-    public static class LimelightConstants {
-        public final static double kTurnP = 0.01;
-        public final static double kTurnI = 0;
-        public final static double kTurnD = 0;
-        public final static double kTargetAngle = 0;
-        public final static double kDriveP = 0.01;
-        public final static double kDriveI = 0;
-        public final static double kDriveD = 0;
-        public final static int kTurnToleranceDeg = 3;
-        public final static int kDriveToleranceDeg = 3;
-        public final static int kPracticePipeline = 0;
     }
 
     public static class ClimbConstants {
