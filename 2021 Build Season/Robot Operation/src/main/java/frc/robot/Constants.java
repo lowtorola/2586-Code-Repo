@@ -79,7 +79,7 @@ public final class Constants {
         public static final double kLLheight = 19;
         public static final double kTargetHeight = 71; // change if target changes
         public static final double kCalcHeight = kTargetHeight - kLLheight;
-        public static final double kBaseDegree = 20.65;
+        public static final double kBaseDegree = 20.65; // TODO: this needs to be changed to the mounting angle (possibly 60 degrees)
         public static final double kLimelightOffset = 18.0;
     }
 
