@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import javax.sound.sampled.LineEvent;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.lib.limelight;
@@ -26,7 +23,10 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     public double getDistance() {
-        return  LimelightConstants.kCalcHeight / (Math.tan(LimelightConstants.kBaseDegree + limelight.getTY()));
+        return  (
+        LimelightConstants.kInputSquared*(limelight.getTY())) 
+        + (LimelightConstants.kInputScaled*(limelight.getTY()))
+        + LimelightConstants.kConstant; // LimelightConstants.kCalcHeight / (Math.tan(LimelightConstants.kBaseDegree + limelight.getTY()))
     }
 
     public void setDisabledPipeline() {

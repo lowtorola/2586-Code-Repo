@@ -24,9 +24,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DigitalInput shooterExitBbRec = new DigitalInput(ShooterConstants.kShooterExitRecPort);
 
     private SimpleMotorFeedforward feedforward = 
-    new SimpleMotorFeedforward(ShooterConstants.kS,
-                               ShooterConstants.kV,
-                               ShooterConstants.kA);
+    new SimpleMotorFeedforward(ShooterConstants.ksVolts,
+                               ShooterConstants.kvVoltSecondsPerRotation,
+                               ShooterConstants.kaVoltSecondsSquaredPerRotation);
 
     public ShooterSubsystem() {
     }
@@ -65,7 +65,7 @@ public class ShooterSubsystem extends SubsystemBase {
       }
 
     public double getMeasurement() {
-        return (shooterEncoder.getVelocity());
+        return shooterMotor.getBusVoltage();
     }
 
     public double getFeedForward() {
@@ -89,6 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
       public void printShooterRPM() {
         SmartDashboard.putNumber("Shooter RPM", shooterEncoder.getVelocity());
         SmartDashboard.putNumber("Shooter Output", shooterMotor.getAppliedOutput());
+        SmartDashboard.putNumber("Shooter Voltage", shooterMotor.get());
       }
 
       public void printBB() {
