@@ -1,42 +1,61 @@
 package frc.robot.commands;
 
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
+
 import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.Constants.LimelightConstants;
+import frc.robot.lib.limelight;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 
-public class LimelightTarget extends CommandBase {
-    private final DriveSubsystem driveBase;
-    
-    private final PIDController drive = new PIDController(
-        LimelightConstants.kDriveP, LimelightConstants.kDriveI, LimelightConstants.kDriveD);
-    private final PIDController turn = new PIDController(
-        LimelightConstants.kTurnP, LimelightConstants.kTurnI, LimelightConstants.kTurnD);
+public class LimelightTarget extends PIDCommand {
 
-        public LimelightTarget(DriveSubsystem driveSub) {
-            driveBase = driveSub;
-            drive.setSetpoint(0);
-            turn.setSetpoint(0);
-            drive.setTolerance(LimelightConstants.kDriveToleranceDeg);
-            turn.setTolerance(LimelightConstants.kTurnToleranceDeg);
+    private LimelightSubsystem limelight;
+
+        public LimelightTarget(double targetAngleDegrees, DriveSubsystem driveSub, LimelightSubsystem limelightSub) {
+            super(
+            new PIDController(LimelightConstants.kP, LimelightConstants.kI, LimelightConstants.kD),
+
+            // close loop on heading
+            limelightSub::getErrorX,
+            // Target Angle
+            targetAngleDegrees,
+            // pipe output to drivebase
+            output -> driveSub.arcadeDrive(0, -output),
+            // require drivebase
+            driveSub,
+            // require limelight
+            limelightSub
+            );
+
+            getController().enableContinuousInput(-180, 180);
+            getController().setTolerance(LimelightConstants.kTurnToleranceDeg);
+
+            limelight = limelightSub;
         }
-
+ // TODO: try just setting LEDMode and not Pipeline!!!!
     @Override
-    public void execute() {
-        driveBase.limelightAimConfig(LimelightConstants.kPracticePipeline);
-        driveBase.arcadeDrive(
-            drive.calculate(driveBase.getLimelightAngleDegY()), 
-            drive.calculate(driveBase.getLimelightAngleDegX()));
+    public void end(boolean interrupted) {
+        System.out.println("limelight set to disabled");
+        limelight.setDisabledPipeline();
     }
 
     @Override
     public boolean isFinished() {
-        if(drive.getPositionError() < LimelightConstants.kDriveToleranceDeg 
-        && turn.getPositionError() < LimelightConstants.kTurnToleranceDeg) {
-            return true;
-        } else {
+        // End when the controller is at the reference
+        if (getController().getPositionError() == 0.0) {
             return false;
+        } else {
+    return getController().atSetpoint();
         }
     }
 
+    @Override
+    public void initialize() {
+        limelight.setPractice();
+    }
 }

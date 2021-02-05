@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DefaultDrive;
@@ -20,10 +21,12 @@ import frc.robot.commands.FeederPreload;
 import frc.robot.commands.LimelightTarget;
 import frc.robot.commands.WaitForExit;
 import frc.robot.commands.WaitForShooter;
+import frc.robot.lib.limelight;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -45,6 +48,7 @@ public class RobotContainer {
   private final IndexerSubsystem indexerControl = new IndexerSubsystem();
   private final IntakeSubsystem intakeControl = new IntakeSubsystem();
   private final ClimbSubsystem climbControl = new ClimbSubsystem();
+  private final LimelightSubsystem limelight = new LimelightSubsystem();
 
   Joystick drive_Stick = new Joystick(OIConstants.kDriveControllerPort);
 
@@ -105,7 +109,7 @@ public class RobotContainer {
     .whenReleased(new InstantCommand(shooterControl::stopFeeder, shooterControl));
 
     new JoystickButton(drive_Stick, OIConstants.kLimelightAimButton)  // right bumper
-    .whenHeld(new LimelightTarget(robotDrive), true);
+    .whenHeld(new LimelightTarget(LimelightConstants.kTargetAngle, robotDrive, limelight));
 
     new JoystickButton(drive_Stick, OIConstants.kClimbPowerButton) // triangle
     .whenPressed(new InstantCommand(climbControl::setWinch))
@@ -143,6 +147,7 @@ public class RobotContainer {
    SmartDashboard.putNumber("Measurement", shooterControl.getMeasurement());
    SmartDashboard.putNumber("Left Dist", robotDrive.getDistLeft());
    SmartDashboard.putNumber("Right Dist", robotDrive.getDistRight());
+   SmartDashboard.putNumber("Distance to Target", limelight.getDistance());
   }
 
   /**

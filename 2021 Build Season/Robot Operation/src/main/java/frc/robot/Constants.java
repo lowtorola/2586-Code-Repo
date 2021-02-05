@@ -65,6 +65,28 @@ public final class Constants {
         public static final int kShooterAutoButton = 2; // X
     }
 
+    public final static class LimelightConstants {
+        public static final int kDisabledPipeline = 0; // Everything off, increase exposure
+        public static final int kCompTarget = 1; // Competition target at comp height
+        public static final int kPracticeTarget = 2; // Two vertical lines at 71 inches high 
+
+        public static final double kP = 0.075;
+        public static final double kI = 0.0;
+        public static final double kD = 0.008; 
+        public static final double kTurnToleranceDeg = 0.5;
+        public static final double kTargetAngle = 0;
+
+        public static final double kLLheight = 19;
+        public static final double kTargetHeight = 71; // change if target changes
+        public static final double kCalcHeight = kTargetHeight - kLLheight;
+        public static final double kBaseDegree = 20.0; // TODO: this needs to be changed to the mounting angle (possibly 60 degrees)
+        public static final double kLimelightOffset = 18.0;
+
+        public static final double kInputSquared = .168184;
+        public static final double kInputScaled = -7.7377;
+        public static final double kConstant = 154.503;
+    }
+
     public final static class ShooterConstants {
         
         public static final int kShooterMotorID = 9;
@@ -79,17 +101,20 @@ public final class Constants {
         public static final double kFeederMotorSpeed = 0.6;
         public static final double kFeederPreloadSpeed = 0.35;
 
-        public static final double kP = 0.1575; // should be 1.61
+        public static final double kP = 1.61; // should be 1.61
         public static final int kI = 0;
         public static final int kD = 0;
 
-        public static final double kV = 0.132; // should be .132
-        public static final double kS = 0.174; // should be .174
-        public static final double kA = 0.0387; // should be .0387
+        public static final double kvVoltSecondsPerRotation = 0.132; // should be .132
+        public static final double ksVolts = 0.174; // should be .174
+        public static final double kaVoltSecondsSquaredPerRotation = 0.0387; // should be .0387
 
         public static final int kTargetRPM = 2000; // 3559 for 40 inches from LL, was set to 1500
         public static final int kMaxRPM = 750; // on website is 5676
         public static final double kToleranceRPM = 150;
+
+        public static final double kTargetVolts = 4.23;
+        public static final double kToleranceVolts = 0.317;
 
         public static final int kBallsToExit = 3;
     }
@@ -103,19 +128,6 @@ public final class Constants {
     public final static class IntakeConstants {
         public final static int kIntakeID = 2;
         public final static double kIntakeSpeed = -0.6;
-    }
-
-    public static class LimelightConstants {
-        public final static double kTurnP = 0.01;
-        public final static double kTurnI = 0;
-        public final static double kTurnD = 0;
-        public final static double kTargetAngle = 0;
-        public final static double kDriveP = 0.01;
-        public final static double kDriveI = 0;
-        public final static double kDriveD = 0;
-        public final static int kTurnToleranceDeg = 3;
-        public final static int kDriveToleranceDeg = 3;
-        public final static int kPracticePipeline = 0;
     }
 
     public static class ClimbConstants {
