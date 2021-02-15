@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.SlalomPath;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,22 +40,15 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  SendableChooser<Command> m_autonomousChooser = new SendableChooser<>();
 
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-
-  private final SlalomPath m_slalomPath = new SlalomPath(m_robotDrive);
-
-  private final SendableChooser<Command> m_autonomousChooser = new SendableChooser<>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-
-    m_autonomousChooser.setDefaultOption("Slalom Path", m_slalomPath);
   
     SmartDashboard.putData(m_autonomousChooser);
   }
@@ -76,10 +68,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
-    return m_autonomousChooser.getSelected();
+    // return m_autonomousChooser.getSelected();
 
-    /*
-    String trajectoryJSON = "paths/SlalomPath.wpilib.json";
+   
+    String trajectoryJSON = "paths/SlalomFast.wpilib.json";
 Trajectory slalomPath = new Trajectory();
 try {
   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
@@ -109,7 +101,7 @@ try {
 
     // Run path following command, then stop at the end.
     return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
-    */
+    
   }
   /* ran via Robot.periodic() */
   public void periodic(){
