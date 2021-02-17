@@ -25,7 +25,7 @@ public final class Constants {
     public static final double ksVolts = 0.221;
     public static final double kvVoltSecondsPerMeter = 2.3;
     public static final double kaVoltSecondsSquaredPerMeter = 0.47;
-    public static final double kPDriveVel = 2.59;
+    public static final double kPDriveVel = 1.7; // default to 2.59
 
     // DifferentialDriveKinematics values
     public static final double kTrackwidthMeters = 1.61; // might need to be 1.61 because of off-center turn
@@ -38,8 +38,8 @@ public final class Constants {
 
     // Ramsete parameters
     // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
-    public static final double kRamseteB = 2;
-    public static final double kRamseteZeta = 0.7;
+    public static final double kRamseteB = 2.0;
+    public static final double kRamseteZeta = 0.9;
 
 		public static final int kLeftMotor1Port = 1;
         public static final int kLeftMotor2Port = 2;

@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -18,6 +20,10 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
+ // private DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+
+ // private Joystick m_controller = new Joystick(0);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -92,5 +98,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+ //   m_driveSubsystem.arcadeDrive(
+  //    -m_controller.getRawAxis(1), 
+  //    m_controller.getRawAxis(3));
+  }
 }
