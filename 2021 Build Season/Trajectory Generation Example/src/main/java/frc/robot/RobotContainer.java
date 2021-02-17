@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.DefaultDrive;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
@@ -35,10 +37,23 @@ public class RobotContainer {
 
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
+  private final Joystick m_controller = new Joystick(0);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+    // Configure the button bindings
+    configureButtonBindings();
+    m_robotDrive.setDefaultCommand(
+      // A split-stick arcade command, with forward/backward controlled by the left
+      // hand, and turning controlled by the right.
+      new DefaultDrive(
+          m_robotDrive,
+          () -> -m_controller.getRawAxis(1),
+          () -> m_controller.getRawAxis(2)));
+    //SmartDashboard.put(shooterControl);
   
     SmartDashboard.putData(m_autonomousChooser);
   }
@@ -61,17 +76,17 @@ public class RobotContainer {
     // return m_autonomousChooser.getSelected();
 
    
-    String trajectoryJSON = "paths/SlalomPath.wpilib.json";
-Trajectory slalomPath = new Trajectory();
+    String trajectoryJSON = "paths/SlalomPath.wpilib.json"; // choose path here
+Trajectory chosenPath = new Trajectory();
 try {
   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-  slalomPath = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+  chosenPath = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
 } catch (IOException ex) {
   DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
 }
 
     RamseteCommand ramseteCommand = new RamseteCommand(
-        slalomPath,
+        chosenPath,
         m_robotDrive::getPose,
         new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta),
         new SimpleMotorFeedforward(DriveConstants.ksVolts,
@@ -87,7 +102,7 @@ try {
     );
 
     // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(slalomPath.getInitialPose());
+    m_robotDrive.resetOdometry(chosenPath.getInitialPose());
 
     // Run path following command, then stop at the end.
     return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));

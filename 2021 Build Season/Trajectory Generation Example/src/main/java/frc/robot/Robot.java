@@ -21,9 +21,9 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private DriveSubsystem m_driveSubsystem;
+ // private DriveSubsystem m_driveSubsystem = new DriveSubsystem();
 
-  private Joystick m_controller = new Joystick(0);
+ // private Joystick m_controller = new Joystick(0);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -99,8 +99,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    m_driveSubsystem.arcadeDrive(
-      -m_controller.getRawAxis(1), 
-      m_controller.getRawAxis(3));
+ //   m_driveSubsystem.arcadeDrive(
+  //    -m_controller.getRawAxis(1), 
+  //    m_controller.getRawAxis(3));
   }
 }
