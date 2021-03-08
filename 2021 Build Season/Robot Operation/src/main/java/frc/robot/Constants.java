@@ -9,6 +9,8 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -50,6 +52,28 @@ public final class Constants {
         public static final double kTurnP = 0;
         public static final double kTurnI = 0;
         public static final double kTurnD = 0;
+
+        // Trajectory constants
+
+    // characterization constants
+    public static final double ksVolts = 0.221;
+    public static final double kvVoltSecondsPerMeter = 2.3;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.47;
+    public static final double kPDriveVel = 1.7; // default to 2.59
+
+    // DifferentialDriveKinematics values
+    public static final double kTrackwidthMeters = 1.61; // might need to be 1.61 because of off-center turn
+    public static final DifferentialDriveKinematics kDriveKinematics =
+        new DifferentialDriveKinematics(kTrackwidthMeters);
+
+    // Max Trajectory Velocity/Acceleration
+    public static final double kMaxSpeedMetersPerSecond = 4; // robot max speed is 5.22 m/s
+    public static final double kMaxAccelerationMetersPerSecondSquared = 2;
+
+    // Ramsete parameters
+    // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
+    public static final double kRamseteB = 2.0;
+    public static final double kRamseteZeta = 0.9;
     }
 
     public final static class OIConstants {
