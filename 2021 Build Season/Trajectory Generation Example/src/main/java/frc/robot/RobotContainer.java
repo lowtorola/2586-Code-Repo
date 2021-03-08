@@ -20,9 +20,12 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DefaultDrive;
+import frc.robot.commands.FollowPath;
+import frc.robot.commands.FollowPathCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -39,8 +42,20 @@ public class RobotContainer {
 
   private final Joystick m_controller = new Joystick(0);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
+  private final String slalomPath = "paths/SlalomPath.wpilib.json";
+  private final String barrelRacingPath = "paths/BarrelRacingPath.wpilib.json";
+  private final String[] bouncePath = {
+    "paths/BouncePath1.wpilib.json", 
+    "paths/BouncePath2.wpilib.json", 
+    "paths/BouncePath3.wpilib.json", 
+    "paths/BouncePath4.wpilib.json"};
+
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   * 
+   * @throws IOException
+   */
+  public RobotContainer() throws IOException {
     // Configure the button bindings
     configureButtonBindings();
 
@@ -56,6 +71,14 @@ public class RobotContainer {
     //SmartDashboard.put(shooterControl);
   
     SmartDashboard.putData(m_autonomousChooser);
+    m_autonomousChooser.setDefaultOption("Slalom Path", new FollowPathCommand(m_robotDrive, slalomPath));
+    m_autonomousChooser.addOption("Barrel Racing", new FollowPathCommand(m_robotDrive, barrelRacingPath));
+    m_autonomousChooser.addOption("Bounce Path", new SequentialCommandGroup(
+      new FollowPathCommand(m_robotDrive, bouncePath[0]),
+      new FollowPathCommand(m_robotDrive, bouncePath[1]),
+      new FollowPathCommand(m_robotDrive, bouncePath[2]),
+      new FollowPathCommand(m_robotDrive, bouncePath[3])
+    ));
   }
 
   /**
@@ -70,12 +93,13 @@ public class RobotContainer {
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
+   * @throws IOException
    */
-  public Command getAutonomousCommand() {
+  public Command getAutonomousCommand() throws IOException {
 
-    // return m_autonomousChooser.getSelected();
+  return m_autonomousChooser.getSelected();
 
-   
+   /*
     String trajectoryJSON = "paths/SlalomPath.wpilib.json"; // choose path here
 Trajectory chosenPath = new Trajectory();
 try {
@@ -100,13 +124,8 @@ try {
         m_robotDrive::tankDriveVolts,
         m_robotDrive
     );
+    */
 
-    // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(chosenPath.getInitialPose());
-
-    // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
-    
   }
   /* ran via Robot.periodic() */
   public void periodic(){
