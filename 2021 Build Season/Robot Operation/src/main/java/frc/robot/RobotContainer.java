@@ -7,21 +7,22 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DefaultDrive;
-import frc.robot.commands.DriveStraight;
 import frc.robot.commands.FeederPreload;
+import frc.robot.commands.FollowPathCommand;
 import frc.robot.commands.LimelightTarget;
 import frc.robot.commands.WaitForExit;
 import frc.robot.commands.WaitForShooter;
-import frc.robot.lib.limelight;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -36,10 +37,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
- * This class is where the bulk of the robot should be declared.  Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
- * (including subsystems, commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a "declarative" paradigm, very little robot logic should
+ * actually be handled in the {@link Robot} periodic methods (other than the
+ * scheduler calls). Instead, the structure of the robot (including subsystems,
+ * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
@@ -50,15 +52,22 @@ public class RobotContainer {
   private final ClimbSubsystem climbControl = new ClimbSubsystem();
   private final LimelightSubsystem limelight = new LimelightSubsystem();
 
+  SendableChooser<Command> m_autonomousChooser = new SendableChooser<>();
+  private final String slalomPath = "paths/SlalomPath.wpilib.json";
+  private final String barrelRacingPath = "paths/BarrelRacingPath.wpilib.json";
+  private final String[] bouncePath = { "paths/BouncePath1.wpilib.json", "paths/BouncePath2.wpilib.json",
+      "paths/BouncePath3.wpilib.json", "paths/BouncePath4.wpilib.json" };
+
   Joystick drive_Stick = new Joystick(OIConstants.kDriveControllerPort);
 
   /**
-   * The container for the robot.  Contains subsystems, OI devices, and commands.
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   * 
+   * @throws IOException
    */
-  public RobotContainer() {
+  public RobotContainer() throws IOException {
     // Configure the button bindings
     configureButtonBindings();
-    robotDrive.setDeadband(DriveConstants.kDriveDeadband);
     robotDrive.setDefaultCommand(
       // A split-stick arcade command, with forward/backward controlled by the left
       // hand, and turning controlled by the right.
@@ -67,6 +76,16 @@ public class RobotContainer {
           () -> -drive_Stick.getRawAxis(1),
           () -> drive_Stick.getRawAxis(2)));
     //SmartDashboard.put(shooterControl);
+
+    SmartDashboard.putData(m_autonomousChooser);
+    m_autonomousChooser.setDefaultOption("Slalom Path", new FollowPathCommand(robotDrive, slalomPath));
+    m_autonomousChooser.addOption("Barrel Racing", new FollowPathCommand(robotDrive, barrelRacingPath));
+    m_autonomousChooser.addOption("Bounce Path", new SequentialCommandGroup(
+      new FollowPathCommand(robotDrive, bouncePath[0]),
+      new FollowPathCommand(robotDrive, bouncePath[1]),
+      new FollowPathCommand(robotDrive, bouncePath[2]),
+      new FollowPathCommand(robotDrive, bouncePath[3])
+    ));
   }
 
   /**
@@ -145,8 +164,8 @@ public class RobotContainer {
   public void periodic(){
    shooterControl.printShooterRPM();
    SmartDashboard.putNumber("Measurement", shooterControl.getMeasurement());
-   SmartDashboard.putNumber("Left Dist", robotDrive.getDistLeft());
-   SmartDashboard.putNumber("Right Dist", robotDrive.getDistRight());
+   SmartDashboard.putNumber("Left Dist", robotDrive.getLeftDist());
+   SmartDashboard.putNumber("Right Dist", robotDrive.getRightDist());
    SmartDashboard.putNumber("Distance to Target", limelight.getDistance());
   }
 
@@ -157,7 +176,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
    // An ExampleCommand will run in autonomous
-    return new DriveStraight(robotDrive, 36);
+    return m_autonomousChooser.getSelected();
   }
    
 }

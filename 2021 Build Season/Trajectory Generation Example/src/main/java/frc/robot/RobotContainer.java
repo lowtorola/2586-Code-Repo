@@ -99,33 +99,6 @@ public class RobotContainer {
 
   return m_autonomousChooser.getSelected();
 
-   /*
-    String trajectoryJSON = "paths/SlalomPath.wpilib.json"; // choose path here
-Trajectory chosenPath = new Trajectory();
-try {
-  Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-  chosenPath = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-} catch (IOException ex) {
-  DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-}
-
-    RamseteCommand ramseteCommand = new RamseteCommand(
-        chosenPath,
-        m_robotDrive::getPose,
-        new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta),
-        new SimpleMotorFeedforward(DriveConstants.ksVolts,
-                                   DriveConstants.kvVoltSecondsPerMeter,
-                                   DriveConstants.kaVoltSecondsSquaredPerMeter),
-        DriveConstants.kDriveKinematics,
-        m_robotDrive::getWheelSpeeds,
-        new PIDController(DriveConstants.kPDriveVel, 0, 0),
-        new PIDController(DriveConstants.kPDriveVel, 0, 0),
-        // RamseteCommand passes volts to the callback
-        m_robotDrive::tankDriveVolts,
-        m_robotDrive
-    );
-    */
-
   }
   /* ran via Robot.periodic() */
   public void periodic(){
