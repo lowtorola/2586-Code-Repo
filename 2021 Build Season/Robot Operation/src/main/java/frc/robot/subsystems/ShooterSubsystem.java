@@ -5,6 +5,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,9 @@ public class ShooterSubsystem extends SubsystemBase {
                                ShooterConstants.kvVoltSecondsPerRotation,
                                ShooterConstants.kaVoltSecondsSquaredPerRotation);
 
+    private DoubleSolenoid hoodPiston = new DoubleSolenoid(
+      ShooterConstants.kHoodPistonPorts[0], ShooterConstants.kHoodPistonPorts[1]);
+
     public ShooterSubsystem() {
     }
 
@@ -36,6 +40,10 @@ public class ShooterSubsystem extends SubsystemBase {
       public void runShooter(double output) {
        shooterMotor.set(output);
       // System.out.println(output);
+      }
+
+      public void setShooterVolts(double outputVolts) {
+        shooterMotor.setVoltage(outputVolts);
       }
 
       public void stopShooter() {
@@ -54,6 +62,14 @@ public class ShooterSubsystem extends SubsystemBase {
         feederMotor.set(0);
       }
 
+      public void extendHood() {
+        hoodPiston.set(DoubleSolenoid.Value.kForward);
+      }
+
+      public void retractHood() {
+        hoodPiston.set(DoubleSolenoid.Value.kReverse);
+      }
+
       // -- methods for getting values: static and dynamic
 
       public boolean getFeederBB() {
@@ -68,12 +84,28 @@ public class ShooterSubsystem extends SubsystemBase {
         return shooterMotor.getBusVoltage();
     }
 
-    public double getFeedForward() {
-        return feedforward.calculate(ShooterConstants.kTargetRPM) / ShooterConstants.kMaxRPM;
+    /**
+     * Calculates a dynamic shooter feed forward
+     * @param targetRPM the current target RPM
+     * @return returns a dynamic feed forward for our shooter
+     */
+    public double getFeedForward(double targetRPM) {
+        return feedforward.calculate(targetRPM);
     }
 
-    public double getTargetRPM() {
-        return ShooterConstants.kTargetRPM; // When adjustable shooter is done, this will need to be dynamic
+    /**
+     * 
+     * @param targetDist the current distance from the target, "x" in the method's quadratic ax^2+bx+c
+     * @return the RPM the shooter needs to spin at to reach the target
+     */
+    public double getTargetRPM(double targetDist) {
+        if(targetDist < ShooterConstants.kDistanceSwitcher) {
+          return
+          (ShooterConstants.kQuadraticNear * targetDist) + (ShooterConstants.kLinearNear * targetDist) + ShooterConstants.kConstantNear;
+        } else {
+          return 
+          (ShooterConstants.kQuadraticFar * targetDist) + (ShooterConstants.kLinearFar * targetDist) + ShooterConstants.kConstantFar;
+        }
     }
 
     public double getToleranceRPM() {

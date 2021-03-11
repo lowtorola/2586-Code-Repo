@@ -83,7 +83,7 @@ public final class Constants {
         public static final int kCenterButton = 14;
 
         public static final int kDriveControllerPort = 0; 
-        
+
         public static final int kShooterOnButton = 3; // O
         public static final int kFeederOnButton = 5; // Left Bumper
         public static final int kFeederPreloadButton = 14; // Center pad
@@ -123,6 +123,9 @@ public final class Constants {
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
         public static final int kFeederMotorID = 3;
 
+        public static final int[] kHoodPistonPorts = {5, 6}; // TODO: check this against what we actually go with
+        public static final double kDistanceSwitcher = 54; // TODO: find this switcher distance experimentally
+
         public static final int kFeederBbRecPort = 0;
         public static final int kFeederBbBlastPort = 1;
         public static final int kShooterExitRecPort = 2;
@@ -140,8 +143,17 @@ public final class Constants {
         public static final double kaVoltSecondsSquaredPerRotation = 0.0387; // should be .0387
 
         public static final int kTargetRPM = 2000; // 3559 for 40 inches from LL, was set to 1500
-        public static final int kMaxRPM = 750; // on website is 5676
+        public static final int kMaxRPM = 5676; // on website is 5676
         public static final double kToleranceRPM = 150;
+
+        // the quadratic constants for calculating shooter target RPM
+        public static final double kQuadraticNear = 0.5; // TODO: THESE NEED TO BE FOUND EXPERIMENTALLY THESE ARE PLACEHOLDERS
+        public static final double kLinearNear = 0.25;
+        public static final double kConstantNear = 860;
+
+        public static final double kQuadraticFar = 0.5; // TODO: THESE NEED TO BE FOUND EXPERIMENTALLY THESE ARE PLACEHOLDERS
+        public static final double kLinearFar = 0.25;
+        public static final double kConstantFar = 860;
 
         public static final double kTargetVolts = 4.23;
         public static final double kToleranceVolts = 0.317;

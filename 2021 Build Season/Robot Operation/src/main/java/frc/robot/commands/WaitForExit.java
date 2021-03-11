@@ -4,10 +4,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class WaitForExit extends CommandBase{
+public class WaitForExit extends CommandBase {
+    
     private final ShooterSubsystem shooter;
     private boolean prevExitBB;
     private int ballExitCounter;
+
     public WaitForExit(ShooterSubsystem shooterSub) {
         shooter = shooterSub;
         prevExitBB = false;
