@@ -119,11 +119,11 @@ public final class Constants {
 
     public final static class ShooterConstants {
         
-        public static final int kShooterMotorID = 9;
+        public static final int kShooterMotorID = 11;
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
-        public static final int kFeederMotorID = 3;
+        public static final int kFeederMotorID = 6;
 
-        public static final int[] kHoodPistonPorts = {5, 6}; // TODO: check this against what we actually go with
+        public static final int[] kHoodPistonPorts = {2, 3}; 
         public static final double kDistanceSwitcher = 54; // TODO: find this switcher distance experimentally
 
         public static final int kFeederBbRecPort = 0;

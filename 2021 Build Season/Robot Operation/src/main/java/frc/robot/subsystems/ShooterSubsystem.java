@@ -17,12 +17,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax shooterMotor = new CANSparkMax(
         ShooterConstants.kShooterMotorID, ShooterConstants.kShooterMotorType);
 
-    private final Spark feederMotor = new Spark(ShooterConstants.kFeederMotorID);
+  //  private Spark feederMotor = new Spark(ShooterConstants.kFeederMotorID);
 
     private final CANEncoder shooterEncoder = shooterMotor.getEncoder();
 
-    private final DigitalInput feederBbRec = new DigitalInput(ShooterConstants.kFeederBbRecPort);
-    private final DigitalInput shooterExitBbRec = new DigitalInput(ShooterConstants.kShooterExitRecPort);
+    DigitalInput feederBbRec = new DigitalInput(0);
+    DigitalInput shooterExitBbRec = new DigitalInput(2);
 
     private SimpleMotorFeedforward feedforward = 
     new SimpleMotorFeedforward(ShooterConstants.ksVolts,
@@ -51,15 +51,15 @@ public class ShooterSubsystem extends SubsystemBase {
       }
 
       public void runFeeder() {
-        feederMotor.set(ShooterConstants.kFeederMotorSpeed);
+       // feederMotor.set(ShooterConstants.kFeederMotorSpeed);
       }
 
       public void preloadFeeder() {
-        feederMotor.set(ShooterConstants.kFeederPreloadSpeed);
+       // feederMotor.set(ShooterConstants.kFeederPreloadSpeed);
       }
 
       public void stopFeeder() {
-        feederMotor.set(0);
+      //  feederMotor.set(0);
       }
 
       public void extendHood() {
