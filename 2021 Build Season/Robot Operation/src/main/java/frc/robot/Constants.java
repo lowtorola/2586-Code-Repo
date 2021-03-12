@@ -113,7 +113,7 @@ public final class Constants {
 
     public final static class ShooterConstants {
         
-        public static final int kShooterMotorID = 9;
+        public static final int kShooterMotorID = 11;
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
         public static final int kFeederMotorID = 3;
 
