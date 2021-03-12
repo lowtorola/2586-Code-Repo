@@ -123,7 +123,7 @@ public final class Constants {
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
         public static final int kFeederMotorID = 6;
 
-        public static final int[] kHoodPistonPorts = {2, 3}; 
+        public static final int[] kHoodPistonPorts = {3, 2}; 
         public static final double kDistanceSwitcher = 54; // TODO: find this switcher distance experimentally
 
         public static final int kFeederBbRecPort = 0;
