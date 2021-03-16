@@ -8,7 +8,9 @@ import frc.robot.Constants.IntakeConstants;
 public class IntakeSubsystem extends SubsystemBase {
 
     Spark intakeRoller = new Spark(IntakeConstants.kIntakeID);
-    DoubleSolenoid intakeDeploy = new DoubleSolenoid(0, 1);
+
+    DoubleSolenoid intakeDeploy = new DoubleSolenoid(
+        IntakeConstants.kIntakePistonID[0], IntakeConstants.kIntakePistonID[1]);
 
  public IntakeSubsystem() {
     intakeDeploy.set(DoubleSolenoid.Value.kForward); // TODO: change to reverse

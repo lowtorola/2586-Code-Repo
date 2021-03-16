@@ -17,12 +17,11 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DriveStraight;
-import frc.robot.commands.FeederPreload;
+import frc.robot.commands.ShooterPreload;
 import frc.robot.commands.LimelightTarget;
 import frc.robot.commands.WaitForExit;
 import frc.robot.commands.WaitForShooter;
 import frc.robot.lib.limelight;
-import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -47,7 +46,6 @@ public class RobotContainer {
   private final ShooterSubsystem shooterControl = new ShooterSubsystem();
   private final IndexerSubsystem indexerControl = new IndexerSubsystem();
   private final IntakeSubsystem intakeControl = new IntakeSubsystem();
-  private final ClimbSubsystem climbControl = new ClimbSubsystem();
   private final LimelightSubsystem limelight = new LimelightSubsystem();
 
   Joystick drive_Stick = new Joystick(OIConstants.kDriveControllerPort);
@@ -89,8 +87,8 @@ public class RobotContainer {
         .whenReleased(new InstantCommand(shooterControl::stopShooter, shooterControl));  
 
     new JoystickButton(drive_Stick, OIConstants.kFeederOnButton) // left bumper
-    .whenPressed(new InstantCommand(shooterControl::runFeeder, shooterControl))
-    .whenReleased(new InstantCommand(shooterControl::stopFeeder, shooterControl))
+    .whenPressed(new InstantCommand(shooterControl::runFeed, shooterControl))
+    .whenReleased(new InstantCommand(shooterControl::stopFeed, shooterControl))
     .whenPressed(new InstantCommand(indexerControl::runIndexer))
     .whenReleased(new InstantCommand(indexerControl::stopIndexer));
 
@@ -105,18 +103,14 @@ public class RobotContainer {
     .whenPressed(new InstantCommand(intakeControl::retractIntake));
  
     new JoystickButton(drive_Stick, OIConstants.kFeederPreloadButton) // central pad
-    .whenPressed(new FeederPreload(shooterControl), true)
-    .whenReleased(new InstantCommand(shooterControl::stopFeeder, shooterControl));
+    .whenPressed(new ShooterPreload(shooterControl), true)
+    .whenReleased(new InstantCommand(shooterControl::stopFeed, shooterControl));
 
     new JoystickButton(drive_Stick, OIConstants.kLimelightAimButton)  // right bumper
     .whenHeld(new LimelightTarget(LimelightConstants.kTargetAngle, robotDrive, limelight));
 
-    new JoystickButton(drive_Stick, OIConstants.kClimbPowerButton) // triangle
-    .whenPressed(new InstantCommand(climbControl::setWinch))
-    .whenReleased(new InstantCommand(climbControl::stopWinch));
-
     new JoystickButton(drive_Stick, OIConstants.kShooterAutoButton) // X
-    .whenPressed(new ParallelCommandGroup(
+    .whenHeld(new ParallelCommandGroup(
       new PIDCommand( 
         new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD),
         // Close the loop on Shooter Current RPM
@@ -129,7 +123,7 @@ public class RobotContainer {
         new WaitForShooter(shooterControl),
         new ParallelCommandGroup(
           new InstantCommand(indexerControl::runIndexer, indexerControl),
-          new InstantCommand(shooterControl::runFeeder))),
+          new InstantCommand(shooterControl::runFeed))),
       new SequentialCommandGroup(
         new WaitForExit(shooterControl),
         new InstantCommand(intakeControl::startIntake, intakeControl))))
@@ -137,13 +131,62 @@ public class RobotContainer {
       new InstantCommand(shooterControl::stopShooter, shooterControl),
       new InstantCommand(indexerControl::stopIndexer, indexerControl),
       new InstantCommand(intakeControl::stopIntake, intakeControl),
-      new InstantCommand(shooterControl::stopFeeder)
+      new InstantCommand(shooterControl::stopFeed)
     )); 
+    
+    // shooter spool up
+    new JoystickButton(drive_Stick, OIConstants.kCircleButton) // O
+      .whenHeld(new PIDCommand( 
+        new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD),
+        // Close the loop on Shooter Current RPM
+        shooterControl::getMeasurement,
+        // get setpoint
+        2500,
+        // pipe the output to the shooter motor
+        output -> shooterControl.runShooter((output / ShooterConstants.kMaxRPM) + shooterControl.getFeedForward())), true)
+        .whenReleased(new InstantCommand(shooterControl::stopShooter, shooterControl)); 
+
+    // indexer, feeder, and belts run
+    new JoystickButton(drive_Stick, OIConstants.kLeftBumper) // left bumper
+      .whenPressed(new InstantCommand(shooterControl::runFeed, shooterControl))
+      .whenReleased(new InstantCommand(shooterControl::stopFeed, shooterControl))
+      .whenPressed(new InstantCommand(indexerControl::runIndexer))
+      .whenReleased(new InstantCommand(indexerControl::stopIndexer));
+
+      /* // not stable
+    // feeder/belts preload
+    new JoystickButton(drive_Stick, OIConstants.kRightBumper) 
+    .whenPressed(new ShooterPreload(shooterControl), true)
+    .whenReleased(new InstantCommand(shooterControl::stopFeed, shooterControl));
+    */
+
+    // run intake
+    new JoystickButton(drive_Stick, OIConstants.kLeftTrigger) // left trigger button
+    .whenPressed(new InstantCommand(intakeControl::startIntake))
+    .whenReleased(new InstantCommand(intakeControl::stopIntake));
+
+    // deploy intake
+    new JoystickButton(drive_Stick, OIConstants.kShareButton) // share
+    .whenPressed(new InstantCommand(intakeControl::deployIntake));
+
+    //retract intake
+    new JoystickButton(drive_Stick, OIConstants.kOptionsButton) // options
+    .whenPressed(new InstantCommand(intakeControl::retractIntake));   
+
+    // extend hood piston
+    new JoystickButton(drive_Stick, OIConstants.kTriangleButton) 
+    .whenPressed(new InstantCommand(shooterControl::extendHood));
+
+
+    // retract hood piston 
+    new JoystickButton(drive_Stick, OIConstants.kSquareButton)
+    .whenPressed(shooterControl::retractHood); 
   }
 
   /*Ran via Robot.robotPeriodic */
   public void periodic(){
    shooterControl.printShooterRPM();
+   shooterControl.printBB();
    SmartDashboard.putNumber("Measurement", shooterControl.getMeasurement());
    SmartDashboard.putNumber("Left Dist", robotDrive.getDistLeft());
    SmartDashboard.putNumber("Right Dist", robotDrive.getDistRight());

@@ -77,6 +77,22 @@ public final class Constants {
     }
 
     public final static class OIConstants {
+
+        public static final int kSquareButton = 1;
+        public static final int kXButton = 2;
+        public static final int kCircleButton = 3;
+        public static final int kTriangleButton = 4;
+        public static final int kLeftBumper = 5;
+        public static final int kRightBumper = 6;
+        public static final int kLeftTrigger = 7;
+        public static final int kRightTrigger = 8;
+        public static final int kShareButton = 9;
+        public static final int kOptionsButton = 10;
+        public static final int kLeftStick = 11;
+        public static final int kRightStick = 12;
+        public static final int kPSLogo = 13;
+        public static final int kCenterButton = 14;
+
         public static final int kDriveControllerPort = 0; 
         public static final int kShooterOnButton = 3; // O
         public static final int kFeederOnButton = 5; // Left Bumper
@@ -114,6 +130,8 @@ public final class Constants {
     public final static class ShooterConstants {
         
         public static final int kShooterMotorID = 11;
+        public static final int kBeltMotorID = 5;
+        public static final int[] kHoodPistonID = {1, 3};
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
         public static final int kFeederMotorID = 3;
 
@@ -122,8 +140,10 @@ public final class Constants {
         public static final int kShooterExitRecPort = 2;
         public static final int kShooterExitBlastPort = 3;
 
-        public static final double kFeederMotorSpeed = 0.6;
+        public static final double kFeederMotorSpeed = 0.45;
         public static final double kFeederPreloadSpeed = 0.35;
+        public static final double kBeltPreloadSpeed = 0.6; // TODO: test to determine optimal speed
+        public static final double kBeltMotorSpeed = 0.7;
 
         public static final double kP = 1.61; // should be 1.61
         public static final int kI = 0;
@@ -133,7 +153,7 @@ public final class Constants {
         public static final double ksVolts = 0.174; // should be .174
         public static final double kaVoltSecondsSquaredPerRotation = 0.0387; // should be .0387
 
-        public static final int kTargetRPM = 2000; // 3559 for 40 inches from LL, was set to 1500
+        public static final int kTargetRPM = 3500; // 3559 for 40 inches from LL, was set to 1500
         public static final int kMaxRPM = 750; // on website is 5676
         public static final double kToleranceRPM = 150;
 
@@ -152,6 +172,7 @@ public final class Constants {
     public final static class IntakeConstants {
         public final static int kIntakeID = 2;
         public final static double kIntakeSpeed = -0.6;
+        public static final int[] kIntakePistonID = {2, 0};
     }
 
     public static class ClimbConstants {
