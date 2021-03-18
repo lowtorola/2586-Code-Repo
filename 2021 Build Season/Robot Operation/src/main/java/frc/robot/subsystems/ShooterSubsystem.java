@@ -1,6 +1,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 
@@ -45,6 +48,11 @@ public class ShooterSubsystem extends SubsystemBase {
       public void runShooter(double output) {
        shooterMotor.set(output);
       // System.out.println(output);
+      }
+
+      // for setting shooter voltage
+      public void runShooterVolts() {
+        shooterMotor.setVoltage(1);
       }
 
       public void stopShooter() {

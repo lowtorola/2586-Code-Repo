@@ -64,6 +64,20 @@ public class DriveSubsystem extends SubsystemBase {
     rightDriveEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
   }
 
+  public void setMotorsBrake() {
+    leftMaster.setIdleMode(IdleMode.kBrake);
+    leftSlave.setIdleMode(IdleMode.kBrake);
+    rightMaster.setIdleMode(IdleMode.kBrake);
+    rightSlave.setIdleMode(IdleMode.kBrake);
+  }
+
+  public void setMotorsCoast() {
+    leftMaster.setIdleMode(IdleMode.kCoast);
+    leftSlave.setIdleMode(IdleMode.kCoast);
+    rightMaster.setIdleMode(IdleMode.kCoast);
+    rightSlave.setIdleMode(IdleMode.kCoast);
+  }
+
   public void arcadeDrive(double fwd, double rot) {
       defaultDrive.arcadeDrive(fwd, rot);
       defaultDrive.setDeadband(deadBand);

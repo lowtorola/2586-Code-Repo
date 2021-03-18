@@ -113,8 +113,8 @@ public final class Constants {
         public static final double kP = 0.075;
         public static final double kI = 0.0;
         public static final double kD = 0.008; 
-        public static final double kTurnToleranceDeg = 0.5;
-        public static final double kTargetAngle = 0;
+        public static final double kTurnToleranceDeg = 0.3;
+        public static final double kTargetAngle = 0.0;
 
         public static final double kLLheight = 19;
         public static final double kTargetHeight = 71; // change if target changes
@@ -145,20 +145,17 @@ public final class Constants {
         public static final double kBeltPreloadSpeed = 0.6; // TODO: test to determine optimal speed
         public static final double kBeltMotorSpeed = 0.7;
 
-        public static final double kP = 1.61; // should be 1.61
+        public static final double kP = 1.29; // should be 1.61
         public static final int kI = 0;
         public static final int kD = 0;
 
         public static final double kvVoltSecondsPerRotation = 0.132; // should be .132
-        public static final double ksVolts = 0.174; // should be .174
-        public static final double kaVoltSecondsSquaredPerRotation = 0.0387; // should be .0387
+        public static final double ksVolts = 0.288; // should be .174
+        public static final double kaVoltSecondsSquaredPerRotation = 0.0297; // should be .0387
 
-        public static final int kTargetRPM = 3500; // 3559 for 40 inches from LL, was set to 1500
-        public static final int kMaxRPM = 750; // on website is 5676
-        public static final double kToleranceRPM = 150;
-
-        public static final double kTargetVolts = 4.23;
-        public static final double kToleranceVolts = 0.317;
+        public static final int kTargetRPM = 4250; // 3559 for 40 inches from LL, was set to 1500
+        public static final int kMaxRPM = 5676; // was 750
+        public static final double kToleranceRPM = 100;
 
         public static final int kBallsToExit = 3;
     }

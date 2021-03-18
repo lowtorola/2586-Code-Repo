@@ -15,6 +15,7 @@ import frc.robot.subsystems.LimelightSubsystem;
 public class LimelightTarget extends PIDCommand {
 
     private LimelightSubsystem limelight;
+    private DriveSubsystem m_drive;
 
         public LimelightTarget(double targetAngleDegrees, DriveSubsystem driveSub, LimelightSubsystem limelightSub) {
             super(
@@ -35,7 +36,10 @@ public class LimelightTarget extends PIDCommand {
             getController().enableContinuousInput(-180, 180);
             getController().setTolerance(LimelightConstants.kTurnToleranceDeg);
 
+            driveSub.setMotorsCoast();
+
             limelight = limelightSub;
+            m_drive = driveSub;
         }
  // TODO: try just setting LEDMode and not Pipeline!!!!
     @Override
@@ -50,6 +54,7 @@ public class LimelightTarget extends PIDCommand {
         if (getController().getPositionError() == 0.0) {
             return false;
         } else {
+    m_drive.setMotorsBrake();
     return getController().atSetpoint();
         }
     }

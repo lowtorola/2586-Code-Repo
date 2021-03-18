@@ -133,18 +133,15 @@ public class RobotContainer {
       new InstantCommand(intakeControl::stopIntake, intakeControl),
       new InstantCommand(shooterControl::stopFeed)
     )); 
-    
+
     // shooter spool up
     new JoystickButton(drive_Stick, OIConstants.kCircleButton) // O
-      .whenHeld(new PIDCommand( 
-        new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD),
-        // Close the loop on Shooter Current RPM
-        shooterControl::getMeasurement,
-        // get setpoint
-        2500,
-        // pipe the output to the shooter motor
-        output -> shooterControl.runShooter((output / ShooterConstants.kMaxRPM) + shooterControl.getFeedForward())), true)
-        .whenReleased(new InstantCommand(shooterControl::stopShooter, shooterControl)); 
+      .whenHeld(new PIDCommand(
+        new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD), 
+        shooterControl::getMeasurement, 
+        ShooterConstants.kTargetRPM, // eventually pipe in from limelight calc
+        output -> shooterControl.runShooter((output / ShooterConstants.kMaxRPM) + shooterControl.getFeedForward())))
+      .whenReleased(new InstantCommand(shooterControl::stopShooter, shooterControl));
 
     // indexer, feeder, and belts run
     new JoystickButton(drive_Stick, OIConstants.kLeftBumper) // left bumper
@@ -187,7 +184,6 @@ public class RobotContainer {
   public void periodic(){
    shooterControl.printShooterRPM();
    shooterControl.printBB();
-   SmartDashboard.putNumber("Measurement", shooterControl.getMeasurement());
    SmartDashboard.putNumber("Left Dist", robotDrive.getDistLeft());
    SmartDashboard.putNumber("Right Dist", robotDrive.getDistRight());
    SmartDashboard.putNumber("Distance to Target", limelight.getDistance());
