@@ -158,6 +158,14 @@ public final class Constants {
         public static final double kToleranceRPM = 100;
 
         public static final int kBallsToExit = 3;
+
+        public static final double kQuadraticNear = 2.8933;
+		public static final double kLinearNear = -62.1554;
+        public static final double kConstantNear = 3000.23;
+        
+        public static final double kQuadraticFar = 3.6361;
+        public static final double kLinearFar = 38.5406;
+        public static final double kConstantFar = 3420.7599;
     }
 
     public final static class IndexerConstants {
