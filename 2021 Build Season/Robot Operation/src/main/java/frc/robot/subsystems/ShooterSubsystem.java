@@ -1,7 +1,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.CANEncoder;
@@ -50,14 +49,12 @@ public class ShooterSubsystem extends SubsystemBase {
       // System.out.println(output);
       }
 
-      // for setting shooter voltage
-      public void runShooterVolts() {
-        shooterMotor.setVoltage(1);
+      public void runShooterRPM(double outputRPM) {
+        shooterMotor.set(outputRPM);
       }
 
       public void stopShooter() {
         shooterMotor.set(0);
-        System.out.println("shooter stopped");
       }
 
       public void runFeed() {
@@ -96,16 +93,28 @@ public class ShooterSubsystem extends SubsystemBase {
       }
 
     public double getMeasurement() {
-        return shooterMotor.getBusVoltage();
+        return shooterEncoder.getVelocity();
     }
 
-    public double getFeedForward() {
-        return feedforward.calculate(ShooterConstants.kTargetRPM) / ShooterConstants.kMaxRPM;
-    }
+    public double getFeedForward(double targetRPM) {
+      System.out.println(feedforward.calculate(targetRPM) * 0.00135);
+      return feedforward.calculate(targetRPM) * 0.00135;
+  }
 
-    public double getTargetRPM() {
-        return ShooterConstants.kTargetRPM; // When adjustable shooter is done, this will need to be dynamic
-    }
+  /**
+   * 
+   * @param targetDist the current distance from the target, "x" in the method's quadratic ax^2+bx+c
+   * @return the RPM the shooter needs to spin at to reach the target
+   */
+  public double getTargetRPM(double angleError) {
+    if(angleError < 0) {
+    return (ShooterConstants.kQuadraticFar * Math.pow(angleError, 2) + (ShooterConstants.kLinearFar * angleError) + ShooterConstants.kConstantFar);
+  } else if(angleError >= 0) {
+    return (ShooterConstants.kQuadraticNear * Math.pow(angleError, 2) + (ShooterConstants.kLinearNear * angleError) + ShooterConstants.kConstantNear);
+  } else {
+    return 0;
+  }
+}
 
     public double getToleranceRPM() {
         return ShooterConstants.kToleranceRPM;
@@ -113,6 +122,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public boolean isAtSpeed() {
         return (Math.abs(ShooterConstants.kTargetRPM - shooterEncoder.getVelocity()) <  ShooterConstants.kToleranceRPM); // TODO: change to full speed values
+    }
+
+    public void hoodLogic(double angleError) {
+      if(angleError < 0) {
+        extendHood();
+      } else {
+        retractHood();
+      }
     }
 
       // -- print outs

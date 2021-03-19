@@ -11,6 +11,7 @@ import frc.robot.lib.limelight;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public class LimelightTarget extends PIDCommand {
 
@@ -47,7 +48,7 @@ public class LimelightTarget extends PIDCommand {
         System.out.println("limelight set to disabled");
         limelight.setDisabledPipeline();
     }
-
+/*
     @Override
     public boolean isFinished() {
         // End when the controller is at the reference
@@ -58,7 +59,7 @@ public class LimelightTarget extends PIDCommand {
     return getController().atSetpoint();
         }
     }
-
+*/
     @Override
     public void initialize() {
         limelight.setPractice();

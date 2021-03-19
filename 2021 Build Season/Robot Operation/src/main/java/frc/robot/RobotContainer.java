@@ -17,6 +17,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DriveStraight;
+import frc.robot.commands.HoodLogic;
 import frc.robot.commands.ShooterPreload;
 import frc.robot.commands.LimelightTarget;
 import frc.robot.commands.WaitForExit;
@@ -76,15 +77,16 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     new JoystickButton(drive_Stick, OIConstants.kShooterOnButton) // O
-      .whenHeld(new PIDCommand( 
+      .whenHeld(new ParallelCommandGroup(new PIDCommand( 
         new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD),
         // Close the loop on Shooter Current RPM
         shooterControl::getMeasurement,
         // get setpoint
-        shooterControl::getTargetRPM,
+        shooterControl.getTargetRPM(limelight.getErrorY()),
         // pipe the output to the shooter motor
-        output -> shooterControl.runShooter((output / ShooterConstants.kMaxRPM) + shooterControl.getFeedForward())), true)
-        .whenReleased(new InstantCommand(shooterControl::stopShooter, shooterControl));  
+        output -> shooterControl.runShooterRPM(output + shooterControl.getFeedForward(ShooterConstants.kTargetRPM))),
+        new HoodLogic(limelight, shooterControl)))
+      .whenReleased(new InstantCommand(shooterControl::stopShooter));
 
     new JoystickButton(drive_Stick, OIConstants.kFeederOnButton) // left bumper
     .whenPressed(new InstantCommand(shooterControl::runFeed, shooterControl))
@@ -116,9 +118,9 @@ public class RobotContainer {
         // Close the loop on Shooter Current RPM
         shooterControl::getMeasurement,
         // get setpoint
-        shooterControl::getTargetRPM,
+        ShooterConstants.kTargetRPM,
         // pipe the output to the shooter motor
-        output -> shooterControl.runShooter((output / ShooterConstants.kMaxRPM) + shooterControl.getFeedForward())),
+        output -> shooterControl.runShooter((output / ShooterConstants.kMaxRPM) + shooterControl.getFeedForward(ShooterConstants.kTargetRPM))),
       new SequentialCommandGroup(
         new WaitForShooter(shooterControl),
         new ParallelCommandGroup(
@@ -133,16 +135,15 @@ public class RobotContainer {
       new InstantCommand(intakeControl::stopIntake, intakeControl),
       new InstantCommand(shooterControl::stopFeed)
     )); 
-
-    // shooter spool up
+/*
+    // shooter spool up based on ll error... not stable!! TODO: regather data with proper motor output
     new JoystickButton(drive_Stick, OIConstants.kCircleButton) // O
       .whenHeld(new PIDCommand(
         new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD), 
         shooterControl::getMeasurement, 
-        ShooterConstants.kTargetRPM, // eventually pipe in from limelight calc
-        output -> shooterControl.runShooter((output / ShooterConstants.kMaxRPM) + shooterControl.getFeedForward())))
-      .whenReleased(new InstantCommand(shooterControl::stopShooter, shooterControl));
-
+        shooterControl.getTargetRPM(limelight.getErrorY()), 
+        output -> shooterControl.runShooter(output / 5676)));
+*/
     // indexer, feeder, and belts run
     new JoystickButton(drive_Stick, OIConstants.kLeftBumper) // left bumper
       .whenPressed(new InstantCommand(shooterControl::runFeed, shooterControl))
