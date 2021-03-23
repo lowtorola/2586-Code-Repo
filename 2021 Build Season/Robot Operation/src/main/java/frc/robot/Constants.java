@@ -94,6 +94,8 @@ public final class Constants {
         public static final int kCenterButton = 14;
 
         public static final int kDriveControllerPort = 0; 
+        public static final int kOperatorControllerPort = 1;
+
         public static final int kShooterOnButton = 3; // O
         public static final int kFeederOnButton = 5; // Left Bumper
         public static final int kFeederPreloadButton = 14; // Center pad
@@ -145,7 +147,7 @@ public final class Constants {
         public static final double kBeltPreloadSpeed = 0.6; // TODO: test to determine optimal speed
         public static final double kBeltMotorSpeed = 0.7;
 
-        public static final double kP = .0002; // should be 1.63
+        public static final double kP = .00043; // should be 1.63
         public static final int kI = 0;
         public static final double kD = 0.0;
 
@@ -156,7 +158,7 @@ public final class Constants {
         public static final int kTargetRPM = 4300;
 
         public static final int kMaxRPM = 5676; // was 750
-        public static final double kToleranceRPM = 100;
+        public static final double kToleranceRPM = 250;
 
         public static final int kBallsToExit = 3;
 
@@ -164,7 +166,7 @@ public final class Constants {
 		public static final double kLinearNear = -10.005;
         public static final double kConstantNear = 4100;
         
-        public static final double kQuadraticFar = 2.9975;
+        public static final double kQuadraticFar = 3.9975;
         public static final double kLinearFar = -11.3067;
         public static final double kConstantFar = 4603.4246;
 

@@ -37,7 +37,7 @@ public class LimelightTarget extends PIDCommand {
             getController().enableContinuousInput(-180, 180);
             getController().setTolerance(LimelightConstants.kTurnToleranceDeg);
 
-            driveSub.setMotorsCoast();
+           // driveSub.setMotorsCoast();
 
             limelight = limelightSub;
             m_drive = driveSub;
@@ -60,6 +60,7 @@ public class LimelightTarget extends PIDCommand {
         }
     }
 */
+
     @Override
     public void initialize() {
         limelight.setPractice();

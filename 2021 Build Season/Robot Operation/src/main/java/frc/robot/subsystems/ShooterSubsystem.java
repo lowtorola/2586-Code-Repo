@@ -74,12 +74,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
       public void extendHood() {
         hoodPiston.set(DoubleSolenoid.Value.kForward);
-        System.out.println("extend hood");
       }
 
       public void retractHood() {
         hoodPiston.set(DoubleSolenoid.Value.kReverse);
-        System.out.println("retract hood");
       }
 
       // -- methods for getting values: static and dynamic
@@ -97,31 +95,35 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double getFeedForward(double targetRPM) {
-      System.out.println(feedforward.calculate(targetRPM) * 0.00135);
-      return feedforward.calculate(targetRPM) * 0.00135;
+      return feedforward.calculate(targetRPM) * 0.0013;
   }
-
-  /**
-   * 
-   * @param targetDist the current distance from the target, "x" in the method's quadratic ax^2+bx+c
-   * @return the RPM the shooter needs to spin at to reach the target
-   */
-  public double getTargetRPM(double angleError) {
-    if(angleError < 0) {
-    return (ShooterConstants.kQuadraticFar * Math.pow(angleError, 2) + (ShooterConstants.kLinearFar * angleError) + ShooterConstants.kConstantFar);
-  } else if(angleError >= 0) {
-    return (ShooterConstants.kQuadraticNear * Math.pow(angleError, 2) + (ShooterConstants.kLinearNear * angleError) + ShooterConstants.kConstantNear);
+/* if(error < 0) {
+      System.out.println(error);
+    return (ShooterConstants.kQuadraticFar * Math.pow(error, 2) + (ShooterConstants.kLinearFar * error) + ShooterConstants.kConstantFar);
+  } else if(error >= 0) {
+    System.out.println(error);
+    return (ShooterConstants.kQuadraticNear * Math.pow(error, 2) + (ShooterConstants.kLinearNear * error) + ShooterConstants.kConstantNear);
+  } else {
+    return 0;
+  }return (ShooterConstants.kQuadraticFar * Math.pow(error, 2) + (ShooterConstants.kLinearFar * error) + ShooterConstants.kConstantFar)
+*/
+  public double getTargetRPM(double error) {
+    if(error < 0) {
+    return (ShooterConstants.kQuadraticFar * Math.pow(error, 2) + (ShooterConstants.kLinearFar * error) + ShooterConstants.kConstantFar);
+  } else if(error >= 0) {
+    return (ShooterConstants.kQuadraticNear * Math.pow(error, 2) + (ShooterConstants.kLinearNear * error) + ShooterConstants.kConstantNear);
   } else {
     return 0;
   }
 }
 
     public double getToleranceRPM() {
+      System.out.println("got tolerance RPM");
         return ShooterConstants.kToleranceRPM;
     }
 
-    public boolean isAtSpeed() {
-        return (Math.abs(ShooterConstants.kTargetRPM - shooterEncoder.getVelocity()) <  ShooterConstants.kToleranceRPM); // TODO: change to full speed values
+    public boolean isAtSpeed(double targetSpeed) {
+        return (Math.abs(targetSpeed - shooterEncoder.getVelocity()) <  ShooterConstants.kToleranceRPM);
     }
 
     public void hoodLogic(double angleError) {
