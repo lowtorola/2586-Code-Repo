@@ -44,8 +44,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
       // -- methods for setting shooter in motion
 
-      public void runShooter(double output) {
-       shooterMotor.set(output);
+      public void runShooter() {
+       shooterMotor.set(0.85);
       // System.out.println(output);
       }
 
@@ -95,7 +95,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double getFeedForward(double targetRPM) {
-      return feedforward.calculate(targetRPM) * 0.0013;
+      return feedforward.calculate(targetRPM) * 0.0014;
   }
 /* if(error < 0) {
       System.out.println(error);

@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 
 /** An example command that uses an example subsystem. */
 public class FollowPathCommand extends SequentialCommandGroup {
-/*
+
 
     public FollowPathCommand(DriveSubsystem driveSubsystem, String filePath) throws IOException {
 
@@ -56,6 +56,6 @@ public class FollowPathCommand extends SequentialCommandGroup {
     addRequirements(driveSubsystem);
 
   }
-*/
+
 
 }

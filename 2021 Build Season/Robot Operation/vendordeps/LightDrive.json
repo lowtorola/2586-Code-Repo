@@ -1,0 +1,32 @@
+{
+    "fileName": "LightDrive.json",
+    "name": "MACH-LightDrive",
+    "version": "2019.2.19",
+    "uuid": "8e771444-0691-4b6d-8d09-8868c3298009",
+    "mavenUrls": [
+        "http://mach-engineering.com/products/maven/"
+    ],
+    "jsonUrl": "http://mach-engineering.com/products/maven/com/mach/LightDrive/LightDrive.json",
+    "javaDependencies": [
+        {
+            "groupId": "com.mach.LightDrive",
+            "artifactId": "LightDrive-java",
+            "version": "2019.2.19"
+        }
+    ],
+    "jniDependencies": [],
+    "cppDependencies": [
+        {
+            "groupId": "com.mach.LightDrive",
+            "artifactId": "LightDrive-cpp",
+            "version": "2019.2.13",
+            "libName": "mach",
+            "headerClassifier": "headers",
+            "sharedLibrary": false,
+            "skipInvalidPlatforms": true,
+            "binaryPlatforms": [
+                "linuxathena"
+            ]
+        }
+    ]
+}

@@ -17,9 +17,9 @@ public class AutoShoot extends ParallelCommandGroup {
     public AutoShoot(ShooterSubsystem shooterSub, DriveSubsystem driveSub, LimelightSubsystem limelight, IndexerSubsystem indexerSub, IntakeSubsystem intakeSub) {
 
         addCommands(
+            new LimelightTarget(LimelightConstants.kTargetAngle, driveSub, limelight),
             new ShooterSpool(shooterSub, limelight),
             new HoodLogic(limelight, shooterSub),
-            new LimelightTarget(LimelightConstants.kTargetAngle, driveSub, limelight),
             new SequentialCommandGroup(
                 new WaitForShooter(shooterSub, () -> limelight.getErrorY()),
                 new ParallelCommandGroup(

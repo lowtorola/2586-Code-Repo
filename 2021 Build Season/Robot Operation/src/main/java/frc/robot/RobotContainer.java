@@ -7,9 +7,12 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LimelightConstants;
@@ -18,6 +21,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.AutoShoot;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.DriveStraight;
+import frc.robot.commands.FollowPathCommand;
 import frc.robot.commands.HoodLogic;
 import frc.robot.commands.ShooterPreload;
 import frc.robot.commands.ShooterSpool;
@@ -26,19 +30,22 @@ import frc.robot.commands.LimelightTarget;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
- * This class is where the bulk of the robot should be declared.  Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
- * (including subsystems, commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a "declarative" paradigm, very little robot logic should
+ * actually be handled in the {@link Robot} periodic methods (other than the
+ * scheduler calls). Instead, the structure of the robot (including subsystems,
+ * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
@@ -47,19 +54,26 @@ public class RobotContainer {
   private final IndexerSubsystem indexerControl = new IndexerSubsystem();
   private final IntakeSubsystem intakeControl = new IntakeSubsystem();
   private final LimelightSubsystem limelight = new LimelightSubsystem();
+  private final LEDSubsystem LEDsub = new LEDSubsystem();
 
   Joystick drive_Stick = new Joystick(OIConstants.kDriveControllerPort);
-  Joystick operator_Stick = new Joystick(OIConstants.kOperatorControllerPort);
+ // Joystick operator_Stick = new Joystick(OIConstants.kOperatorControllerPort);
 
-  private double shooterRPM = 0;
+  private SendableChooser<Command> m_autonomousChooser = new SendableChooser<>();
+
+  private final String slalomPath = "paths/SlalomPath.wpilib.json";
+  private final String barrelRacingPath = "paths/BarrelRacingPath.wpilib.json";
+  private final String[] bouncePath = { "paths/BouncePath1.wpilib.json", "paths/BouncePath2.wpilib.json",
+      "paths/BouncePath3.wpilib.json", "paths/BouncePath4.wpilib.json" };
 
   /**
-   * The container for the robot.  Contains subsystems, OI devices, and commands.
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   * 
+   * @throws IOException
    */
-  public RobotContainer() {
+  public RobotContainer() throws IOException {
     // Configure the button bindings
     configureButtonBindings();
-    robotDrive.setDeadband(DriveConstants.kDriveDeadband);
     robotDrive.setDefaultCommand(
       // A split-stick arcade command, with forward/backward controlled by the left
       // hand, and turning controlled by the right.
@@ -68,6 +82,20 @@ public class RobotContainer {
           () -> -drive_Stick.getRawAxis(1),
           () -> drive_Stick.getRawAxis(2)));
     //SmartDashboard.put(shooterControl);
+
+    SmartDashboard.putData(m_autonomousChooser);
+    m_autonomousChooser.setDefaultOption("Slalom Path", new FollowPathCommand(robotDrive, slalomPath));
+    m_autonomousChooser.addOption("Barrel Racing", new FollowPathCommand(robotDrive, barrelRacingPath));
+    m_autonomousChooser.addOption("Bounce Path", new SequentialCommandGroup(
+      new FollowPathCommand(robotDrive, bouncePath[0]),
+      new FollowPathCommand(robotDrive, bouncePath[1]),
+      new FollowPathCommand(robotDrive, bouncePath[2]),
+      new FollowPathCommand(robotDrive, bouncePath[3])
+    ));
+
+
+    LEDsub.LEDset();
+
   }
 
   /**
@@ -79,8 +107,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     new JoystickButton(drive_Stick, OIConstants.kShooterOnButton) // O
-      .whenHeld(new ParallelCommandGroup(new ShooterSpool(shooterControl, limelight),
-        new HoodLogic(limelight, shooterControl)))
+      .whenHeld(new ParallelCommandGroup(new InstantCommand(shooterControl::runShooter))) // new ShooterSpool(shooterControl, limelight COMMA
+       // new HoodLogic(limelight, shooterControl)))
       .whenReleased(new InstantCommand(shooterControl::stopShooter, shooterControl));
 /*
     new JoystickButton(drive_Stick, OIConstants.kShooterOnButton) // O
@@ -93,24 +121,24 @@ public class RobotContainer {
     .whenPressed(new InstantCommand(indexerControl::runIndexer))
     .whenReleased(new InstantCommand(indexerControl::stopIndexer));
 
-    new JoystickButton(operator_Stick, OIConstants.kIntakeOnButton) // left trigger button
+    new JoystickButton(drive_Stick, OIConstants.kIntakeOnButton) // left trigger button
     .whenPressed(new InstantCommand(intakeControl::startIntake))
     .whenReleased(new InstantCommand(intakeControl::stopIntake));
 
-    new JoystickButton(operator_Stick, OIConstants.kIntakeDeployButton) // share
+    new JoystickButton(drive_Stick, OIConstants.kIntakeDeployButton) // share
     .whenPressed(new InstantCommand(intakeControl::deployIntake));
 
-    new JoystickButton(operator_Stick, OIConstants.kIntakeRetractButton) // options
+    new JoystickButton(drive_Stick, OIConstants.kIntakeRetractButton) // options
     .whenPressed(new InstantCommand(intakeControl::retractIntake));
  
-    new JoystickButton(operator_Stick, OIConstants.kFeederPreloadButton) // central pad
+    new JoystickButton(drive_Stick, OIConstants.kFeederPreloadButton) // central pad
     .whenPressed(new ShooterPreload(shooterControl), true)
     .whenReleased(new InstantCommand(shooterControl::stopFeed, shooterControl));
 
     new JoystickButton(drive_Stick, OIConstants.kLimelightAimButton)  // right bumper
     .whenHeld(new LimelightTarget(LimelightConstants.kTargetAngle, robotDrive, limelight));
 
-    new JoystickButton(operator_Stick, OIConstants.kXButton)
+    new JoystickButton(drive_Stick, OIConstants.kXButton)
     .whenHeld(new AutoShoot(shooterControl, robotDrive, limelight, indexerControl, intakeControl))
     .whenReleased(new ParallelCommandGroup(
       new InstantCommand(shooterControl::stopShooter, shooterControl),
@@ -186,7 +214,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
    // An ExampleCommand will run in autonomous
-    return new DriveStraight(robotDrive, 36);
+    return m_autonomousChooser.getSelected();
   }
    
 }

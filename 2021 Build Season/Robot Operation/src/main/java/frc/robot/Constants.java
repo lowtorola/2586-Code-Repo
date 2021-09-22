@@ -35,10 +35,10 @@ public final class Constants {
 
         public final static MotorType kDriveMotorType = MotorType.kBrushless;
 
-        public final static int[] kLeftEncoderPorts = new int[] { 5, 4 };
-        public final static int[] kRightEncoderPorts = new int[] { 7, 6 };
+        public final static int[] kLeftEncoderPorts = new int[] { 6, 7 };
+        public final static int[] kRightEncoderPorts = new int[] { 4, 5 };
         public static final boolean kLeftEncoderReversed = true;
-        public static final boolean kRightEncoderReversed = false;
+        public static final boolean kRightEncoderReversed = true;
 
         public static final int kEncoderCPR = 1024;
         public static final double kWheelDiameterInches = 6;
@@ -59,7 +59,7 @@ public final class Constants {
     public static final double ksVolts = 0.221;
     public static final double kvVoltSecondsPerMeter = 2.3;
     public static final double kaVoltSecondsSquaredPerMeter = 0.47;
-    public static final double kPDriveVel = 1.7; // default to 2.59
+    public static final double kPDriveVel = 2.2; // default to 2.59
 
     // DifferentialDriveKinematics values
     public static final double kTrackwidthMeters = 1.61; // might need to be 1.61 because of off-center turn
@@ -116,7 +116,7 @@ public final class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.008; 
         public static final double kTurnToleranceDeg = 0.3;
-        public static final double kTargetAngle = 0.0;
+        public static final double kTargetAngle = -1.0;
 
         public static final double kLLheight = 19;
         public static final double kTargetHeight = 71; // change if target changes
@@ -130,22 +130,22 @@ public final class Constants {
     }
 
     public final static class ShooterConstants {
-        
+
         public static final int kShooterMotorID = 11;
         public static final int kBeltMotorID = 5;
         public static final int[] kHoodPistonID = {1, 3};
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
         public static final int kFeederMotorID = 3;
 
-        public static final int kFeederBbRecPort = 0;
-        public static final int kFeederBbBlastPort = 1;
+        public static final int kFeederBbRecPort = 1;
+        public static final int kFeederBbBlastPort = 0;
         public static final int kShooterExitRecPort = 2;
         public static final int kShooterExitBlastPort = 3;
 
-        public static final double kFeederMotorSpeed = 0.45;
+        public static final double kFeederMotorSpeed = 0.5;
         public static final double kFeederPreloadSpeed = 0.35;
-        public static final double kBeltPreloadSpeed = 0.6; // TODO: test to determine optimal speed
-        public static final double kBeltMotorSpeed = 0.7;
+        public static final double kBeltPreloadSpeed = 0.6; 
+        public static final double kBeltMotorSpeed = 0.8;
 
         public static final double kP = .00043; // should be 1.63
         public static final int kI = 0;
