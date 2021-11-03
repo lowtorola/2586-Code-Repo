@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Timed Swerve Practice (in project Timed Swerve Practice)",
+    "file": "C:\\Users\\loWAL\\Desktop\\2586-Code-Repo\\2022 Preseason\\Timed Swerve Practice\\build\\libs\\Timed Swerve Practice.jar",
+    "extensions": [
+      "C:\\Users\\loWAL\\Desktop\\2586-Code-Repo\\2022 Preseason\\Timed Swerve Practice\\build\\tmp\\expandedArchives\\halsim_gui-2021.2.2-windowsx86-64.zip_d9b742accb7d26f71bdac05b796e7cc3\\windows\\x86-64\\shared\\halsim_gui.dll",
+      "C:\\Users\\loWAL\\Desktop\\2586-Code-Repo\\2022 Preseason\\Timed Swerve Practice\\build\\tmp\\expandedArchives\\halsim_ds_socket-2021.2.2-windowsx86-64.zip_32ee0d595231a6c6d5a0455f7d794cf5\\windows\\x86-64\\shared\\halsim_ds_socket.dll"
+    ],
+    "env": {},
+    "librarydir": "C:\\Users\\loWAL\\Desktop\\2586-Code-Repo\\2022 Preseason\\Timed Swerve Practice\\build\\tmp\\jniExtractDir",
+    "mainclass": "frc.robot.Main"
+  }
+]
