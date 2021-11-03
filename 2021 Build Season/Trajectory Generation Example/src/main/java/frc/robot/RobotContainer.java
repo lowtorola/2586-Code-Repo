@@ -19,13 +19,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DefaultDrive;
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.FollowPathCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -40,6 +45,8 @@ public class RobotContainer {
 
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
+  private final IntakeSubsystem m_intake = new IntakeSubsystem();
+
   private final Joystick m_controller = new Joystick(0);
 
   private final String slalomPath = "paths/SlalomPath.wpilib.json";
@@ -49,6 +56,10 @@ public class RobotContainer {
     "paths/BouncePath2.wpilib.json", 
     "paths/BouncePath3.wpilib.json", 
     "paths/BouncePath4.wpilib.json"};
+  private final String galacticSearchARed = "paths/GalacticSearch_A_Red.wpilib.json";
+  private final String galacticSearchABlue = "paths/GalacticSearch_A_Blue.wpilib.json";
+  private final String galacticSearchBRed = "paths/GalacticSearch_B_Red.wpilib.json";
+  private final String galacticSearchBBlue = "paths/GalacticSearch_B_Blue.wpilib.json";
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -71,14 +82,38 @@ public class RobotContainer {
     //SmartDashboard.put(shooterControl);
   
     SmartDashboard.putData(m_autonomousChooser);
+
     m_autonomousChooser.setDefaultOption("Slalom Path", new FollowPathCommand(m_robotDrive, slalomPath));
+
     m_autonomousChooser.addOption("Barrel Racing", new FollowPathCommand(m_robotDrive, barrelRacingPath));
+
     m_autonomousChooser.addOption("Bounce Path", new SequentialCommandGroup(
       new FollowPathCommand(m_robotDrive, bouncePath[0]),
       new FollowPathCommand(m_robotDrive, bouncePath[1]),
       new FollowPathCommand(m_robotDrive, bouncePath[2]),
-      new FollowPathCommand(m_robotDrive, bouncePath[3])
-    ));
+      new FollowPathCommand(m_robotDrive, bouncePath[3])));
+
+    m_autonomousChooser.addOption("Galactic Search A Red", 
+    new ParallelDeadlineGroup(
+      new FollowPathCommand(m_robotDrive, galacticSearchARed), 
+      new InstantCommand(m_intake::startIntake)));
+
+    m_autonomousChooser.addOption("Galactic Search A Blue", 
+    new ParallelDeadlineGroup(
+      new FollowPathCommand(m_robotDrive, galacticSearchABlue), 
+      new InstantCommand(m_intake::startIntake)));
+
+    m_autonomousChooser.addOption("Galactic Search B Red", 
+      new ParallelDeadlineGroup(
+        new FollowPathCommand(m_robotDrive, galacticSearchBRed), 
+        new InstantCommand(m_intake::startIntake)));    
+
+    m_autonomousChooser.addOption("Galactic Search B Blue", 
+    new ParallelDeadlineGroup(
+      new FollowPathCommand(m_robotDrive, galacticSearchBBlue), 
+      new InstantCommand(m_intake::startIntake)));
+
+    
   }
 
   /**
@@ -87,7 +122,19 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+
+    new JoystickButton(m_controller, OIConstants.kLeftTrigger)
+    .whenPressed(new InstantCommand(m_intake::startIntake))
+    .whenReleased(new InstantCommand(m_intake::stopIntake));
+
+    new JoystickButton(m_controller, OIConstants.kOptionsButton)
+    .whenPressed(new InstantCommand(m_intake::deployIntake));
+
+    new JoystickButton(m_controller, OIConstants.kShareButton)
+    .whenPressed(new InstantCommand(m_intake::retractIntake));
+
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

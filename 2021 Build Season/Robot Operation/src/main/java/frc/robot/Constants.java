@@ -35,10 +35,10 @@ public final class Constants {
 
         public final static MotorType kDriveMotorType = MotorType.kBrushless;
 
-        public final static int[] kLeftEncoderPorts = new int[] { 5, 4 };
-        public final static int[] kRightEncoderPorts = new int[] { 7, 6 };
+        public final static int[] kLeftEncoderPorts = new int[] { 6, 7 };
+        public final static int[] kRightEncoderPorts = new int[] { 4, 5 };
         public static final boolean kLeftEncoderReversed = true;
-        public static final boolean kRightEncoderReversed = false;
+        public static final boolean kRightEncoderReversed = true;
 
         public static final int kEncoderCPR = 1024;
         public static final double kWheelDiameterInches = 6;
@@ -59,7 +59,7 @@ public final class Constants {
     public static final double ksVolts = 0.221;
     public static final double kvVoltSecondsPerMeter = 2.3;
     public static final double kaVoltSecondsSquaredPerMeter = 0.47;
-    public static final double kPDriveVel = 1.7; // default to 2.59
+    public static final double kPDriveVel = 2.2; // default to 2.59
 
     // DifferentialDriveKinematics values
     public static final double kTrackwidthMeters = 1.61; // might need to be 1.61 because of off-center turn
@@ -77,7 +77,25 @@ public final class Constants {
     }
 
     public final static class OIConstants {
+
+        public static final int kSquareButton = 1;
+        public static final int kXButton = 2;
+        public static final int kCircleButton = 3;
+        public static final int kTriangleButton = 4;
+        public static final int kLeftBumper = 5;
+        public static final int kRightBumper = 6;
+        public static final int kLeftTrigger = 7;
+        public static final int kRightTrigger = 8;
+        public static final int kShareButton = 9;
+        public static final int kOptionsButton = 10;
+        public static final int kLeftStick = 11;
+        public static final int kRightStick = 12;
+        public static final int kPSLogo = 13;
+        public static final int kCenterButton = 14;
+
         public static final int kDriveControllerPort = 0; 
+        public static final int kOperatorControllerPort = 1;
+
         public static final int kShooterOnButton = 3; // O
         public static final int kFeederOnButton = 5; // Left Bumper
         public static final int kFeederPreloadButton = 14; // Center pad
@@ -97,8 +115,8 @@ public final class Constants {
         public static final double kP = 0.075;
         public static final double kI = 0.0;
         public static final double kD = 0.008; 
-        public static final double kTurnToleranceDeg = 0.5;
-        public static final double kTargetAngle = 0;
+        public static final double kTurnToleranceDeg = 0.3;
+        public static final double kTargetAngle = -1.0;
 
         public static final double kLLheight = 19;
         public static final double kTargetHeight = 71; // change if target changes
@@ -112,35 +130,47 @@ public final class Constants {
     }
 
     public final static class ShooterConstants {
-        
+
         public static final int kShooterMotorID = 11;
+        public static final int kBeltMotorID = 5;
+        public static final int[] kHoodPistonID = {1, 3};
         public static final MotorType kShooterMotorType = MotorType.kBrushless;
         public static final int kFeederMotorID = 3;
 
-        public static final int kFeederBbRecPort = 0;
-        public static final int kFeederBbBlastPort = 1;
+        public static final int kFeederBbRecPort = 1;
+        public static final int kFeederBbBlastPort = 0;
         public static final int kShooterExitRecPort = 2;
         public static final int kShooterExitBlastPort = 3;
 
-        public static final double kFeederMotorSpeed = 0.6;
+        public static final double kFeederMotorSpeed = 0.5;
         public static final double kFeederPreloadSpeed = 0.35;
+        public static final double kBeltPreloadSpeed = 0.6; 
+        public static final double kBeltMotorSpeed = 0.8;
 
-        public static final double kP = 1.61; // should be 1.61
+        public static final double kP = .00043; // should be 1.63
         public static final int kI = 0;
-        public static final int kD = 0;
+        public static final double kD = 0.0;
 
         public static final double kvVoltSecondsPerRotation = 0.132; // should be .132
-        public static final double ksVolts = 0.174; // should be .174
-        public static final double kaVoltSecondsSquaredPerRotation = 0.0387; // should be .0387
+        public static final double ksVolts = 0.288; // should be .174
+        public static final double kaVoltSecondsSquaredPerRotation = 0.0297; // should be .0387
 
-        public static final int kTargetRPM = 2000; // 3559 for 40 inches from LL, was set to 1500
-        public static final int kMaxRPM = 750; // on website is 5676
-        public static final double kToleranceRPM = 150;
+        public static final int kTargetRPM = 4300;
 
-        public static final double kTargetVolts = 4.23;
-        public static final double kToleranceVolts = 0.317;
+        public static final int kMaxRPM = 5676; // was 750
+        public static final double kToleranceRPM = 250;
 
         public static final int kBallsToExit = 3;
+
+        public static final double kQuadraticNear = 4.05;
+		public static final double kLinearNear = -10.005;
+        public static final double kConstantNear = 4100;
+        
+        public static final double kQuadraticFar = 3.9975;
+        public static final double kLinearFar = -11.3067;
+        public static final double kConstantFar = 4603.4246;
+
+		public static final double kAngleErrorSwitcher = 10;
     }
 
     public final static class IndexerConstants {
@@ -152,6 +182,7 @@ public final class Constants {
     public final static class IntakeConstants {
         public final static int kIntakeID = 2;
         public final static double kIntakeSpeed = -0.6;
+        public static final int[] kIntakePistonID = {2, 0};
     }
 
     public static class ClimbConstants {
