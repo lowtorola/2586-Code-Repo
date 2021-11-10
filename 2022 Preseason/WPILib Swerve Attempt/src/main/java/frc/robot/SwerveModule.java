@@ -32,10 +32,11 @@ public class SwerveModule {
 
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
-      2 * Math.PI; // radians per second squared
+      Math.PI; // radians per second squared TODO: change back to 2 * Math.PI
 
   private final WPI_TalonFX m_driveMotor;
   private final WPI_TalonFX m_turningMotor;
+  private boolean driveMotorInverted;
 
   // private final CANCoder m_driveEncoder;
   double encUnitMeters = 2 * Math.PI * kWheelRadius / kEncoderResolution;
@@ -47,7 +48,7 @@ public class SwerveModule {
   // Gains are for example purposes only - must be determined for your own robot!
   private final ProfiledPIDController m_turningPIDController =
       new ProfiledPIDController(
-          0.02, // ABSOLUTE GUESS!!
+          0.2,
           0,
           0,
           new TrapezoidProfile.Constraints(
@@ -55,7 +56,7 @@ public class SwerveModule {
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(.702, 2.69); // kS, kV
-  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(0, 0); // kS, kV
+  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(0.65, 0.23); // kS, kV
 
   /**
    * Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
@@ -68,10 +69,14 @@ public class SwerveModule {
   public SwerveModule(
       int driveMotorID,
       int turningMotorID,
-      int turningEncoderID) {
+      int turningEncoderID,
+      boolean driveMotorInverted) {
     m_driveMotor = new WPI_TalonFX(driveMotorID);
     m_turningMotor = new WPI_TalonFX(turningMotorID);
     m_turningEncoder = new CANCoder(turningEncoderID);
+    driveMotorInverted = this.driveMotorInverted;
+
+    m_driveMotor.setInverted(driveMotorInverted);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
@@ -99,6 +104,26 @@ public class SwerveModule {
   public SwerveModuleState getState() {
   //  return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(m_turningEncoder.getPosition()));
     return new SwerveModuleState(m_driveMotor.getSelectedSensorVelocity() * 10 * encUnitMeters, new Rotation2d(m_turningEncoder.getPosition()));
+  }
+
+  /**
+   * Returns the current angle of the turn encoder in radians
+   * @return The current angle of the module in radians
+   */
+  public double getTurnAngle() {
+    return m_turningEncoder.getPosition();
+  }
+
+  /**
+   * Zeroes the turn encoders
+   * 
+   */
+  public void zeroEncoders() {
+    m_turningEncoder.setPosition(0);
+  }
+
+  public void invertDrive(boolean inverted) {
+    m_driveMotor.setInverted(inverted);
   }
 
   /**
