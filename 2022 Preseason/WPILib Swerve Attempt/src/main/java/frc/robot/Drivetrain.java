@@ -21,17 +21,17 @@ import frc.robot.SwerveModule;
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
   public static final double kMaxSpeed = 3.0; // 3 meters per second
-  public static final double kMaxAngularSpeed = Math.PI / 2; // 1/4 rotation per second TODO: change back to Math.PI
+  public static final double kMaxAngularSpeed = Math.PI; // 1/4 rotation per second
 
   private final Translation2d m_frontLeftLocation = new Translation2d(0.279, 0.279);
   private final Translation2d m_frontRightLocation = new Translation2d(0.279, -0.279);
   private final Translation2d m_backLeftLocation = new Translation2d(-0.279, 0.279);
   private final Translation2d m_backRightLocation = new Translation2d(-0.279, -0.279);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false);
-  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true);
-  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false);
-  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true);
+  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false,0.2,0.612,0.235,0.235);
+  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true,0.0,0.632,0.646,0.236);
+  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false,0.95,0.504,0.683,0.229);
+  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true,-0.8,0.384,0.720,0.235);
 
   private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 
@@ -48,7 +48,8 @@ public class Drivetrain {
     m_frontRight.zeroEncoders();
     m_backLeft.zeroEncoders();
     m_backRight.zeroEncoders();
-    m_frontRight.invertDrive(true);
+    m_frontRight.invertDrive(false);
+    m_frontLeft.invertDrive(true);
     m_backRight.invertDrive(true);
   }
 
@@ -89,7 +90,7 @@ public class Drivetrain {
    * @return the angle of the module angles, starting at left front and going clockwise
    */
   public double[] getModuleAngles() {
-    double[] angles = {m_frontLeft.getTurnAngle(), m_frontRight.getTurnAngle(), m_backRight.getTurnAngle(), m_backLeft.getTurnAngle()};
+    double[] angles = {m_frontLeft.getTurnAngle(), m_frontRight.getTurnAngle(), m_backRight.getTurnAngle(),m_backLeft.getTurnAngle()};
     return angles;
   }
 }

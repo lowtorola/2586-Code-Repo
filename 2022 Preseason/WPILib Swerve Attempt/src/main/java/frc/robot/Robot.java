@@ -21,7 +21,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumberArray("Module Angles", m_swerve.getModuleAngles());
+    SmartDashboard.putNumberArray("Encoder Angles", m_swerve.getModuleAngles());
   }
 
   @Override
@@ -57,7 +57,6 @@ public class Robot extends TimedRobot {
     final var rot =
         -m_rotLimiter.calculate(deadband(m_controller.getRawAxis(2), 0.04))
             * Drivetrain.kMaxAngularSpeed;
-    System.out.println("rot:" + rot);
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);
   }
