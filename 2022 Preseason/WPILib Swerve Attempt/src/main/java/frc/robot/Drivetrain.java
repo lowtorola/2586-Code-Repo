@@ -28,10 +28,10 @@ public class Drivetrain {
   private final Translation2d m_backLeftLocation = new Translation2d(-0.279, 0.279);
   private final Translation2d m_backRightLocation = new Translation2d(-0.279, -0.279);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false,0.2,0.612,0.235,0.235);
-  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true,0.0,0.632,0.646,0.236);
-  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false,0.95,0.504,0.683,0.229);
-  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true,-0.8,0.384,0.720,0.235);
+  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false, 0.672,0.702,2.69,0.2,1.15,0.62,0.24);
+  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true, 0.672,0.702,2.69,0.0,1.15,0.62,0.24);
+  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false, 0.672,0.702,2.69,0.95,1.15,0.62,0.24);
+  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true, 0.672,0.702,2.69,-0.8,1.15,0.62,0.24);
 
   private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 
@@ -93,4 +93,21 @@ public class Drivetrain {
     double[] angles = {m_frontLeft.getTurnAngle(), m_frontRight.getTurnAngle(), m_backRight.getTurnAngle(),m_backLeft.getTurnAngle()};
     return angles;
   }
+
+  public SwerveModule getFrontLeft() {
+    return m_frontLeft;
+  }
+
+  public SwerveModule getFrontRight() {
+    return m_frontRight;
+  }
+
+  public SwerveModule getBackLeft() {
+    return m_backLeft;
+  }
+
+  public SwerveModule getBackRight() {
+    return m_backRight;
+  }
+
 }

@@ -22,6 +22,11 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     SmartDashboard.putNumberArray("Encoder Angles", m_swerve.getModuleAngles());
+    
+    SmartDashboard.putNumber("F_Left Drive Vel", m_swerve.getFrontLeft().getDriveSpeed());
+    SmartDashboard.putNumber("F_Right Drive Vel", m_swerve.getFrontRight().getDriveSpeed());
+    SmartDashboard.putNumber("R_Left Drive Vel", m_swerve.getBackLeft().getDriveSpeed());
+    SmartDashboard.putNumber("R_Right Drive Vel", m_swerve.getBackRight().getDriveSpeed());
   }
 
   @Override
@@ -33,6 +38,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveWithJoystick(true);
+  }
+
+  @Override
+  public void testPeriodic() {
+
+    SmartDashboard.putData("F_Left Turn PID", m_swerve.getFrontLeft().getTurnPID());
+    SmartDashboard.putData("F_Right Turn PID", m_swerve.getFrontRight().getTurnPID());
+    SmartDashboard.putData("R_Left Turn PID", m_swerve.getBackLeft().getTurnPID());
+    SmartDashboard.putData("R_Right Turn PID", m_swerve.getBackRight().getTurnPID());
+
   }
 
   private void driveWithJoystick(boolean fieldRelative) {
