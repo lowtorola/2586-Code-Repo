@@ -187,12 +187,20 @@ public class SwerveModule {
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-    m_driveMotor.setVoltage(driveOutput + driveFeedforward);
-    m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+    m_driveMotor.setVoltage(deadband((driveOutput + driveFeedforward), 0.03));
+    m_turningMotor.setVoltage(deadband((turnOutput + turnFeedforward), 0.03));
   }
 
   public ProfiledPIDController getTurnPID() {
     return m_turningPIDController;
+  }
+
+  public double deadband(double x, double db) {
+    if(Math.abs(x) < db) {
+      return 0;
+    } else {
+      return x;
+    }
   }
 
 }
