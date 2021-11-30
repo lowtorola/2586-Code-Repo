@@ -56,6 +56,9 @@ public class SwerveModule {
   private SimpleMotorFeedforward m_driveFeedforward;
   private SimpleMotorFeedforward m_turnFeedforward;
 
+  // Swerve mod. state class var
+  SwerveModuleState state;
+
     /**
    * Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
    *
@@ -157,7 +160,7 @@ public class SwerveModule {
    * @return drive motor velocity (in raw units)
    */
   public double getDriveSpeed() {
-    return m_driveMotor.getSelectedSensorVelocity() * encUnitMeters;
+    return m_driveMotor.getSelectedSensorVelocity() * encUnitMeters * 10;
   }
 
   public void invertDrive(boolean inverted) {
@@ -171,7 +174,7 @@ public class SwerveModule {
    */
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
-    SwerveModuleState state =
+     state =
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAbsolutePosition() + turn_offset));
 
     // Calculate the drive output from the drive PID controller.
@@ -187,12 +190,16 @@ public class SwerveModule {
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-    m_driveMotor.setVoltage(deadband((driveOutput + driveFeedforward), 0.03));
-    m_turningMotor.setVoltage(deadband((turnOutput + turnFeedforward), 0.03));
+    m_driveMotor.setVoltage(deadband((driveOutput + driveFeedforward), 0.06));
+    m_turningMotor.setVoltage(deadband((turnOutput + turnFeedforward), 0.06));
   }
 
   public ProfiledPIDController getTurnPID() {
     return m_turningPIDController;
+  }
+
+  public SwerveModuleState moduleState() {
+    return state;
   }
 
   public double deadband(double x, double db) {

@@ -27,27 +27,42 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("F_Right Drive Vel", m_swerve.getFrontRight().getDriveSpeed());
     SmartDashboard.putNumber("R_Left Drive Vel", m_swerve.getBackLeft().getDriveSpeed());
     SmartDashboard.putNumber("R_Right Drive Vel", m_swerve.getBackRight().getDriveSpeed());
+
+    SmartDashboard.putNumber("F_Left Turn Angle", m_swerve.getFrontLeft().getTurnAngle() * 180.0/Math.PI);
+    SmartDashboard.putNumber("F_Right Turn Angle", m_swerve.getFrontRight().getTurnAngle() * 180.0/Math.PI);
+    SmartDashboard.putNumber("R_Left Turn Angle", m_swerve.getBackLeft().getTurnAngle() * 180.0/Math.PI);
+    SmartDashboard.putNumber("R_Right Turn Angle", m_swerve.getBackRight().getTurnAngle() * 180.0/Math.PI);
+
+    SmartDashboard.putNumber("Front Left V Setpoint", m_swerve.getFrontLeft().getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("Front Left A Setpoint", m_swerve.getFrontLeft().getState().angle.getDegrees());
+
+    SmartDashboard.putNumber("Front Right V Setpoint", m_swerve.getFrontRight().getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("Front Right A Setpoint", m_swerve.getFrontRight().getState().angle.getDegrees());
+
+    SmartDashboard.putNumber("Back Left V Setpoint", m_swerve.getBackLeft().getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("Back Left A Setpoint", m_swerve.getBackLeft().getState().angle.getDegrees());
+
+    SmartDashboard.putNumber("Back Right V Setpoint", m_swerve.getBackRight().getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("Back Right A Setpoint", m_swerve.getBackRight().getState().angle.getDegrees());
+
+    SmartDashboard.putNumber("Gyro", m_swerve.getGyroAngle());
   }
 
   @Override
   public void autonomousPeriodic() {
     driveWithJoystick(false);
     m_swerve.updateOdometry();
+    if(m_controller.getRawButton(4)) {
+    }
   }
 
   @Override
   public void teleopPeriodic() {
-    driveWithJoystick(true);
+    driveWithJoystick(false);
   }
 
   @Override
   public void testPeriodic() {
-
-    SmartDashboard.putData("F_Left Turn PID", m_swerve.getFrontLeft().getTurnPID());
-    SmartDashboard.putData("F_Right Turn PID", m_swerve.getFrontRight().getTurnPID());
-    SmartDashboard.putData("R_Left Turn PID", m_swerve.getBackLeft().getTurnPID());
-    SmartDashboard.putData("R_Right Turn PID", m_swerve.getBackRight().getTurnPID());
-
   }
 
   private void driveWithJoystick(boolean fieldRelative) {

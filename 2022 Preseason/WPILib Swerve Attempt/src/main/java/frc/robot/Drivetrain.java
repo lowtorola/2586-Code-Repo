@@ -110,4 +110,8 @@ public class Drivetrain {
     return m_backRight;
   }
 
+  public double getGyroAngle() {
+    return m_gyro.getAngle();
+  }
+
 }
