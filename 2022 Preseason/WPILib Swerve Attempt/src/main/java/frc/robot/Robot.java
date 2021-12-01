@@ -15,37 +15,41 @@ public class Robot extends TimedRobot {
   private final Drivetrain m_swerve = new Drivetrain();
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
-  private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
+  private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(2);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putNumberArray("Encoder Angles", m_swerve.getModuleAngles());
     
     SmartDashboard.putNumber("F_Left Drive Vel", m_swerve.getFrontLeft().getDriveSpeed());
     SmartDashboard.putNumber("F_Right Drive Vel", m_swerve.getFrontRight().getDriveSpeed());
     SmartDashboard.putNumber("R_Left Drive Vel", m_swerve.getBackLeft().getDriveSpeed());
     SmartDashboard.putNumber("R_Right Drive Vel", m_swerve.getBackRight().getDriveSpeed());
 
-    SmartDashboard.putNumber("F_Left Turn Angle", m_swerve.getFrontLeft().getTurnAngle() * 180.0/Math.PI);
-    SmartDashboard.putNumber("F_Right Turn Angle", m_swerve.getFrontRight().getTurnAngle() * 180.0/Math.PI);
-    SmartDashboard.putNumber("R_Left Turn Angle", m_swerve.getBackLeft().getTurnAngle() * 180.0/Math.PI);
-    SmartDashboard.putNumber("R_Right Turn Angle", m_swerve.getBackRight().getTurnAngle() * 180.0/Math.PI);
+    SmartDashboard.putNumber("F_Left Turn Angle", m_swerve.getFrontLeft().getTurnAngle(m_swerve.getFrontLeft().getRawTurnAngle())*(180/Math.PI));
+    SmartDashboard.putNumber("F_Right Turn Angle", m_swerve.getFrontRight().getTurnAngle(m_swerve.getFrontRight().getRawTurnAngle())*(180/Math.PI));
+    SmartDashboard.putNumber("R_Left Turn Angle", m_swerve.getBackLeft().getTurnAngle(m_swerve.getBackLeft().getRawTurnAngle())*(180/Math.PI));
+    SmartDashboard.putNumber("R_Right Turn Angle", m_swerve.getBackRight().getTurnAngle(m_swerve.getBackRight().getRawTurnAngle())*(180/Math.PI));
 
     SmartDashboard.putNumber("Front Left V Setpoint", m_swerve.getFrontLeft().getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("Front Left A Setpoint", m_swerve.getFrontLeft().getState().angle.getDegrees());
+    SmartDashboard.putNumber("Front Left A Setpoint", m_swerve.getFrontLeft().getTurnPID().getSetpoint().position*(180/Math.PI));
 
     SmartDashboard.putNumber("Front Right V Setpoint", m_swerve.getFrontRight().getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("Front Right A Setpoint", m_swerve.getFrontRight().getState().angle.getDegrees());
+    SmartDashboard.putNumber("Front Right A Setpoint", m_swerve.getFrontLeft().getTurnPID().getSetpoint().position*(180/Math.PI));
 
     SmartDashboard.putNumber("Back Left V Setpoint", m_swerve.getBackLeft().getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("Back Left A Setpoint", m_swerve.getBackLeft().getState().angle.getDegrees());
+    SmartDashboard.putNumber("Back Left A Setpoint", m_swerve.getFrontLeft().getTurnPID().getSetpoint().position*(180/Math.PI));
 
     SmartDashboard.putNumber("Back Right V Setpoint", m_swerve.getBackRight().getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("Back Right A Setpoint", m_swerve.getBackRight().getState().angle.getDegrees());
+    SmartDashboard.putNumber("Back Right A Setpoint", m_swerve.getFrontLeft().getTurnPID().getSetpoint().position*(180/Math.PI));
 
     SmartDashboard.putNumber("Gyro", m_swerve.getGyroAngle());
+
+    SmartDashboard.putNumber("Left Stick Y", m_controller.getRawAxis(1));
+    SmartDashboard.putNumber("Left Stick X", m_controller.getRawAxis(0));
+    SmartDashboard.putNumber("Right Stick X", m_controller.getRawAxis(2));
+    
   }
 
   @Override
@@ -58,7 +62,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    driveWithJoystick(false);
+    driveWithJoystick(true);
+    if(m_controller.getRawButton(4)) { // triangle
+      m_swerve.resetGyro();
+    }
   }
 
   @Override
@@ -70,14 +77,14 @@ public class Robot extends TimedRobot {
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =
-        -m_xspeedLimiter.calculate(deadband(m_controller.getRawAxis(1), 0.04))
+        -m_xspeedLimiter.calculate(deadband(m_controller.getRawAxis(1), .06))
             * Drivetrain.kMaxSpeed;
 
     // Get the y speed or sideways/strafe speed. We are inverting this because
     // we want a positive value when we pull to the left. Xbox controllers
     // return positive values when you pull to the right by default.
     final var ySpeed =
-        -m_yspeedLimiter.calculate(deadband(m_controller.getRawAxis(0), 0.04))
+        -m_yspeedLimiter.calculate(deadband(m_controller.getRawAxis(0), .06))
             * Drivetrain.kMaxSpeed;
 
     // Get the rate of angular rotation. We are inverting this because we want a
@@ -85,7 +92,7 @@ public class Robot extends TimedRobot {
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
     final var rot =
-        -m_rotLimiter.calculate(deadband(m_controller.getRawAxis(2), 0.04))
+        -m_rotLimiter.calculate(deadband(m_controller.getRawAxis(2), .06))
             * Drivetrain.kMaxAngularSpeed;
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative);

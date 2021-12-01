@@ -34,7 +34,7 @@ public class SwerveModule {
 
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
-     2 * Math.PI; // radians per second squared TODO: change back to 2 * Math.PI
+     2.5 * Math.PI; // radians per second squared TODO: change back to 2 * Math.PI
 
   private final WPI_TalonFX m_driveMotor;
   private final WPI_TalonFX m_turningMotor;
@@ -136,16 +136,43 @@ public class SwerveModule {
    */
   public SwerveModuleState getState() {
   //  return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(m_turningEncoder.getPosition()));
-    return new SwerveModuleState(m_driveMotor.getSelectedSensorVelocity() * 10 * encUnitMeters, new Rotation2d(m_turningEncoder.getAbsolutePosition() + turn_offset));
+    return new SwerveModuleState(m_driveMotor.getSelectedSensorVelocity() * 10 * encUnitMeters, new Rotation2d(getTurnAngle(m_turningEncoder.getAbsolutePosition())));
   }
 
   /**
    * Returns the current angle of the turn encoder in radians
    * @return The current angle of the module in radians
    */
-  public double getTurnAngle() {
-    return m_turningEncoder.getAbsolutePosition() + turn_offset;
+  public double getRawTurnAngle() {
+    return m_turningEncoder.getAbsolutePosition();
   }
+
+  /**
+   * Angle return with offset calculation function.
+   * Returns the adjusted turn encoder value in radians
+   */
+  public double getTurnAngle(double input_pos) {
+    double offset = turn_offset;
+    double output_pos = 0.0;
+
+   // Positive offset (clockwise)
+    if (offset >= 0) {
+      output_pos = input_pos + offset;
+   // If offset pushes us past 180, then we need to convert it to negative value
+      if (output_pos > Math.PI) {
+        output_pos = output_pos - 2*Math.PI;
+      }
+   // Negative offset (counter clockwise)
+  } else {
+      output_pos = input_pos + offset;
+   // If offset pushes us past -180, then we need to convert it to positive value
+      if (output_pos < -Math.PI) {
+        output_pos = output_pos + 2*Math.PI;
+      }
+    }
+    return output_pos;
+  }
+
 
   /**
    * Zeroes the turn encoders
@@ -175,7 +202,7 @@ public class SwerveModule {
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
      state =
-        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAbsolutePosition() + turn_offset));
+        SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnAngle(m_turningEncoder.getAbsolutePosition())));
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =
@@ -185,13 +212,13 @@ public class SwerveModule {
 
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
-        m_turningPIDController.calculate(m_turningEncoder.getAbsolutePosition() + turn_offset, state.angle.getRadians());
+        m_turningPIDController.calculate(getTurnAngle(m_turningEncoder.getAbsolutePosition()), state.angle.getRadians());
 
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-    m_driveMotor.setVoltage(deadband((driveOutput + driveFeedforward), 0.06));
-    m_turningMotor.setVoltage(deadband((turnOutput + turnFeedforward), 0.06));
+    m_driveMotor.setVoltage(driveOutput + driveFeedforward);
+    m_turningMotor.setVoltage(turnOutput + turnFeedforward);
   }
 
   public ProfiledPIDController getTurnPID() {

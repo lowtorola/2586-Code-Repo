@@ -21,17 +21,17 @@ import frc.robot.SwerveModule;
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
   public static final double kMaxSpeed = 3.0; // 3 meters per second
-  public static final double kMaxAngularSpeed = Math.PI; // 1/4 rotation per second
+  public static final double kMaxAngularSpeed = 1.5 * Math.PI; // 1/4 rotation per second
 
   private final Translation2d m_frontLeftLocation = new Translation2d(0.279, 0.279);
   private final Translation2d m_frontRightLocation = new Translation2d(0.279, -0.279);
   private final Translation2d m_backLeftLocation = new Translation2d(-0.279, 0.279);
   private final Translation2d m_backRightLocation = new Translation2d(-0.279, -0.279);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false, 0.672,0.702,2.69,0.2,1.15,0.62,0.24);
-  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true, 0.672,0.702,2.69,0.0,1.15,0.62,0.24);
-  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false, 0.672,0.702,2.69,0.95,1.15,0.62,0.24);
-  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true, 0.672,0.702,2.69,-0.8,1.15,0.62,0.24);
+  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false, 0.672,0.702,2.69,0.17,1.10,0.62,0.24);
+  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true, 0.672,0.702,2.69,-0.07,1.00,0.62,0.24);
+  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false, 0.672,0.702,2.69,0.98,0.95,0.62,0.24);
+  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true, 0.672,0.702,2.69,-0.85,0.95,0.62,0.24);
 
   private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 
@@ -85,15 +85,6 @@ public class Drivetrain {
         m_backRight.getState());
   }
 
-  /**
-   * Method to get the angles of the turn modules
-   * @return the angle of the module angles, starting at left front and going clockwise
-   */
-  public double[] getModuleAngles() {
-    double[] angles = {m_frontLeft.getTurnAngle(), m_frontRight.getTurnAngle(), m_backRight.getTurnAngle(),m_backLeft.getTurnAngle()};
-    return angles;
-  }
-
   public SwerveModule getFrontLeft() {
     return m_frontLeft;
   }
@@ -112,6 +103,10 @@ public class Drivetrain {
 
   public double getGyroAngle() {
     return m_gyro.getAngle();
+  }
+
+  public void resetGyro() {
+    m_gyro.reset();
   }
 
 }
