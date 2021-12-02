@@ -7,12 +7,15 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpiutil.math.MathUtil;
 
 public class Robot extends TimedRobot {
   private final Joystick m_controller = new Joystick(0);
   private final Drivetrain m_swerve = new Drivetrain();
+
+  private Timer timer = new Timer();
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(2);
@@ -54,10 +57,18 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    driveWithJoystick(false);
-    m_swerve.updateOdometry();
-    if(m_controller.getRawButton(4)) {
+    timer.start();
+    if(timer.get() < 3) {
+      m_swerve.drive(m_xspeedLimiter.calculate(0.5), 0, 0, true);
+    } else {
+      timer.stop();
+      m_swerve.drive(0, 0, 0, false);
     }
+
+    if(m_controller.getRawButton(1)) {
+      timer.reset();
+    }
+
   }
 
   @Override
@@ -65,6 +76,7 @@ public class Robot extends TimedRobot {
     driveWithJoystick(true);
     if(m_controller.getRawButton(4)) { // triangle
       m_swerve.resetGyro();
+      System.out.println("gyro reset!");
     }
   }
 

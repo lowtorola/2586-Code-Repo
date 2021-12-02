@@ -28,10 +28,10 @@ public class Drivetrain {
   private final Translation2d m_backLeftLocation = new Translation2d(-0.279, 0.279);
   private final Translation2d m_backRightLocation = new Translation2d(-0.279, -0.279);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false, 0.672,0.702,2.69,0.17,1.10,0.62,0.24);
-  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true, 0.672,0.702,2.69,-0.07,1.00,0.62,0.24);
-  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false, 0.672,0.702,2.69,0.98,0.95,0.62,0.24);
-  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true, 0.672,0.702,2.69,-0.85,0.95,0.62,0.24);
+  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false, 0.672,0.702,2.69,0.17,1.00,0.62,0.24);
+  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true, 0.672,0.702,2.69,-0.07,0.98,0.62,0.24);
+  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false, 0.672,0.702,2.69,0.98,0.98,0.62,0.24);
+  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true, 0.672,0.702,2.69,-0.85,1.02,0.62,0.24);
 
   private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 
