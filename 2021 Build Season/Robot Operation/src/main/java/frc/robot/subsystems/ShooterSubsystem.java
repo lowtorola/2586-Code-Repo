@@ -60,6 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
       public void runFeed() {
         feederMotor.set(ShooterConstants.kFeederMotorSpeed);
         beltMotor.set(ShooterConstants.kBeltMotorSpeed); // TODO: test to see optimal belt speed
+        System.out.println(beltMotor.getBusVoltage());
       }
 
       public void preloadShooter() {
