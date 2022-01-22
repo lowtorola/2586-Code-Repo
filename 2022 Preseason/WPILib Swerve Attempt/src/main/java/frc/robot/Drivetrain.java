@@ -21,17 +21,17 @@ import frc.robot.SwerveModule;
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
   public static final double kMaxSpeed = 3.0; // 3 meters per second
-  public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
+  public static final double kMaxAngularSpeed = 1.5 * Math.PI; // 1/4 rotation per second
 
   private final Translation2d m_frontLeftLocation = new Translation2d(0.279, 0.279);
   private final Translation2d m_frontRightLocation = new Translation2d(0.279, -0.279);
   private final Translation2d m_backLeftLocation = new Translation2d(-0.279, 0.279);
   private final Translation2d m_backRightLocation = new Translation2d(-0.279, -0.279);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9);
-  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11);
-  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10);
-  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12);
+  private final SwerveModule m_frontLeft = new SwerveModule(2, 1, 9, false, 0.672,0.702,2.69,0.17,1.00,0.62,0.24);
+  private final SwerveModule m_frontRight = new SwerveModule(6, 5, 11, true, 0.672,0.702,2.69,-0.07,0.98,0.62,0.24);
+  private final SwerveModule m_backLeft = new SwerveModule(4, 3, 10, false, 0.672,0.702,2.69,0.98,0.98,0.62,0.24);
+  private final SwerveModule m_backRight = new SwerveModule(8, 7, 12, true, 0.672,0.702,2.69,-0.85,1.02,0.62,0.24);
 
   private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 
@@ -44,6 +44,13 @@ public class Drivetrain {
 
   public Drivetrain() {
     m_gyro.reset();
+    m_frontLeft.zeroEncoders();
+    m_frontRight.zeroEncoders();
+    m_backLeft.zeroEncoders();
+    m_backRight.zeroEncoders();
+    m_frontRight.invertDrive(false);
+    m_frontLeft.invertDrive(true);
+    m_backRight.invertDrive(true);
   }
 
   /**
@@ -77,4 +84,29 @@ public class Drivetrain {
         m_backLeft.getState(),
         m_backRight.getState());
   }
+
+  public SwerveModule getFrontLeft() {
+    return m_frontLeft;
+  }
+
+  public SwerveModule getFrontRight() {
+    return m_frontRight;
+  }
+
+  public SwerveModule getBackLeft() {
+    return m_backLeft;
+  }
+
+  public SwerveModule getBackRight() {
+    return m_backRight;
+  }
+
+  public double getGyroAngle() {
+    return m_gyro.getAngle();
+  }
+
+  public void resetGyro() {
+    m_gyro.reset();
+  }
+
 }

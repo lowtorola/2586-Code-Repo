@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
 
 /*
@@ -32,46 +34,65 @@ public class SwerveModule {
 
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
-      2 * Math.PI; // radians per second squared
+     2.5 * Math.PI; // radians per second squared TODO: change back to 2 * Math.PI
 
   private final WPI_TalonFX m_driveMotor;
   private final WPI_TalonFX m_turningMotor;
+  private boolean driveMotorInverted;
+
+  private double turn_offset;
+  private double turn_kP;
+  private double turn_kS;
+  private double turn_kV;
 
   // private final CANCoder m_driveEncoder;
   double encUnitMeters = 2 * Math.PI * kWheelRadius / kEncoderResolution;
   private final CANCoder m_turningEncoder;
 
-  // Gains are for example purposes only - must be determined for your own robot!
-  private final PIDController m_drivePIDController = new PIDController(0.672, 0, 0); // from characterization
+  private ProfiledPIDController m_turningPIDController;
 
-  // Gains are for example purposes only - must be determined for your own robot!
-  private final ProfiledPIDController m_turningPIDController =
-      new ProfiledPIDController(
-          0.02, // ABSOLUTE GUESS!!
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
+  private PIDController m_drivePIDController;
 
-  // Gains are for example purposes only - must be determined for your own robot!
-  private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(.702, 2.69); // kS, kV
-  private final SimpleMotorFeedforward m_turnFeedforward = new SimpleMotorFeedforward(0, 0); // kS, kV
+  private SimpleMotorFeedforward m_driveFeedforward;
+  private SimpleMotorFeedforward m_turnFeedforward;
 
-  /**
+  // Swerve mod. state class var
+  SwerveModuleState state;
+
+    /**
    * Constructs a SwerveModule with a drive motor, turning motor, drive encoder and turning encoder.
    *
    * @param driveMotorID CAN output for the drive motor.
    * @param turningMotorID CAN output for the turning motor.
-   * @param driveEncoderID CAN input for the drive encoder
    * @param turningEncoderID CAN input for the turning encoder
+   * @param driveMotorInverted whether to invert the drive motor in the module
+   * @param drive_kP kP value for drive control
+   * @param drive_kS kS value for drive control
+   * @param drive_kV kV value for drive control
+   * @param turn_offset turn offset for module
+   * @param turn_kP kP value for turn control
+   * @param turn_kS kS value for turn feedforward
+   * @param turn_kV kV value for turn feedforward
    */
   public SwerveModule(
       int driveMotorID,
       int turningMotorID,
-      int turningEncoderID) {
+      int turningEncoderID,
+      boolean driveMotorInverted,
+      double drive_kP,
+      double drive_kS,
+      double drive_kV,
+      double turn_offset,
+      double turn_kP,
+      double turn_kS,
+      double turn_kV) {
     m_driveMotor = new WPI_TalonFX(driveMotorID);
     m_turningMotor = new WPI_TalonFX(turningMotorID);
     m_turningEncoder = new CANCoder(turningEncoderID);
+
+    this.turn_offset = turn_offset;
+
+    m_driveMotor.setInverted(driveMotorInverted);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
@@ -84,11 +105,28 @@ public class SwerveModule {
     // encoder resolution.
     double encUnitRadians = 2 * Math.PI / kEncoderResolution;
     
+    m_turningEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turningEncoder.configFeedbackCoefficient(encUnitRadians, "radians", SensorTimeBase.PerSecond);
 
+    m_turningPIDController =
+      new ProfiledPIDController(
+          turn_kP, // TODO: change back to turn_kP
+          0,
+          0,
+          new TrapezoidProfile.Constraints(
+              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration));
+    
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    
+    // Gains are for example purposes only - must be determined for your own robot!
+    m_drivePIDController = new PIDController(drive_kP, 0, 0);
+
+    m_driveFeedforward = new SimpleMotorFeedforward(drive_kS, drive_kV); // kS, kV
+    m_turnFeedforward = new SimpleMotorFeedforward(turn_kS, turn_kV); // kS, kV
+
+
   }
 
   /**
@@ -98,7 +136,62 @@ public class SwerveModule {
    */
   public SwerveModuleState getState() {
   //  return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(m_turningEncoder.getPosition()));
-    return new SwerveModuleState(m_driveMotor.getSelectedSensorVelocity() * 10 * encUnitMeters, new Rotation2d(m_turningEncoder.getPosition()));
+    return new SwerveModuleState(m_driveMotor.getSelectedSensorVelocity() * 10 * encUnitMeters, new Rotation2d(getTurnAngle(m_turningEncoder.getAbsolutePosition())));
+  }
+
+  /**
+   * Returns the current angle of the turn encoder in radians
+   * @return The current angle of the module in radians
+   */
+  public double getRawTurnAngle() {
+    return m_turningEncoder.getAbsolutePosition();
+  }
+
+  /**
+   * Angle return with offset calculation function.
+   * Returns the adjusted turn encoder value in radians
+   */
+  public double getTurnAngle(double input_pos) {
+    double offset = turn_offset;
+    double output_pos = 0.0;
+
+   // Positive offset (clockwise)
+    if (offset >= 0) {
+      output_pos = input_pos + offset;
+   // If offset pushes us past 180, then we need to convert it to negative value
+      if (output_pos > Math.PI) {
+        output_pos = output_pos - 2*Math.PI;
+      }
+   // Negative offset (counter clockwise)
+  } else {
+      output_pos = input_pos + offset;
+   // If offset pushes us past -180, then we need to convert it to positive value
+      if (output_pos < -Math.PI) {
+        output_pos = output_pos + 2*Math.PI;
+      }
+    }
+    return output_pos;
+  }
+
+
+  /**
+   * Zeroes the turn encoders
+   * 
+   */
+  public void zeroEncoders() {
+    m_turningEncoder.setPosition(0);
+  }
+
+  /**
+   * Get drive motor vel
+   * @return drive motor velocity (in raw units)
+   */
+  public double getDriveSpeed() {
+    return m_driveMotor.getSelectedSensorVelocity() * encUnitMeters * 10;
+  }
+
+  public void invertDrive(boolean inverted) {
+    m_driveMotor.setInverted(inverted);
   }
 
   /**
@@ -108,8 +201,8 @@ public class SwerveModule {
    */
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
-    SwerveModuleState state =
-        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getPosition()));
+     state =
+        SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnAngle(m_turningEncoder.getAbsolutePosition())));
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =
@@ -119,7 +212,7 @@ public class SwerveModule {
 
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
-        m_turningPIDController.calculate(m_turningEncoder.getPosition(), state.angle.getRadians());
+        m_turningPIDController.calculate(getTurnAngle(m_turningEncoder.getAbsolutePosition()), state.angle.getRadians());
 
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
@@ -127,4 +220,21 @@ public class SwerveModule {
     m_driveMotor.setVoltage(driveOutput + driveFeedforward);
     m_turningMotor.setVoltage(turnOutput + turnFeedforward);
   }
+
+  public ProfiledPIDController getTurnPID() {
+    return m_turningPIDController;
+  }
+
+  public SwerveModuleState moduleState() {
+    return state;
+  }
+
+  public double deadband(double x, double db) {
+    if(Math.abs(x) < db) {
+      return 0;
+    } else {
+      return x;
+    }
+  }
+
 }
