@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -38,19 +40,49 @@ public final class Constants {
     public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(216.65); 
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2;
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 1;
+    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 21; // FIXME: Change this to fit into range
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 9;
     public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(80.42); 
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 8;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 7;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 12;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(48.16); // FIXME Measure and set back left steer offset
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(137.81); // FIXME Measure and set back left steer offset
 
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 6;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 5;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 11;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(1.58); // FIXME Measure and set back right steer offset
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55); // FIXME Measure and set back right steer offset
+    }
+
+    /**
+     * This class contains all constants for the intake subsystem of the robot.
+     */
+    public static final class IntakeConstants {
+        public static final int ROLLER_MOTOR = 1;
+        public static final int[] CYLINDER = {8,7};
+        public static final PneumaticsModuleType CYLINDER_MODULE_TYPE = PneumaticsModuleType.REVPH;
+        public static final double FWD_SPEED = -0.85;
+        public static final double REV_SPEED = 0.5;
+    }
+
+    public static final class ShooterConstants {
+        public static final int MAX_VOLTS = 12;
+        public static final int MAX_RPM = 5676;
+        public static final double VOLT_PER_RPM = (double) MAX_VOLTS / MAX_RPM;
+        public static final int FLYWHEEL = 13;
+        public static final int FEEDER = 0;
+        public static final double SHOOT_RPM = 2500; // change this to change voltage output
+        public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM;
+        public static final double FEEDER_FWD = -0.5;
+        public static final double FEEDER_INDEX = -0.7;
+        public static final double FEEDER_REV = 0.2;
+    }
+
+    public static final class ClimbConstants {
+        public static final int LEFT_TELESCOPE = 14;
+        public static final int RIGHT_TELESCOPE = 15;
+        public static final double WINCH_SPEED = 0.8;
     }
 
     /**
@@ -60,7 +92,7 @@ public final class Constants {
     public static final class OIConstants {
         public static final int DRIVER_PORT = 0;
         public static final int OPERATOR_PORT = 1;
-        public static final int BUTTON_BOARD = 2;
+        public static final int FIGHT_STICK = 2;
 
         /**
          * This class contains button mapping for the Dualshock 4 controllers.
@@ -92,7 +124,7 @@ public final class Constants {
         /**
          * This class contains button bindings for the Fight Stick
          */
-        public static class FIGHT_STICK {
+        public static class FightStick {
             // Buttons
             public static final int A = 1;
             public static final int B = 2;
@@ -109,7 +141,7 @@ public final class Constants {
             public static final int Y_AXIS = 1; // Forward = -1, Center = 0, Back = 1
             public static final int L_TRIGGER = 2; // Rest = 0, Pressed = 1
             public static final int R_TRIGGER = 3; // Rest = 0, Pressed = 1
-            
+
         }
 
     }

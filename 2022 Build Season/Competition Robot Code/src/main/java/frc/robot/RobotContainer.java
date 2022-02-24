@@ -7,14 +7,23 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.ClimbConstants;
 import frc.robot.commands.DefaultDriveCommand;
 
 import static frc.robot.Constants.OIConstants.*;
+
+import java.util.FormatFlagsConversionMismatchException;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -25,12 +34,15 @@ import static frc.robot.Constants.OIConstants.*;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  // private final Joystick m_operator = new Joystick(OPERATOR_PORT);
+  // private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  //private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-
+  private final DriveSubsystem m_drivetrain = new DriveSubsystem();
+  private final IntakeSubsystem m_intake = new IntakeSubsystem();
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  private final ClimbSubsystem m_climber = new ClimbSubsystem();
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -40,8 +52,8 @@ public class RobotContainer {
     // Left stick Y axis -> forward and backwards movement
     // Left stick X axis -> left and right movement
     // Right stick X axis -> rotation
-    m_driveSubsystem.setDefaultCommand(new DefaultDriveCommand(
-            m_driveSubsystem,
+    m_drivetrain.setDefaultCommand(new DefaultDriveCommand(
+            m_drivetrain,
             () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
             () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
             () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
@@ -60,12 +72,69 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    // Share button zeros the gyro
+    // Driver share button zeros the gyro
     new JoystickButton(m_driver, DS4.SHARE)
     // no requirements since we don't have to interrupt anything
-    .whenPressed(m_driveSubsystem::zeroGyroscope);
-    
+    .whenPressed(new InstantCommand(m_drivetrain::zeroGyroscope));
 
+    // Driver right bumper lowers intake
+    new JoystickButton(m_driver, DS4.R_BUMPER)
+    // no requirements, the cylinders can't extend and retract at the same time
+    .whenPressed(new InstantCommand(m_intake::extend));
+
+    // Driver left bumper raises intake
+    new JoystickButton(m_driver, DS4.L_BUMPER)
+    // no requirements (see lowering button)
+    .whenPressed(new InstantCommand(m_intake::retract));
+
+    // driver left trig. button runs intake fwd.
+    new JoystickButton(m_driver, DS4.L_TRIGBUTTON)
+    // requires intake subsystem (i think)
+    // FIXME: Make sure requiring the subsystem doesn't break raising/lowering
+    .whileHeld(new InstantCommand(m_intake::intake))
+    .whenReleased(new InstantCommand(m_intake::stop));
+
+    // driver right trig. button runs intake rev.
+    new JoystickButton(m_driver, DS4.R_TRIGBUTTON)
+    // requires intake subsystem (i think)
+    // FIXME: Make sure requiring the subsystem doesn't break raising/lowering
+    .whileHeld(new InstantCommand(m_intake::reverse))
+    .whenReleased(new InstantCommand(m_intake::stop));
+
+    // driver circle button runs only shooter
+    new JoystickButton(m_driver, DS4.CIRCLE)
+    // no requirements
+    .whileHeld(new InstantCommand(m_shooter::shootVolts))
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel));
+
+    // driver center pad runs feeder at index speed
+    new JoystickButton(m_driver, DS4.CENTER_PAD)
+    // no requirements
+    .whileHeld(new InstantCommand(m_shooter::feederIndex))
+    .whenReleased(new InstantCommand(m_shooter::stopFeeder));
+
+    // driver X button runs shooter and feeder
+    new JoystickButton(m_driver, DS4.X)
+    // requires the shooter
+    .whileHeld(new InstantCommand(m_shooter::shootVolts).alongWith(new InstantCommand(m_shooter::feederFwd)))
+    .whenReleased(new InstantCommand(m_shooter::stopFeeder).andThen(new InstantCommand(m_shooter::stopFlywheel)));
+/*
+    new JoystickButton(m_fightStick, FightStick.X)
+    .whileHeld(new InstantCommand(m_climber::extendLeft))
+    .whenReleased(new InstantCommand(m_climber::stopLeft));
+
+    new JoystickButton(m_fightStick, FightStick.A)
+    .whileHeld(new InstantCommand(m_climber::retractLeft))
+    .whenReleased(new InstantCommand(m_climber::stopLeft));
+
+    new JoystickButton(m_fightStick, FightStick.Y)
+    .whileHeld(new InstantCommand(m_climber::extendRight))
+    .whenReleased(new InstantCommand(m_climber::stopRight));
+
+    new JoystickButton(m_fightStick, FightStick.B)
+    .whileHeld(new InstantCommand(m_climber::retractRight))
+    .whenReleased(new InstantCommand(m_climber::stopRight));
+*/
   }
 
   /**
