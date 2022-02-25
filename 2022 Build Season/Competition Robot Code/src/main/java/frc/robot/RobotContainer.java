@@ -16,12 +16,17 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.commands.DefaultDriveCommand;
-
+import frc.robot.commands.AdvanceFeeder;
 import static frc.robot.Constants.OIConstants.*;
-
+import java.util.Map;
+import java.time.Instant;
 import java.util.FormatFlagsConversionMismatchException;
 
 
@@ -110,7 +115,12 @@ public class RobotContainer {
     // driver center pad runs feeder at index speed
     new JoystickButton(m_driver, DS4.CENTER_PAD)
     // no requirements
-    .whileHeld(new InstantCommand(m_shooter::feederIndex))
+    .whenPressed(new AdvanceFeeder(m_shooter))
+    .whenReleased(new InstantCommand(m_shooter::stopFeeder), false);
+
+    // driver options reverses feeder
+    new JoystickButton(m_driver, DS4.OPTIONS)
+    .whenPressed(new ParallelDeadlineGroup(new WaitCommand(0.25), new InstantCommand(m_shooter::feederRev, m_shooter)))
     .whenReleased(new InstantCommand(m_shooter::stopFeeder));
 
     // driver X button runs shooter and feeder
