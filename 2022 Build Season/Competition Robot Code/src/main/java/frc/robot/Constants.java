@@ -81,11 +81,12 @@ public final class Constants {
     }
 
     public static final class ClimbConstants {
+
         public static final int LEFT_TELESCOPE = 14;
         public static final int RIGHT_TELESCOPE = 15;
         public static final double WINCH_SPEED = 0.8;
 
-        public static final double WINCH_DRUM = Math.PI * 1.452 * 2.0; // inches: FIXME: check conversion factor
+        public static final double WINCH_DRUM = Math.PI * 1.45 / 16.0; // inches: FIXME: check conversion factor
         public static final double MIN_HEIGHT = 1; // inches
         public static final int MAX_HEIGHT = 27; // inches: FIXME: find real max extension height
         public static final int STAGE_HEIGHT = 5; // inches: find actual stage height
@@ -93,10 +94,12 @@ public final class Constants {
         public static final int[] PIVOT_RIGHT = {9,10};
         public static final int[] PIVOT_LEFT = {7,8};
 
-        public static final double MAX_WINCH_SPEED = 30; // in/s
-        public static final double MAX_WINCH_ACC = 5; // in/s
+        public static final double MAX_WINCH_SPEED = 25; // in/s
+        public static final double MAX_WINCH_ACC = 15; // in/s/s
         public static final Constraints L_CONSTRAINTS = new Constraints(MAX_WINCH_SPEED, MAX_WINCH_ACC);
         public static final Constraints R_CONSTRAINTS = new Constraints(MAX_WINCH_SPEED, MAX_WINCH_ACC);
+        public static final double[] L_GAINS = {0.1, 0, 0}; // FIXME: find real gains for INCHES!!!
+        public static final double[] R_GAINS = {0.1, 0, 0}; // FIXME: find real gains for INCHES!!
     }
 
     /**
