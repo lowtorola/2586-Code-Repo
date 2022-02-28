@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 /**
@@ -83,6 +84,19 @@ public final class Constants {
         public static final int LEFT_TELESCOPE = 14;
         public static final int RIGHT_TELESCOPE = 15;
         public static final double WINCH_SPEED = 0.8;
+
+        public static final double WINCH_DRUM = Math.PI * 1.452 * 2.0; // inches: FIXME: check conversion factor
+        public static final double MIN_HEIGHT = 1; // inches
+        public static final int MAX_HEIGHT = 27; // inches: FIXME: find real max extension height
+        public static final int STAGE_HEIGHT = 5; // inches: find actual stage height
+
+        public static final int[] PIVOT_RIGHT = {9,10};
+        public static final int[] PIVOT_LEFT = {7,8};
+
+        public static final double MAX_WINCH_SPEED = 30; // in/s
+        public static final double MAX_WINCH_ACC = 5; // in/s
+        public static final Constraints L_CONSTRAINTS = new Constraints(MAX_WINCH_SPEED, MAX_WINCH_ACC);
+        public static final Constraints R_CONSTRAINTS = new Constraints(MAX_WINCH_SPEED, MAX_WINCH_ACC);
     }
 
     /**
