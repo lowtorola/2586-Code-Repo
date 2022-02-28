@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -18,11 +21,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.ClimbConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DefaultDriveCommand;
 
 import static frc.robot.Constants.OIConstants.*;
 
 import java.util.FormatFlagsConversionMismatchException;
+
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 
 /**
@@ -144,7 +152,19 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+
+    PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND, 2.0);
+
+    return new PPSwerveControllerCommand(
+      testTrajectory, 
+      () -> m_drivetrain.m_odometry.getPoseMeters(), 
+      DriveSubsystem.m_kinematics, 
+      new PIDController(0.5, 0, .01), 
+      new PIDController(0.5, 0, .01), 
+      new ProfiledPIDController(0.5, 0, .01, new Constraints(DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 1.0)), 
+      (states) -> m_drivetrain.drive(DriveSubsystem.m_kinematics.toChassisSpeeds(states)), 
+      m_drivetrain);
+
   }
 
   private static double deadband(double value, double deadband) {

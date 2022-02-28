@@ -17,10 +17,17 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public final class Constants {
 
     /**
-     * This class contains all drivebase constants & limelight constants, as the limelight is contained within
-     * the drivetrain subsystem for lambda reasons!!
+     * This class contains all drivebase constants & limelight constants
      */
     public static final class DriveConstants {
+
+    // Drive PID Constants
+    // FIXME: Use SysID to determine actual values
+    public static final double DRIVE_KP = 0.1;
+    public static final double DRIVE_KS = 0.0;
+    public static final double DRIVE_KA = 0.0;
+    public static final double DRIVE_KV = 0.0;
+
     /**
      * The left-to-right distance between the drivetrain wheels
      *
