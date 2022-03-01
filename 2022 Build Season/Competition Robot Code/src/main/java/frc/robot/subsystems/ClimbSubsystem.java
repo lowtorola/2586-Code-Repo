@@ -9,12 +9,19 @@ import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import static frc.robot.Constants.ClimbConstants.*;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbSubsystem extends SubsystemBase {
 
     private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
     private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
+
+    private final DigitalInput m_leftLowLim = new DigitalInput(8);
+    private final DigitalInput m_rightLowLim = new DigitalInput(9);
 
   /** Creates a new ExampleSubsystem. */
   public ClimbSubsystem() {
@@ -50,6 +57,8 @@ public class ClimbSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("Left Tele Limit", m_leftLowLim.get());
+    SmartDashboard.putBoolean("Right Tele Limit", m_rightLowLim.get());
   }
 
   @Override

@@ -34,7 +34,7 @@ import java.util.FormatFlagsConversionMismatchException;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  // private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
   //private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
@@ -118,7 +118,7 @@ public class RobotContainer {
     // requires the shooter
     .whileHeld(new InstantCommand(m_shooter::shootVolts).alongWith(new InstantCommand(m_shooter::feederFwd)))
     .whenReleased(new InstantCommand(m_shooter::stopFeeder).andThen(new InstantCommand(m_shooter::stopFlywheel)));
-/*
+
     new JoystickButton(m_fightStick, FightStick.X)
     .whileHeld(new InstantCommand(m_climber::extendLeft))
     .whenReleased(new InstantCommand(m_climber::stopLeft));
@@ -134,7 +134,7 @@ public class RobotContainer {
     new JoystickButton(m_fightStick, FightStick.B)
     .whileHeld(new InstantCommand(m_climber::retractRight))
     .whenReleased(new InstantCommand(m_climber::stopRight));
-*/
+
   }
 
   /**
