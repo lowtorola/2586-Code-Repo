@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import static frc.robot.Constants.ClimbConstants.*;
 
+<<<<<<< HEAD
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -22,6 +23,7 @@ public class ClimbSubsystem extends SubsystemBase {
     private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
     private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
 
+<<<<<<< HEAD
     private final DoubleSolenoid m_leftPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH,PIVOT_LEFT[0],PIVOT_LEFT[1]);
     private final DoubleSolenoid m_rightPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH,PIVOT_RIGHT[0],PIVOT_RIGHT[1]);  
 
@@ -75,6 +77,7 @@ public class ClimbSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+<<<<<<< HEAD
 
   }
 
