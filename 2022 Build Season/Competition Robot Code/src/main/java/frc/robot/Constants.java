@@ -72,10 +72,10 @@ public final class Constants {
         public static final double VOLT_PER_RPM = (double) MAX_VOLTS / MAX_RPM;
         public static final int FLYWHEEL = 13;
         public static final int FEEDER = 0;
-        public static final double SHOOT_RPM = 2500; // change this to change voltage output
+        public static final double SHOOT_RPM = 1500; // change this to change voltage output
         public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM;
-        public static final double FEEDER_FWD = -0.5;
-        public static final double FEEDER_INDEX = -0.7;
+        public static final double FEEDER_FWD = -0.8;
+        public static final double FEEDER_INDEX = -0.6;
         public static final double FEEDER_REV = 0.2;
     }
 
@@ -83,6 +83,12 @@ public final class Constants {
         public static final int LEFT_TELESCOPE = 14;
         public static final int RIGHT_TELESCOPE = 15;
         public static final double WINCH_SPEED = 0.8;
+
+        public static final int MAX_HEIGHT = 90;
+
+        public static final int[] PIVOT_RIGHT = {9,10};
+        public static final int[] PIVOT_LEFT = {7,8};
+
     }
 
     /**

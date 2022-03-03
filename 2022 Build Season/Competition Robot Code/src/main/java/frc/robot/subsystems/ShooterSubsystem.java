@@ -9,16 +9,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ShooterConstants.*;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class ShooterSubsystem extends SubsystemBase {
 
     private Spark m_feeder = new Spark(FEEDER);
     private CANSparkMax m_flywheel = new CANSparkMax(FLYWHEEL, MotorType.kBrushless);
+    private RelativeEncoder m_encoder;
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
-
+    m_encoder = m_flywheel.getEncoder();
   }
 
   /**
@@ -63,6 +65,15 @@ public class ShooterSubsystem extends SubsystemBase {
   public void stopFeeder() {
       m_feeder.set(0);
   }
+
+  public double getVelocity() {
+      return m_encoder.getVelocity();
+  }
+
+  public boolean atSpeed() {
+      return (getVelocity() >= SHOOT_RPM);
+  }
+
 
 
 

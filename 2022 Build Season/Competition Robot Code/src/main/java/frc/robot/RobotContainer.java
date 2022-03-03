@@ -15,13 +15,17 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.commands.DefaultDriveCommand;
 
 import static frc.robot.Constants.OIConstants.*;
 
+import java.time.Instant;
 import java.util.FormatFlagsConversionMismatchException;
 
 
@@ -34,7 +38,7 @@ import java.util.FormatFlagsConversionMismatchException;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  // private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
   //private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
@@ -116,25 +120,29 @@ public class RobotContainer {
     // driver X button runs shooter and feeder
     new JoystickButton(m_driver, DS4.X)
     // requires the shooter
-    .whileHeld(new InstantCommand(m_shooter::shootVolts).alongWith(new InstantCommand(m_shooter::feederFwd)))
-    .whenReleased(new InstantCommand(m_shooter::stopFeeder).andThen(new InstantCommand(m_shooter::stopFlywheel)));
-/*
+    .whileHeld(new ParallelCommandGroup(
+      new InstantCommand(m_shooter::shootVolts), 
+      new ConditionalCommand(
+        new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true);
+
+    // Fight stick Left POV extends pivot
+      new POVButton(m_fightStick, 0)
+      .whenActive(new InstantCommand(m_climber::extendPivot));
+    
+    // fight stick right POV retracts pivot
+      new POVButton(m_fightStick, 180)
+      .whenActive(new InstantCommand(m_climber::retractPivot));
+
+    // Fight stick x button raises telescope
     new JoystickButton(m_fightStick, FightStick.X)
-    .whileHeld(new InstantCommand(m_climber::extendLeft))
-    .whenReleased(new InstantCommand(m_climber::stopLeft));
+    .whileHeld(new InstantCommand(m_climber::extendTele))
+    .whenReleased(new InstantCommand(m_climber::stopTele));
 
+    // Fight Stick A button retracts telescope
     new JoystickButton(m_fightStick, FightStick.A)
-    .whileHeld(new InstantCommand(m_climber::retractLeft))
-    .whenReleased(new InstantCommand(m_climber::stopLeft));
+    .whileHeld(new InstantCommand(m_climber::retractTele))
+    .whenReleased(new InstantCommand(m_climber::stopTele));
 
-    new JoystickButton(m_fightStick, FightStick.Y)
-    .whileHeld(new InstantCommand(m_climber::extendRight))
-    .whenReleased(new InstantCommand(m_climber::stopRight));
-
-    new JoystickButton(m_fightStick, FightStick.B)
-    .whileHeld(new InstantCommand(m_climber::retractRight))
-    .whenReleased(new InstantCommand(m_climber::stopRight));
-*/
   }
 
   /**
