@@ -59,8 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * stop the shooter feeder
-   * 
+   * stop the shooter feeder 
    */
   public void stopFeeder() {
       m_feeder.set(0);
@@ -71,12 +70,8 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean atSpeed() {
-      return (getVelocity() >= SHOOT_RPM);
+      return (getVelocity() >= (SHOOT_RPM - 50));
   }
-
-
-
-
 
   @Override
   public void periodic() {
