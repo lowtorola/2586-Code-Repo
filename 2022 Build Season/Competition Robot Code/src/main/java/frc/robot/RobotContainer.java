@@ -15,7 +15,9 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -120,14 +122,15 @@ public class RobotContainer {
 
     // driver options reverses feeder
     new JoystickButton(m_driver, DS4.OPTIONS)
-    .whenPressed(new ParallelDeadlineGroup(new WaitCommand(0.25), new InstantCommand(m_shooter::feederRev, m_shooter)))
-    .whenReleased(new InstantCommand(m_shooter::stopFeeder));
+    .whenPressed(new ParallelDeadlineGroup(new WaitCommand(0.3), new InstantCommand(m_shooter::feederRev, m_shooter)));
 
-    // driver X button runs shooter and feeder
-    new JoystickButton(m_driver, DS4.X)
-    // requires the shooter
-    .whileHeld(new InstantCommand(m_shooter::shootVolts).alongWith(new InstantCommand(m_shooter::feederFwd)))
-    .whenReleased(new InstantCommand(m_shooter::stopFeeder).andThen(new InstantCommand(m_shooter::stopFlywheel)));
+  // driver X button runs shooter and feeder
+  new JoystickButton(m_driver, DS4.X)
+  // requires the shooter
+  .whileHeld(new ParallelCommandGroup(
+    new InstantCommand(m_shooter::shootVolts), 
+    new ConditionalCommand(
+      new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true);
 /*
     new JoystickButton(m_fightStick, FightStick.X)
     .whileHeld(new InstantCommand(m_climber::extendLeft))
