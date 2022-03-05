@@ -41,8 +41,8 @@ import java.util.FormatFlagsConversionMismatchException;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
-  //private final Joystick m_operator = new Joystick(OPERATOR_PORT);
+  //private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -85,24 +85,24 @@ public class RobotContainer {
     .whenPressed(new InstantCommand(m_drivetrain::zeroGyroscope));
 
     // Driver right bumper lowers intake
-    new JoystickButton(m_driver, DS4.R_BUMPER)
+    new JoystickButton(m_operator, DS4.R_BUMPER)
     // no requirements, the cylinders can't extend and retract at the same time
     .whenPressed(new InstantCommand(m_intake::extend));
 
     // Driver left bumper raises intake
-    new JoystickButton(m_driver, DS4.L_BUMPER)
+    new JoystickButton(m_operator, DS4.L_BUMPER)
     // no requirements (see lowering button)
     .whenPressed(new InstantCommand(m_intake::retract));
 
     // driver left trig. button runs intake fwd.
-    new JoystickButton(m_driver, DS4.L_TRIGBUTTON)
+    new JoystickButton(m_operator, DS4.L_TRIGBUTTON)
     // requires intake subsystem (i think)
     // FIXME: Make sure requiring the subsystem doesn't break raising/lowering
     .whileHeld(new InstantCommand(m_intake::intake))
     .whenReleased(new InstantCommand(m_intake::stop));
 
     // driver right trig. button runs intake rev.
-    new JoystickButton(m_driver, DS4.R_TRIGBUTTON)
+    new JoystickButton(m_operator, DS4.R_TRIGBUTTON)
     // requires intake subsystem (i think)
     // FIXME: Make sure requiring the subsystem doesn't break raising/lowering
     .whileHeld(new InstantCommand(m_intake::reverse))
@@ -115,32 +115,25 @@ public class RobotContainer {
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel));
 
     // driver center pad runs feeder at index speed
-    new JoystickButton(m_driver, DS4.CENTER_PAD)
+    new JoystickButton(m_operator, DS4.CENTER_PAD)
     // no requirements
-    .whenPressed(new AdvanceFeeder(m_shooter))
+    .whenPressed(new AdvanceFeeder(m_shooter).withTimeout(1), true)
     .whenReleased(new InstantCommand(m_shooter::stopFeeder), false);
 
     // driver options reverses feeder
-    new JoystickButton(m_driver, DS4.OPTIONS)
-    .whenPressed(new ParallelDeadlineGroup(new WaitCommand(0.3), new InstantCommand(m_shooter::feederRev, m_shooter)));
-
-  // driver X button runs shooter and feeder
-  new JoystickButton(m_driver, DS4.X)
-  // requires the shooter
-  .whileHeld(new ParallelCommandGroup(
-    new InstantCommand(m_shooter::shootVolts), 
-    new ConditionalCommand(
-      new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true);
+    new JoystickButton(m_operator, DS4.OPTIONS)
+    .whenPressed(new ParallelDeadlineGroup(new WaitCommand(0.3), new InstantCommand(m_shooter::feederRev, m_shooter)))
+    .whenReleased(new InstantCommand(m_shooter::stopFeeder));
 
     // driver X button runs shooter and feeder
-    new JoystickButton(m_driver, DS4.X)
+    new JoystickButton(m_operator, DS4.X)
     // requires the shooter
     .whileHeld(new ParallelCommandGroup(
       new InstantCommand(m_shooter::shootVolts), 
       new ConditionalCommand(
         new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true)
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
-
+/*
     // Fight stick Left POV extends pivot
       new POVButton(m_fightStick, 0)
       .whenActive(new InstantCommand(m_climber::extendPivot));
@@ -158,7 +151,7 @@ public class RobotContainer {
     new JoystickButton(m_fightStick, FightStick.A)
     .whileHeld(new InstantCommand(m_climber::retractTele))
     .whenReleased(new InstantCommand(m_climber::stopTele));
-
+*/
   }
 
   /**
@@ -185,7 +178,7 @@ public class RobotContainer {
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.05);
+    value = deadband(value, 0.07);
 
     // Square the axis
     value = Math.copySign(value * value, value);

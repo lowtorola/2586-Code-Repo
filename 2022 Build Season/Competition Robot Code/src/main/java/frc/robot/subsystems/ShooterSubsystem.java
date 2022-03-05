@@ -23,10 +23,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private RelativeEncoder m_encoder;
 
     int feederState;
- 
-    private Spark m_feeder = new Spark(FEEDER);
-    private CANSparkMax m_flywheel = new CANSparkMax(FLYWHEEL, MotorType.kBrushless);
-    private RelativeEncoder m_encoder;
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
@@ -83,14 +79,6 @@ public class ShooterSubsystem extends SubsystemBase {
     return !m_bottomBB.get();
   }
 
-  public double getVelocity() {
-    return m_encoder.getVelocity();
-}
-
-  public boolean atSpeed() {
-    return (getVelocity() >= (SHOOT_RPM - 50));
-}
-
     /**
    * Returns the state of the top shooter beam break
    * @return Returns true when ball present, false when no ball
@@ -101,13 +89,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public int getFeederState() {
     return feederState;
+  }
 
   public double getVelocity() {
       return m_encoder.getVelocity();
   }
 
   public boolean atSpeed() {
-      return (getVelocity() >= (SHOOT_RPM - 100));
+      return (getVelocity() >= (SHOOT_RPM - 500));
 
   }
 
