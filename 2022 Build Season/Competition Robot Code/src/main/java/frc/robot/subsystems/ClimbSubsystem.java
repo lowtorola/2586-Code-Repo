@@ -38,22 +38,25 @@ public class ClimbSubsystem extends SubsystemBase {
   public ClimbSubsystem() {
     m_leftEncoder = m_leftTele.getEncoder();
     m_rightEncoder = m_rightTele.getEncoder();
-     
-    m_rightTele.setInverted(true);
 
     m_leftTele.restoreFactoryDefaults();
     m_rightTele.restoreFactoryDefaults();
+    m_rightTele.setInverted(true);
     m_leftTele.setSmartCurrentLimit(40);
     m_rightTele.setSmartCurrentLimit(40);
     // m_leftTele.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
     // m_rightTele.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
     m_leftTele.setIdleMode(IdleMode.kBrake);
     m_rightTele.setIdleMode(IdleMode.kBrake);
+    m_leftTele.setOpenLoopRampRate(0.5);
+    m_rightTele.setOpenLoopRampRate(0.5);
   }
 
     public void retractTele() {
+      if(m_leftLowLim.get() && m_rightLowLim.get()){
       m_leftTele.set(-WINCH_SPEED);
       m_rightTele.set(-WINCH_SPEED);
+      }
     }
     public void extendTele() {
       m_leftTele.set(WINCH_SPEED);
@@ -83,6 +86,9 @@ public class ClimbSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("Left Tele Limit", m_leftLowLim.get());
     SmartDashboard.putBoolean("Right Tele Limit", m_rightLowLim.get());
+    SmartDashboard.putNumber("Left Tele Pos", m_leftEncoder.getPosition());
+    SmartDashboard.putNumber("Right Tele Pos", m_rightEncoder.getPosition());
+
   }
 
   @Override

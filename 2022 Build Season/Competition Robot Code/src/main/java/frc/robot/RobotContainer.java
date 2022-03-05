@@ -123,7 +123,8 @@ public class RobotContainer {
     .whileHeld(new ParallelCommandGroup(
       new InstantCommand(m_shooter::shootVolts), 
       new ConditionalCommand(
-        new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true);
+        new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true)
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
 
     // Fight stick Left POV extends pivot
       new POVButton(m_fightStick, 0)

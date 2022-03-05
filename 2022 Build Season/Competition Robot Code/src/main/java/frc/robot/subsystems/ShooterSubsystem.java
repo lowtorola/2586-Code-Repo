@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ShooterConstants.*;
 
@@ -70,12 +71,14 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean atSpeed() {
-      return (getVelocity() >= (SHOOT_RPM - 50));
+      return (getVelocity() >= (SHOOT_RPM - 100));
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("Shooter at speed", atSpeed());
+    SmartDashboard.putNumber("Shooter RPM", getVelocity());
   }
 
   @Override
