@@ -23,6 +23,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private RelativeEncoder m_encoder;
 
     int feederState;
+ 
+    private Spark m_feeder = new Spark(FEEDER);
+    private CANSparkMax m_flywheel = new CANSparkMax(FLYWHEEL, MotorType.kBrushless);
+    private RelativeEncoder m_encoder;
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
@@ -65,8 +69,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * stop the shooter feeder
-   * 
+   * stop the shooter feeder 
    */
   public void stopFeeder() {
       m_feeder.set(0);
@@ -98,6 +101,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public int getFeederState() {
     return feederState;
+
+  public double getVelocity() {
+      return m_encoder.getVelocity();
+  }
+
+  public boolean atSpeed() {
+      return (getVelocity() >= (SHOOT_RPM - 100));
+
   }
 
   @Override
@@ -113,11 +124,11 @@ public class ShooterSubsystem extends SubsystemBase {
         feederState = 0;
     }
 
-    
-
     SmartDashboard.putNumber("feeder state", feederState);
     SmartDashboard.putBoolean("top bb", getTopBB());
     SmartDashboard.putBoolean("bottom bb", getBottomBB());
+    SmartDashboard.putBoolean("Shooter at speed", atSpeed());
+    SmartDashboard.putNumber("Shooter RPM", getVelocity());
   }
 
   @Override

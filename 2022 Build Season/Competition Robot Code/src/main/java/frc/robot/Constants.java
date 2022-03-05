@@ -79,12 +79,23 @@ public final class Constants {
         public static final double FEEDER_FWD = -0.8;
         public static final double FEEDER_INDEX = -0.6;
         public static final double FEEDER_REV = 0.4;
+        public static final double SHOOT_RPM = 1500; // change this to change voltage output
+        public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.2;
+        public static final double FEEDER_FWD = -0.8;
+        public static final double FEEDER_INDEX = -0.6;
+        public static final double FEEDER_REV = 0.2;
     }
 
     public static final class ClimbConstants {
         public static final int LEFT_TELESCOPE = 14;
         public static final int RIGHT_TELESCOPE = 15;
         public static final double WINCH_SPEED = 0.8;
+
+        public static final int MAX_HEIGHT = 90;
+
+        public static final int[] PIVOT_RIGHT = {9,10};
+        public static final int[] PIVOT_LEFT = {5,6};
+
     }
 
     /**
