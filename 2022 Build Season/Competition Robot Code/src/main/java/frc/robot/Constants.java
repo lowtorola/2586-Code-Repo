@@ -41,25 +41,65 @@ public final class Constants {
      */
     public static final double DRIVETRAIN_WHEELBASE_METERS = 0.572;
 
+    // Front left module
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 4;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 3;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 10;
     public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(216.65); 
+    // PID constants for Front Left Module
+    public static final double FRONT_LEFT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
+    // front right module
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2;
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 21; // FIXME: Change this to fit into range
+    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 21;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 9;
     public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(80.42); 
+    // PID constants for Front Right Module
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
+    // back left module
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 8;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 7;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 12;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(137.81); // FIXME Measure and set back left steer offset
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(137.81); 
+    // PID constants for Back Left Module
+    public static final double BACK_LEFT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
+    // back right module
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 6;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 5;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 11;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55); // FIXME Measure and set back right steer offset
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55);
+    // PID constants for Back Right Module
+    public static final double BACK_RIGHT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
     }
 
     /**
