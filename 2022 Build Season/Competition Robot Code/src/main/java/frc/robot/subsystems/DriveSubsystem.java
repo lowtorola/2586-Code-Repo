@@ -250,14 +250,14 @@ public class DriveSubsystem extends SubsystemBase {
   public void drivePID(ChassisSpeeds chassisSpeeds) {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
-        m_frontLeftDrive.set(TalonFXControlMode.Velocity, toClosedLoopUnits(states[0].speedMetersPerSecond));
-        m_frontRightDrive.set(TalonFXControlMode.Velocity, toClosedLoopUnits(states[1].speedMetersPerSecond));
-        m_backLeftDrive.set(TalonFXControlMode.Velocity, toClosedLoopUnits(states[2].speedMetersPerSecond));
-        m_backRightDrive.set(TalonFXControlMode.Velocity, toClosedLoopUnits(states[3].speedMetersPerSecond));
+        m_frontLeftDrive.set(TalonFXControlMode.Velocity, toTalonFXUnits(states[0].speedMetersPerSecond));
+        m_frontRightDrive.set(TalonFXControlMode.Velocity, toTalonFXUnits(states[1].speedMetersPerSecond));
+        m_backLeftDrive.set(TalonFXControlMode.Velocity, toTalonFXUnits(states[2].speedMetersPerSecond));
+        m_backRightDrive.set(TalonFXControlMode.Velocity, toTalonFXUnits(states[3].speedMetersPerSecond));
         m_frontLeftTurn.set(TalonFXControlMode.Position, states[0].angle.getRadians());
       }
 
-  public double toClosedLoopUnits(double metersPerSecond){
+  public double toTalonFXUnits(double metersPerSecond){
         double RPM = metersPerSecond * 60.0 * (1./0.3191) * 6.75;
         return RPM * 2048.0 / 600.0;
   }
