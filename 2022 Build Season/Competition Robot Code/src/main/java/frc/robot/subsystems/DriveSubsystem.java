@@ -101,6 +101,10 @@ public class DriveSubsystem extends SubsystemBase {
   private final CANCoder m_frontRightTurnEncoder;
   private final CANCoder m_backLeftTurnEncoder;
   private final CANCoder m_backRightTurnEncoder;
+  private final PIDController m_frontLeftSteerController;
+  private final PIDController m_frontRightSteerController;
+  private final PIDController m_backLeftSteerController;
+  private final PIDController m_backRightSteerController;  
   private final WPI_TalonFX m_frontRightDrive;
   private final WPI_TalonFX m_frontRightTurn;
   private final WPI_TalonFX m_backLeftDrive;
@@ -145,10 +149,8 @@ public class DriveSubsystem extends SubsystemBase {
     // turn motor
     m_frontLeftTurn = (WPI_TalonFX) m_frontLeftModule.getSteerMotor();
     m_frontLeftTurnEncoder = (CANCoder) m_frontLeftModule.getSteerEncoder();
-    m_frontLeftTurn.config_kP(0, FRONT_LEFT_MODULE_TURN_KP);
-    m_frontLeftTurn.config_kI(0, FRONT_LEFT_MODULE_TURN_KI);
-    m_frontLeftTurn.config_kD(0, FRONT_LEFT_MODULE_TURN_KD);
-    m_frontLeftTurn.config_kF(0, FRONT_LEFT_MODULE_TURN_KF);
+    m_frontLeftSteerController = new PIDController(FRONT_LEFT_MODULE_TURN_KP, FRONT_LEFT_MODULE_TURN_KI, FRONT_LEFT_MODULE_TURN_KD);
+    m_frontLeftSteerController.setTolerance(Math.toRadians(2.0)); // FIXME: Find actual angle tolerance of controller
 
     // We will do the same for the other modules
     m_frontRightModule = Mk4SwerveModuleHelper.createFalcon500(
@@ -171,10 +173,8 @@ public class DriveSubsystem extends SubsystemBase {
     // turn motor
     m_frontRightTurn = (WPI_TalonFX) m_frontRightModule.getSteerMotor();
     m_frontRightTurnEncoder = (CANCoder) m_frontRightModule.getSteerEncoder();
-    m_frontRightTurn.config_kP(0, FRONT_RIGHT_MODULE_TURN_KP);
-    m_frontRightTurn.config_kI(0, FRONT_RIGHT_MODULE_TURN_KI);
-    m_frontRightTurn.config_kD(0, FRONT_RIGHT_MODULE_TURN_KD);
-    m_frontRightTurn.config_kF(0, FRONT_RIGHT_MODULE_TURN_KF);
+    m_frontRightSteerController = new PIDController(FRONT_RIGHT_MODULE_TURN_KP, FRONT_RIGHT_MODULE_TURN_KI, FRONT_RIGHT_MODULE_TURN_KD);
+    m_frontRightSteerController.setTolerance(Math.toRadians(2.0)); // FIXME: Find actual angle tolerance of controller
 
     m_backLeftModule = Mk4SwerveModuleHelper.createFalcon500(
             tab.getLayout("Back Left Module", BuiltInLayouts.kList)
@@ -196,11 +196,8 @@ public class DriveSubsystem extends SubsystemBase {
     // turn motor
     m_backLeftTurn = (WPI_TalonFX) m_backLeftModule.getSteerMotor();
     m_backLeftTurnEncoder = (CANCoder) m_frontRightModule.getSteerEncoder();
-    m_backLeftTurn.config_kP(0, BACK_LEFT_MODULE_TURN_KP);
-    m_backLeftTurn.config_kI(0, BACK_LEFT_MODULE_TURN_KI);
-    m_backLeftTurn.config_kD(0, BACK_LEFT_MODULE_TURN_KD);
-    m_backLeftTurn.config_kF(0, BACK_LEFT_MODULE_TURN_KF);
-    
+    m_backLeftSteerController = new PIDController(BACK_LEFT_MODULE_TURN_KD, BACK_LEFT_MODULE_TURN_KI, BACK_LEFT_MODULE_TURN_KD);
+    m_backLeftSteerController.setTolerance(Math.toRadians(2.0));    
 
     m_backRightModule = Mk4SwerveModuleHelper.createFalcon500(
             tab.getLayout("Back Right Module", BuiltInLayouts.kList)
@@ -222,10 +219,8 @@ public class DriveSubsystem extends SubsystemBase {
     // turn motor
     m_backRightTurn = (WPI_TalonFX) m_backRightModule.getSteerMotor();
     m_backRightTurnEncoder = (CANCoder) m_backRightModule.getSteerEncoder();
-    m_backRightTurn.config_kP(0, BACK_RIGHT_MODULE_TURN_KP);
-    m_backRightTurn.config_kI(0, BACK_RIGHT_MODULE_TURN_KI);
-    m_backRightTurn.config_kD(0, BACK_RIGHT_MODULE_TURN_KD);
-    m_backRightTurn.config_kF(0, BACK_RIGHT_MODULE_TURN_KF);
+    m_backRightSteerController = new PIDController(BACK_RIGHT_MODULE_TURN_KP, BACK_RIGHT_MODULE_TURN_KI, BACK_RIGHT_MODULE_TURN_KD);
+    m_backRightSteerController.setTolerance(Math.toRadians(2.0)); // FIXME: find real angle tolerance
   }
 
   /**
@@ -247,6 +242,11 @@ public class DriveSubsystem extends SubsystemBase {
     m_chassisSpeeds = chassisSpeeds;
   }
 
+  /**
+   * NEED to verify that CANCoders will report in radians (so PID controllers will work correctly)
+   * NEED to verify that steer PID gains will work with radians.... so kinda a long shot...
+   * @param chassisSpeeds
+   */
   public void drivePID(ChassisSpeeds chassisSpeeds) {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
@@ -254,13 +254,52 @@ public class DriveSubsystem extends SubsystemBase {
         m_frontRightDrive.set(TalonFXControlMode.Velocity, toTalonFXUnits(states[1].speedMetersPerSecond));
         m_backLeftDrive.set(TalonFXControlMode.Velocity, toTalonFXUnits(states[2].speedMetersPerSecond));
         m_backRightDrive.set(TalonFXControlMode.Velocity, toTalonFXUnits(states[3].speedMetersPerSecond));
-        m_frontLeftTurn.set(TalonFXControlMode.Position, states[0].angle.getRadians());
+        m_frontLeftTurn.set(m_frontLeftSteerController.calculate(m_frontLeftTurnEncoder.getPosition(), correctAngle(states[0].angle.getRadians(), m_frontLeftTurnEncoder.getPosition())));
+        m_frontRightTurn.set(m_frontRightSteerController.calculate(m_frontRightTurnEncoder.getPosition(), correctAngle(states[1].angle.getRadians(), m_frontRightTurnEncoder.getPosition())));
+        m_backLeftTurn.set(m_backLeftSteerController.calculate(m_backLeftTurnEncoder.getPosition(), correctAngle(states[2].angle.getRadians(), m_backLeftTurnEncoder.getPosition())));
+        m_backRightTurn.set(m_backRightSteerController.calculate(m_backRightTurnEncoder.getPosition(), correctAngle(states[3].angle.getRadians(), m_backRightTurnEncoder.getPosition())));
       }
 
   public double toTalonFXUnits(double metersPerSecond){
         double RPM = metersPerSecond * 60.0 * (1./0.3191) * 6.75;
         return RPM * 2048.0 / 600.0;
   }
+
+   /**
+   * Lifted this outta the swerve lib...corrects target angle for setting state
+   * @param steerAngle the angle (rad) we want the module to be at
+   * @param currentAngle the current angle (rad) of the module
+   * @return The corrected angle (whatever that means lol)
+   */
+  public double correctAngle(double steerAngle, double currentAngle) {
+        steerAngle %= (2.0 * Math.PI);
+        if (steerAngle < 0.0) {
+            steerAngle += 2.0 * Math.PI;
+        }
+
+        double difference = steerAngle - currentAngle;
+        // Change the target angle so the difference is in the range [-pi, pi) instead of [0, 2pi)
+        if (difference >= Math.PI) {
+            steerAngle -= 2.0 * Math.PI;
+        } else if (difference < -Math.PI) {
+            steerAngle += 2.0 * Math.PI;
+        }
+        difference = steerAngle - currentAngle; // Recalculate difference
+
+        // If the difference is greater than 90 deg or less than -90 deg the drive can be inverted so the total
+        // movement of the module is less than 90 deg
+        if (difference > Math.PI / 2.0 || difference < -Math.PI / 2.0) {
+            // Only need to add 180 deg here because the target angle will be put back into the range [0, 2pi)
+            steerAngle += Math.PI;
+        }
+
+        // Put the target angle back into the range [0, 2pi)
+        steerAngle %= (2.0 * Math.PI);
+        if (steerAngle < 0.0) {
+            steerAngle += 2.0 * Math.PI;
+        }
+     return steerAngle;
+  } 
 
   @Override
   public void periodic() {

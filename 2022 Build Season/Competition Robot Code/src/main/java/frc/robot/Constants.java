@@ -51,9 +51,9 @@ public final class Constants {
     public static final double FRONT_LEFT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
     public static final double FRONT_LEFT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
     public static final double FRONT_LEFT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
-    public static final double FRONT_LEFT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
     public static final double FRONT_LEFT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
-    public static final double FRONT_LEFT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
     public static final double FRONT_LEFT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
     // front right module
@@ -66,9 +66,9 @@ public final class Constants {
     public static final double FRONT_RIGHT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
     public static final double FRONT_RIGHT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
     public static final double FRONT_RIGHT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
-    public static final double FRONT_RIGHT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
     public static final double FRONT_RIGHT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
-    public static final double FRONT_RIGHT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
     public static final double FRONT_RIGHT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
     // back left module
@@ -81,9 +81,9 @@ public final class Constants {
     public static final double BACK_LEFT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
     public static final double BACK_LEFT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
     public static final double BACK_LEFT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
-    public static final double BACK_LEFT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
     public static final double BACK_LEFT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
-    public static final double BACK_LEFT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
     public static final double BACK_LEFT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
     // back right module
@@ -96,9 +96,9 @@ public final class Constants {
     public static final double BACK_RIGHT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
     public static final double BACK_RIGHT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
     public static final double BACK_RIGHT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_TURN_KP = 0.1; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
     public static final double BACK_RIGHT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_TURN_KD = 0.01; // FIXME: get from sysid values
+    public static final double BACK_RIGHT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
     public static final double BACK_RIGHT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
     }
 
