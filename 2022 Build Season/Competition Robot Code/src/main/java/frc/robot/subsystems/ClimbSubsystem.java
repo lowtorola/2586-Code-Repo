@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,7 +31,8 @@ public class ClimbSubsystem extends SubsystemBase {
   private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
   private final RelativeEncoder m_leftTeleEnc;
   private final RelativeEncoder m_rightTeleEnc;
-  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT[0], PIVOT[1]);
+  private final Solenoid m_pivotFwd = new Solenoid(PneumaticsModuleType.CTREPCM, PIVOT_FWD);
+  private final Solenoid m_pivotRev = new Solenoid(PneumaticsModuleType.CTREPCM, PIVOT_REV);
 
   private final SparkMaxPIDController m_leftController;
   private final SparkMaxPIDController m_rightController;
@@ -51,8 +53,8 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftController = m_leftTele.getPIDController();
     m_rightController = m_rightTele.getPIDController();
 
-    m_leftLimit = m_leftTele.getReverseLimitSwitch(Type.kNormallyClosed);
-    m_rightLimit = m_rightTele.getReverseLimitSwitch(Type.kNormallyClosed);
+    m_leftLimit = m_leftTele.getReverseLimitSwitch(Type.kNormallyOpen);
+    m_rightLimit = m_rightTele.getReverseLimitSwitch(Type.kNormallyOpen);
 
     // set left gains
     m_leftController.setP(KP_LEFT);
@@ -88,20 +90,25 @@ public class ClimbSubsystem extends SubsystemBase {
     return m_rightTeleEnc.getPosition();
   }
 
-  public void setLeftTele(double output) {
-    m_leftTele.set(output);
+  public void setLeftTele() {
+    m_leftTele.set(-0.15);
   }
 
-  public void setRightTele(double output) {
-    m_rightTele.set(output);
+  public void setRightTele() {
+    m_rightTele.set(-0.15);
   }
 
   public void extendPivot() {
-    m_pivot.set(Value.kForward);
+    m_pivotFwd.set(true);
   }
 
   public void retractPivot() {
-    m_pivot.set(Value.kReverse);
+    m_pivotRev.set(true);
+  }
+
+  public void stopPivot() {
+    m_pivotFwd.set(false);
+    m_pivotRev.set(false);
   }
 
   /**

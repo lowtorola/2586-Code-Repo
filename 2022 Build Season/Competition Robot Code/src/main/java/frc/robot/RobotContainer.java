@@ -120,27 +120,33 @@ public class RobotContainer {
 
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
-    .whenPressed(new InstantCommand(m_climber::teleHigh), true);
+    .whenPressed(new InstantCommand(m_climber::teleHigh), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight Stick A button retracts telescope
     new JoystickButton(m_fightStick, FightStick.A)
-    .whenPressed(new InstantCommand(m_climber::teleLow), true);
+    .whenPressed(new InstantCommand(m_climber::teleLow), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight Stick Y button stages tele
     new JoystickButton(m_fightStick, FightStick.Y)
-    .whenPressed(new InstantCommand(m_climber::teleStage), true);
+    .whenPressed(new InstantCommand(m_climber::teleStage), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight stick Right bumper homes tele
     new JoystickButton(m_fightStick, FightStick.R_BUMPER)
-    .whenPressed(new HomeTelescopes(m_climber), true);
+    .whenPressed(new HomeTelescopes(m_climber), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight stick up POV extends pivot
     new POVButton(m_fightStick, 0)
-    .whenActive(new InstantCommand(m_climber::extendPivot));
+    .whenPressed(new InstantCommand(m_climber::extendPivot))
+    .whenReleased(new InstantCommand(m_climber::stopPivot));
 
     // fight stick down POV retracts pivot
     new POVButton(m_fightStick, 180)
-    .whenActive(new InstantCommand(m_climber::retractPivot));
+    .whenPressed(new InstantCommand(m_climber::retractPivot))
+    .whenReleased(new InstantCommand(m_climber::stopPivot));
   }
 
   /**

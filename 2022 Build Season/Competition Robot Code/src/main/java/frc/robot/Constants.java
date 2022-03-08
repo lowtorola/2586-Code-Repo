@@ -90,7 +90,8 @@ public final class Constants {
         public static final int MAX_HEIGHT = 70; // rotations
         public static final int STAGE_HEIGHT = 8; // rotations: find actual stage height
 
-        public static final int[] PIVOT = {5,6};
+        public static final int PIVOT_FWD = 4;
+        public static final int PIVOT_REV = 5;
 
         public static final int SMART_MOTION_SLOT = 0;
         public static final double KP_LEFT = 0.00002; // FIXME: plug in tuned values for all these!!
