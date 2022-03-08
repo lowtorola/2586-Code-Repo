@@ -79,6 +79,15 @@ public final class Constants {
         public static final double FEEDER_FWD = 0.8;
         public static final double FEEDER_INDEX = 0.5;
         public static final double FEEDER_REV = -0.4;
+        
+        public static final double KP = 0.000065; // FIXME: replace all with real gains!! 
+        public static final int KI = 0;
+        public static final int KD = 0; 
+        public static final int KIZ = 0; 
+        public static final double KFF = 0.000015; // ditto ^^
+        public static final int KMAX_OUTPUT = 1; 
+        public static final int KMIN_OUTPUT = -1;
+        public static final int KMAX_RPM = 5700;
     }
 
     public static final class ClimbConstants {
