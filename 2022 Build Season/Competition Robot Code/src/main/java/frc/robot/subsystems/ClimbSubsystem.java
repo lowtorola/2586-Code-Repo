@@ -46,6 +46,8 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
 
+    resetEncoders();
+
     m_leftController = m_leftTele.getPIDController();
     m_rightController = m_rightTele.getPIDController();
 
@@ -157,5 +159,7 @@ public class ClimbSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Left tele pos", getLeftPos());
     SmartDashboard.putNumber("Right tele pos", getRightPos());
+    SmartDashboard.putNumber("Left output", m_leftTele.getAppliedOutput());
+    SmartDashboard.putNumber("Right output", m_rightTele.getAppliedOutput());
   }
 }
