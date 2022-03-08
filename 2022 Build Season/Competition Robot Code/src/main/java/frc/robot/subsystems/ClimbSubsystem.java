@@ -12,7 +12,6 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -21,6 +20,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.ClimbConstants.*;
 
@@ -151,5 +151,11 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public boolean getRightLimit() {
     return m_rightLimit.isPressed();
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Left tele pos", getLeftPos());
+    SmartDashboard.putNumber("Right tele pos", getRightPos());
   }
 }
