@@ -4,12 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.TelescopeCommand;
+import frc.robot.commands.HomeTelescopes;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -120,29 +118,29 @@ public class RobotContainer {
     .whileHeld(new InstantCommand(m_shooter::shootVolts).alongWith(new InstantCommand(m_shooter::feederFwd)))
     .whenReleased(new InstantCommand(m_shooter::stopFeeder).andThen(new InstantCommand(m_shooter::stopFlywheel)));
 
-    // Fight stick x button raises telescope
+    // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
-    .whileHeld(new TelescopeCommand(2, m_climber))
-    .whenReleased(new InstantCommand(m_climber::teleStop));
+    .whenPressed(new InstantCommand(m_climber::teleHigh), true);
 
     // Fight Stick A button retracts telescope
     new JoystickButton(m_fightStick, FightStick.A)
-    .whileHeld(new TelescopeCommand(0, m_climber))
-    .whenReleased(new InstantCommand(m_climber::teleStop));
+    .whenPressed(new InstantCommand(m_climber::teleLow), true);
 
     // Fight Stick Y button stages tele
     new JoystickButton(m_fightStick, FightStick.Y)
-    .whileHeld(new TelescopeCommand(1, m_climber))
-    .whenReleased(new InstantCommand(m_climber::teleStop));
+    .whenPressed(new InstantCommand(m_climber::teleStage), true);
 
-    // Fight stick Left POV extends pivot
-    new POVButton(m_fightStick, 270)
+    // Fight stick Right bumper homes tele
+    new JoystickButton(m_fightStick, FightStick.R_BUMPER)
+    .whenPressed(new HomeTelescopes(m_climber), true);
+
+    // Fight stick up POV extends pivot
+    new POVButton(m_fightStick, 0)
     .whenActive(new InstantCommand(m_climber::extendPivot));
 
-    // fight stick right POV retracts pivot
-    new POVButton(m_fightStick, 90)
+    // fight stick down POV retracts pivot
+    new POVButton(m_fightStick, 180)
     .whenActive(new InstantCommand(m_climber::retractPivot));
-
   }
 
   /**

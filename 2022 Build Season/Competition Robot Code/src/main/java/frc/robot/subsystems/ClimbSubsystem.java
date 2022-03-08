@@ -6,8 +6,12 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxLimitSwitch;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxLimitSwitch.Type;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -22,33 +26,56 @@ import static frc.robot.Constants.ClimbConstants.*;
 
 public class ClimbSubsystem extends SubsystemBase {
 
-  private final CANSparkMax m_teleRight = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
-  private final CANSparkMax m_teleLeft = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
+  private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
+  private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
   private final RelativeEncoder m_leftTeleEnc;
   private final RelativeEncoder m_rightTeleEnc;
+  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT[0], PIVOT[1]);
 
-  private final DoubleSolenoid m_leftPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH,PIVOT_LEFT[0],PIVOT_LEFT[1]);
-  private final DoubleSolenoid m_rightPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH,PIVOT_RIGHT[0],PIVOT_RIGHT[1]);
-
-  private final ProfiledPIDController m_leftController;
-  private final ProfiledPIDController m_rightController;
-
+  private final SparkMaxPIDController m_leftController;
+  private final SparkMaxPIDController m_rightController;
+  private final SparkMaxLimitSwitch m_leftLimit;
+  private final SparkMaxLimitSwitch m_rightLimit;
 
   public ClimbSubsystem() {
 
-    m_leftTeleEnc = m_teleLeft.getEncoder();
-    m_rightTeleEnc = m_teleRight.getEncoder();
-    m_leftTeleEnc.setPositionConversionFactor(WINCH_DRUM);
-    m_rightTeleEnc.setPositionConversionFactor(WINCH_DRUM);
+    m_rightTele.setInverted(true);
+    m_leftTele.setSmartCurrentLimit(40);
+    m_rightTele.setSmartCurrentLimit(40);
 
-    m_teleLeft.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
-    m_teleRight.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
+    m_leftTeleEnc = m_leftTele.getEncoder();
+    m_rightTeleEnc = m_rightTele.getEncoder();
 
-    m_leftController = new ProfiledPIDController(L_GAINS[0], L_GAINS[1], L_GAINS[2], L_CONSTRAINTS); // INCHES!!!
-    m_rightController = new ProfiledPIDController(R_GAINS[0], R_GAINS[1], R_GAINS[2], R_CONSTRAINTS); // INCHES!!
-    m_leftController.setTolerance(0.5); // inches!!
-    m_rightController.setTolerance(0.5); // inches!!
+    m_leftController = m_leftTele.getPIDController();
+    m_rightController = m_rightTele.getPIDController();
 
+    m_leftLimit = m_leftTele.getReverseLimitSwitch(Type.kNormallyClosed);
+    m_rightLimit = m_rightTele.getReverseLimitSwitch(Type.kNormallyClosed);
+
+    // set left gains
+    m_leftController.setP(KP_LEFT);
+    m_leftController.setI(KI);
+    m_leftController.setD(KD);
+    m_leftController.setIZone(KIZ);
+    m_leftController.setFF(KFF_LEFT);
+    m_leftController.setOutputRange(KMIN_OUTPUT, KMAX_OUTPUT);
+    // set right gains
+    m_rightController.setP(KP_RIGHT);
+    m_rightController.setI(KI);
+    m_rightController.setD(KD);
+    m_rightController.setIZone(KIZ);
+    m_rightController.setFF(KFF_RIGHT);
+    m_rightController.setOutputRange(KMIN_OUTPUT, KMAX_OUTPUT);
+    // set left smart motion settings
+    m_leftController.setSmartMotionMaxVelocity(MAX_VEL, SMART_MOTION_SLOT);
+    m_leftController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
+    m_leftController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
+    m_leftController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR, SMART_MOTION_SLOT);
+    // set right smart motion settings
+    m_rightController.setSmartMotionMaxVelocity(MAX_VEL, SMART_MOTION_SLOT);
+    m_rightController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
+    m_rightController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
+    m_rightController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR, SMART_MOTION_SLOT);
   }
   
   public double getLeftPos() {
@@ -60,70 +87,69 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void setLeftTele(double output) {
-    m_teleLeft.set(output);
+    m_leftTele.set(output);
   }
 
   public void setRightTele(double output) {
-    m_teleRight.set(output);
+    m_rightTele.set(output);
   }
 
   public void extendPivot() {
-    m_leftPivot.set(Value.kForward);
-    m_rightPivot.set(Value.kForward);
+    m_pivot.set(Value.kForward);
   }
 
   public void retractPivot() {
-    m_leftPivot.set(Value.kReverse);
-    m_rightPivot.set(Value.kReverse);
+    m_pivot.set(Value.kReverse);
   }
 
   /**
    * Sets the telescopes to begin moving towards their highest extension, e.g. step 1 of the climbing sequence
    */
   public void teleHigh() {
-    m_leftController.setGoal(MAX_HEIGHT);
-    m_rightController.setGoal(MAX_HEIGHT);
-    setLeftTele(m_leftController.calculate(getLeftPos()));
-    setRightTele(m_rightController.calculate(getRightPos()));
+    m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
-    m_leftController.setGoal(MIN_HEIGHT);
-    m_rightController.setGoal(MIN_HEIGHT);
-    setLeftTele(m_leftController.calculate(getLeftPos()));
-    setRightTele(m_rightController.calculate(getRightPos()));
+    m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer
    * the hold to the pivot arms
    */
   public void teleStage() {
-    m_leftController.setGoal(STAGE_HEIGHT);
-    m_rightController.setGoal(STAGE_HEIGHT);
-    setLeftTele(m_leftController.calculate(getLeftPos()));
-    setRightTele(m_rightController.calculate(getRightPos()));
+    m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
   }
 
-  public void teleStop() {
-    m_teleLeft.set(0);
-    m_teleRight.set(0);
+  public void stopLeft() {
+    m_leftTele.stopMotor();
+  }
+
+  public void stopRight() {
+    m_rightTele.stopMotor();
+  }
+
+  public void resetEncoders() {
+    m_leftTeleEnc.setPosition(0);
+    m_rightTeleEnc.setPosition(0);
   }
 
   /**
-   * Allows access to the left telescope's ProfiledPIDController
-   * @return The ProfiledPIDController object responsible for controlling the telescope
+   * Get the state of the left telescope hall effect switch
+   * @return Whether or not the hall effect is "pressed"
    */
-  public ProfiledPIDController getLeftController() {
-    return m_leftController;
+  public boolean getLeftLimit() {
+    return m_leftLimit.isPressed();
   }
   /**
-   * Allows access to the right telescope's ProfiledPIDController
-   * @return The ProfiledPIDController object responsible for controlling the telescope
+   * Get the state of the right telescope hall effect switch
+   * @return Whether or not the hall effect is "pressed"
    */
-  public ProfiledPIDController getRightController() {
-    return m_rightController;
+  public boolean getRightLimit() {
+    return m_rightLimit.isPressed();
   }
-
 }
