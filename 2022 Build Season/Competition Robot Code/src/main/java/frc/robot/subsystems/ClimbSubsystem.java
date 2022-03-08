@@ -31,8 +31,7 @@ public class ClimbSubsystem extends SubsystemBase {
   private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
   private final RelativeEncoder m_leftTeleEnc;
   private final RelativeEncoder m_rightTeleEnc;
-  private final Solenoid m_pivotFwd = new Solenoid(PneumaticsModuleType.CTREPCM, PIVOT_FWD);
-  private final Solenoid m_pivotRev = new Solenoid(PneumaticsModuleType.CTREPCM, PIVOT_REV);
+  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT[0], PIVOT[1]);
 
   private final SparkMaxPIDController m_leftController;
   private final SparkMaxPIDController m_rightController;
@@ -99,16 +98,11 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void extendPivot() {
-    m_pivotFwd.set(true);
+    m_pivot.set(Value.kForward);
   }
 
   public void retractPivot() {
-    m_pivotRev.set(true);
-  }
-
-  public void stopPivot() {
-    m_pivotFwd.set(false);
-    m_pivotRev.set(false);
+    m_pivot.set(Value.kReverse);
   }
 
   /**
@@ -116,14 +110,14 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleHigh() {
     m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(MAX_HEIGHT + 3.5, ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
     m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(MIN_HEIGHT + 2.5, ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer
@@ -131,7 +125,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleStage() {
     m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(STAGE_HEIGHT + 1.5, ControlType.kSmartMotion);
   }
 
   public void stopLeft() {

@@ -86,28 +86,27 @@ public final class Constants {
         public static final int RIGHT_TELESCOPE = 15;
         public static final double WINCH_SPEED = 0.8;
 
-        public static final int MIN_HEIGHT = 2; // rotations
-        public static final int MAX_HEIGHT = 70; // rotations
+        public static final double MIN_HEIGHT = 0.25; // rotations
+        public static final int MAX_HEIGHT = 68; // rotations
         public static final int STAGE_HEIGHT = 8; // rotations: find actual stage height
 
-        public static final int PIVOT_FWD = 4;
-        public static final int PIVOT_REV = 5;
+        public static final int[] PIVOT = {6,9};
 
         public static final int SMART_MOTION_SLOT = 0;
-        public static final double KP_LEFT = 0.00002; // FIXME: plug in tuned values for all these!!
-        public static final double KP_RIGHT = 0.00002; // FIXME: plug in tuned values for all these!!
+        public static final double KP_LEFT = 0.00038; // FIXME: plug in tuned values for all these!!
+        public static final double KP_RIGHT = 0.00043; // FIXME: plug in tuned values for all these!!
         public static final int KI = 0;
-        public static final double KD = 0.001;
+        public static final double KD = 0.0; // 0.001
         public static final double KIZ = 0;
-        public static final double KFF_LEFT = 0.0002; 
-        public static final double KFF_RIGHT = 0.0002;
+        public static final double KFF_LEFT = 0.00046; 
+        public static final double KFF_RIGHT = 0.00046;
         public static final double KMAX_OUTPUT = 0.9;
         public static final double KMIN_OUTPUT = -0.9;
         public static final int MAX_RPM = 5700;
         public static final int MAX_VEL = 5000;
         public static final int MIN_VEL = 0;
-        public static final int MAX_ACC = 1750;
-        public static final double ALLOWED_ERR = 0.5; // 1 rotation for real climb
+        public static final int MAX_ACC = 2000;
+        public static final double ALLOWED_ERR = 1.5; // 1 rotation for real climb
 
 
 

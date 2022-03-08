@@ -140,13 +140,11 @@ public class RobotContainer {
 
     // Fight stick up POV extends pivot
     new POVButton(m_fightStick, 0)
-    .whenPressed(new InstantCommand(m_climber::extendPivot))
-    .whenReleased(new InstantCommand(m_climber::stopPivot));
+    .whenPressed(new InstantCommand(m_climber::extendPivot));
 
     // fight stick down POV retracts pivot
     new POVButton(m_fightStick, 180)
-    .whenPressed(new InstantCommand(m_climber::retractPivot))
-    .whenReleased(new InstantCommand(m_climber::stopPivot));
+    .whenPressed(new InstantCommand(m_climber::retractPivot));
   }
 
   /**
