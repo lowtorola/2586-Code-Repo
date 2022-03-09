@@ -90,11 +90,11 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void setLeftTele() {
-    m_leftTele.set(-0.15);
+    m_leftTele.set(-0.1);
   }
 
   public void setRightTele() {
-    m_rightTele.set(-0.15);
+    m_rightTele.set(-0.1);
   }
 
   public void extendPivot() {
@@ -110,14 +110,14 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleHigh() {
     m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MAX_HEIGHT + 3.5, ControlType.kSmartMotion);
+    m_rightController.setReference(MAX_HEIGHT + 1.5, ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
     m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MIN_HEIGHT + 2.5, ControlType.kSmartMotion);
+    m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer
@@ -125,7 +125,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleStage() {
     m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(STAGE_HEIGHT + 1.5, ControlType.kSmartMotion);
+    m_rightController.setReference(STAGE_HEIGHT + 1, ControlType.kSmartMotion);
   }
 
   public void stopLeft() {
