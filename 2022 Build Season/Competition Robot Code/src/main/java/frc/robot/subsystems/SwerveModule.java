@@ -117,7 +117,7 @@ public class SwerveModule {
           0,
           0,
           new TrapezoidProfile.Constraints(
-              Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.5)); // FIXME: full turn speed in 2 sec
+              Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 1.0)); // FIXME: full turn speed in 2 sec
     
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
@@ -138,7 +138,7 @@ public class SwerveModule {
    */
   public SwerveModuleState getState() {
   //  return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(m_turningEncoder.getPosition()));
-    return new SwerveModuleState(m_driveMotor.getSelectedSensorVelocity() * 10 * encUnitMeters, new Rotation2d(getTurnAngle(m_turningEncoder.getAbsolutePosition())));
+    return new SwerveModuleState(m_driveMotor.getSelectedSensorVelocity() * 10 * encUnitMeters, new Rotation2d(getTurnAngle()));
   }
 
   /**
@@ -153,7 +153,8 @@ public class SwerveModule {
    * Angle return with offset calculation function.
    * Returns the adjusted turn encoder value in radians
    */
-  public double getTurnAngle(double input_pos) {
+  public double getTurnAngle() {
+    double input_pos = m_turningEncoder.getAbsolutePosition();
     double offset = turn_offset;
     double output_pos = 0.0;
 
@@ -204,7 +205,7 @@ public class SwerveModule {
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
      state =
-        SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnAngle(m_turningEncoder.getAbsolutePosition())));
+        SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnAngle()));
 
     // Calculate the drive output from the drive PID controller.
     final double driveOutput =
@@ -214,7 +215,7 @@ public class SwerveModule {
 
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
-        m_turningPIDController.calculate(getTurnAngle(m_turningEncoder.getAbsolutePosition()), state.angle.getRadians());
+        m_turningPIDController.calculate(getTurnAngle(), state.angle.getRadians());
 
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);

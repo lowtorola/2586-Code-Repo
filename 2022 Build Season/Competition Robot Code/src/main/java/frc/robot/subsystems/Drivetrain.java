@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.SwerveModule;
 import static frc.robot.Constants.DriveConstants.*;
@@ -28,16 +29,16 @@ public class Drivetrain extends SubsystemBase {
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
   private final SwerveModule m_frontLeft = new SwerveModule(FRONT_LEFT_MODULE_DRIVE_MOTOR, FRONT_LEFT_MODULE_STEER_MOTOR,
-    FRONT_LEFT_MODULE_STEER_ENCODER, true, 0.672, 0.702, 2.69, 0, 1.00, 0.62, 0.24);
+    FRONT_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, 0.0, 1.00, 0.62, 0.24);
 
   private final SwerveModule m_frontRight = new SwerveModule(FRONT_RIGHT_MODULE_DRIVE_MOTOR, FRONT_RIGHT_MODULE_STEER_MOTOR, 
-    FRONT_RIGHT_MODULE_STEER_ENCODER, true, 0.672, 0.702, 2.69, 0, 1.00, 0.62, 0.24);
+    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, 0.0, 1.00, 0.62, 0.24);
 
   private final SwerveModule m_backLeft = new SwerveModule(BACK_LEFT_MODULE_DRIVE_MOTOR, BACK_LEFT_MODULE_STEER_MOTOR, 
-    BACK_LEFT_MODULE_STEER_ENCODER, true, 0.672, 0.702, 2.69, 0, 1.00, 0.62, 0.24);
+    BACK_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, 0.0, 1.00, 0.62, 0.24);
 
   private final SwerveModule m_backRight = new SwerveModule(BACK_RIGHT_MODULE_DRIVE_MOTOR, BACK_RIGHT_MODULE_STEER_MOTOR, 
-    BACK_RIGHT_MODULE_STEER_ENCODER, true, 0.672, 0.702, 2.69, 0, 1.00, 0.62, 0.24);
+    BACK_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, 0.0, 1.00, 0.62, 0.24);
 
   private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 
@@ -122,6 +123,14 @@ public class Drivetrain extends SubsystemBase {
 
   public void resetGyro() {
     m_gyro.reset();
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Front Left Angle", m_frontLeft.getRawTurnAngle());
+    SmartDashboard.putNumber("Front Right Angle", m_frontRight.getRawTurnAngle());
+    SmartDashboard.putNumber("Back Left Angle", m_backLeft.getRawTurnAngle());
+    SmartDashboard.putNumber("Back Right Angle", m_backRight.getRawTurnAngle());
   }
 
 }

@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.TestAuto;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -53,6 +55,8 @@ public class RobotContainer {
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
+  private SendableChooser<Command> m_autonomousChooser = new SendableChooser();
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Set up the default command for the drivetrain.
@@ -66,6 +70,23 @@ public class RobotContainer {
             () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
             () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
+
+    SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
+
+    PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", 5.0, 3.0);
+
+    m_autonomousChooser.setDefaultOption("Test PP Path", 
+      new PPSwerveControllerCommand(
+       testTrajectory, 
+       () -> m_drivetrain.m_odometry.getPoseMeters(), 
+       Drivetrain.m_kinematics, 
+       new PIDController(0.3, 0, .01), 
+       new PIDController(0.3, 0, .01), 
+       new ProfiledPIDController(0.4, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 0.4)), 
+       (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
+       m_drivetrain));
+
+       m_autonomousChooser.addOption("Multi Step Test", new TestAuto(m_drivetrain, m_intake, m_shooter));
 
 
     // Configure the button bindings
@@ -151,19 +172,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-
-    PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", Drivetrain.MAX_VELOCITY_METERS_PER_SECOND, Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 1.0);
-
-    return new PPSwerveControllerCommand(
-      testTrajectory, 
-      () -> m_drivetrain.m_odometry.getPoseMeters(), 
-      Drivetrain.m_kinematics, 
-      new PIDController(0.3, 0, .01), 
-      new PIDController(0.3, 0, .01), 
-      new ProfiledPIDController(0.5, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 0.8)), 
-      (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
-      m_drivetrain);
+    
+    // returns the command selected in the chooser!!
+    return m_autonomousChooser.getSelected();
 
   }
 
