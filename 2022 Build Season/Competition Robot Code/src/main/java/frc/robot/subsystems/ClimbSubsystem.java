@@ -9,7 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxLimitSwitch;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -24,6 +24,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static frc.robot.Constants.ClimbConstants.*;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbSubsystem extends SubsystemBase {
 
@@ -37,7 +44,7 @@ public class ClimbSubsystem extends SubsystemBase {
   private final SparkMaxPIDController m_rightController;
   private final SparkMaxLimitSwitch m_leftLimit;
   private final SparkMaxLimitSwitch m_rightLimit;
-
+  
   public ClimbSubsystem() {
 
     m_rightTele.setInverted(true);
@@ -154,7 +161,6 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public boolean getRightLimit() {
     return m_rightLimit.isPressed();
-  }
 
   @Override
   public void periodic() {
