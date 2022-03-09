@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ClimbSubsystem;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -47,7 +47,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final DriveSubsystem m_drivetrain = new DriveSubsystem();
+  private final Drivetrain m_drivetrain = new Drivetrain();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
@@ -62,9 +62,9 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     m_drivetrain.setDefaultCommand(new DefaultDriveCommand(
             m_drivetrain,
-            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+            () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
 
 
@@ -83,7 +83,7 @@ public class RobotContainer {
     // Driver share button zeros the gyro
     new JoystickButton(m_driver, DS4.SHARE)
     // no requirements since we don't have to interrupt anything
-    .whenPressed(new InstantCommand(m_drivetrain::zeroGyroscope));
+    .whenPressed(new InstantCommand(m_drivetrain::resetGyro));
 
     // Driver right bumper lowers intake
     new JoystickButton(m_driver, DS4.R_BUMPER)
@@ -153,16 +153,16 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
 
-    PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND, 2.0);
+    PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", Drivetrain.MAX_VELOCITY_METERS_PER_SECOND, Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 1.0);
 
     return new PPSwerveControllerCommand(
       testTrajectory, 
       () -> m_drivetrain.m_odometry.getPoseMeters(), 
-      DriveSubsystem.m_kinematics, 
-      new PIDController(0.5, 0, .01), 
-      new PIDController(0.5, 0, .01), 
-      new ProfiledPIDController(0.5, 0, .01, new Constraints(DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 1.0)), 
-      (states) -> m_drivetrain.drive(DriveSubsystem.m_kinematics.toChassisSpeeds(states)), 
+      Drivetrain.m_kinematics, 
+      new PIDController(0.3, 0, .01), 
+      new PIDController(0.3, 0, .01), 
+      new ProfiledPIDController(0.5, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 0.8)), 
+      (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
       m_drivetrain);
 
   }
