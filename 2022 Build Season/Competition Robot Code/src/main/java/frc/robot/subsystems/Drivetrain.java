@@ -29,16 +29,16 @@ public class Drivetrain extends SubsystemBase {
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
   private final SwerveModule m_frontLeft = new SwerveModule(FRONT_LEFT_MODULE_DRIVE_MOTOR, FRONT_LEFT_MODULE_STEER_MOTOR,
-    FRONT_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -214.52, 3.0, 0.43, 0.24);
+    FRONT_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -214.52, 3.5, 0.43, 0.1);
 
   private final SwerveModule m_frontRight = new SwerveModule(FRONT_RIGHT_MODULE_DRIVE_MOTOR, FRONT_RIGHT_MODULE_STEER_MOTOR, 
-    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -79.78, 3.0, 0.43, 0.24);
+    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -79.78, 3.5, 0.3, 0.1);
 
   private final SwerveModule m_backLeft = new SwerveModule(BACK_LEFT_MODULE_DRIVE_MOTOR, BACK_LEFT_MODULE_STEER_MOTOR, 
-    BACK_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -138.51, 3.0, 0.43, 0.24);
+    BACK_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -138.51, 3.7, 0.65, 0.1);
 
   private final SwerveModule m_backRight = new SwerveModule(BACK_RIGHT_MODULE_DRIVE_MOTOR, BACK_RIGHT_MODULE_STEER_MOTOR, 
-    BACK_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -270.45, 3.0, 0.43, 0.24);
+    BACK_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -270.45, 3.5, 0.43, 0.1);
 
   private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
 
