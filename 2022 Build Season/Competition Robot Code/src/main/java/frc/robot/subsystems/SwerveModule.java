@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -96,6 +97,8 @@ public class SwerveModule {
     this.driveMotorInverted = driveMotorInverted;
 
     m_driveMotor.setInverted(this.driveMotorInverted);
+    m_driveMotor.setNeutralMode(NeutralMode.Brake);
+    m_turningMotor.setNeutralMode(NeutralMode.Brake);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
