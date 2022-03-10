@@ -9,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxLimitSwitch.Type;
 
 import static frc.robot.Constants.ClimbConstants.*;
 
@@ -24,9 +25,6 @@ public class ClimbSubsystem extends SubsystemBase {
 
     private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
     private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
-
-    private final DigitalInput m_leftLowLim = new DigitalInput(8);
-    private final DigitalInput m_rightLowLim = new DigitalInput(9);
 
     private final RelativeEncoder m_leftEncoder;
     private final RelativeEncoder m_rightEncoder;
@@ -44,6 +42,7 @@ public class ClimbSubsystem extends SubsystemBase {
     m_rightTele.setInverted(true);
     m_leftTele.setSmartCurrentLimit(40);
     m_rightTele.setSmartCurrentLimit(40);
+    
     // m_leftTele.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
     // m_rightTele.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
     m_leftTele.setIdleMode(IdleMode.kBrake);
@@ -53,14 +52,13 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
     public void retractTele() {
-      if(m_leftLowLim.get() && m_rightLowLim.get()){
       m_leftTele.set(-WINCH_SPEED);
-      m_rightTele.set(-WINCH_SPEED);
+      //m_rightTele.set(-WINCH_SPEED);
       }
-    }
+    
     public void extendTele() {
       m_leftTele.set(WINCH_SPEED);
-      m_rightTele.set(WINCH_SPEED);
+      //m_rightTele.set(WINCH_SPEED);
     }
     public void stopTele() {
       m_leftTele.stopMotor();
@@ -84,11 +82,8 @@ public class ClimbSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("Left Tele Limit", m_leftLowLim.get());
-    SmartDashboard.putBoolean("Right Tele Limit", m_rightLowLim.get());
     SmartDashboard.putNumber("Left Tele Pos", m_leftEncoder.getPosition());
     SmartDashboard.putNumber("Right Tele Pos", m_rightEncoder.getPosition());
-
   }
 
   @Override
