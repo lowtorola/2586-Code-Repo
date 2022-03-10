@@ -122,7 +122,11 @@ public class RobotContainer {
 
     // driver options reverses feeder
     new JoystickButton(m_operator, DS4.OPTIONS)
+<<<<<<< Updated upstream
     .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(1))
+=======
+    .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(0.3))
+>>>>>>> Stashed changes
     .whenReleased(new InstantCommand(m_shooter::stopFeeder));
 
     // driver X button runs shooter and feeder
