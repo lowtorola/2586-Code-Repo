@@ -161,6 +161,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public boolean getRightLimit() {
     return m_rightLimit.isPressed();
+  }
 
   @Override
   public void periodic() {
