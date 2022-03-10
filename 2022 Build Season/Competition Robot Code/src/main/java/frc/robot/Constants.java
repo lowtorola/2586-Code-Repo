@@ -68,16 +68,18 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
-        public static final int MAX_VOLTS = 12;
+        public static final double MAX_VOLTS = 12.0;
         public static final int MAX_RPM = 5676;
         public static final double VOLT_PER_RPM = (double) MAX_VOLTS / MAX_RPM;
         public static final int FLYWHEEL = 13;
         public static final int FEEDER = 0;
-        public static final double SHOOT_RPM = 1500; // change this to change voltage output
-        public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.2;
-        public static final double FEEDER_FWD = -0.8;
-        public static final double FEEDER_INDEX = -0.6;
-        public static final double FEEDER_REV = 0.2;
+        public static final int TOP_BB = 0;
+        public static final int BOTTOM_BB = 1;
+        public static final int SHOOT_RPM = 1850; // change this to change voltage output
+        public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.25;
+        public static final double FEEDER_FWD = 0.8;
+        public static final double FEEDER_INDEX = 0.5;
+        public static final double FEEDER_REV = -0.4;
     }
 
     public static final class ClimbConstants {

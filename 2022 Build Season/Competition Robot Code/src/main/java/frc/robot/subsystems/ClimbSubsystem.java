@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import static frc.robot.Constants.ClimbConstants.*;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -45,6 +44,17 @@ public class ClimbSubsystem extends SubsystemBase {
   private final SparkMaxLimitSwitch m_leftLimit;
   private final SparkMaxLimitSwitch m_rightLimit;
   
+    private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
+    private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
+
+    private final RelativeEncoder m_leftEncoder;
+    private final RelativeEncoder m_rightEncoder;
+
+    private final DoubleSolenoid m_leftPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_LEFT[0], PIVOT_LEFT[1]);
+    private final DoubleSolenoid m_rightPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_RIGHT[0], PIVOT_RIGHT[1]);
+
+  /** Creates a new ExampleSubsystem. */
+
   public ClimbSubsystem() {
 
     m_rightTele.setInverted(true);
@@ -161,6 +171,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public boolean getRightLimit() {
     return m_rightLimit.isPressed();
+
   }
 
   @Override
