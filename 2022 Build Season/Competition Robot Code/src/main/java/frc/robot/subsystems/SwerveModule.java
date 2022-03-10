@@ -48,7 +48,7 @@ public class SwerveModule {
   private double turn_kV;
 
   // private final CANCoder m_driveEncoder;
-  double encUnitMeters = 2 * Math.PI * kWheelRadius / kEncoderResolution;
+  double encUnitMeters = 2 * Math.PI * kWheelRadius / kEncoderResolution / 6.75;
   private final CANCoder m_turningEncoder;
 
   private ProfiledPIDController m_turningPIDController;
@@ -93,8 +93,9 @@ public class SwerveModule {
     m_turningEncoder = new CANCoder(turningEncoderID);
 
     this.turn_offset = turn_offset;
+    this.driveMotorInverted = driveMotorInverted;
 
-    m_driveMotor.setInverted(driveMotorInverted);
+    m_driveMotor.setInverted(this.driveMotorInverted);
 
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
@@ -107,17 +108,21 @@ public class SwerveModule {
     // encoder resolution.
     double encUnitRadians = 2 * Math.PI / kEncoderResolution;
     
-    m_turningEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turningEncoder.configFeedbackCoefficient(encUnitRadians, "radians", SensorTimeBase.PerSecond);
     m_turningEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+    m_turningEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
+    m_turningEncoder.configMagnetOffset(this.turn_offset);
+    m_turningEncoder.configSensorDirection(false);
 
     m_turningPIDController =
       new ProfiledPIDController(
-          turn_kP, // TODO: change back to turn_kP
+          turn_kP,
           0,
           0,
           new TrapezoidProfile.Constraints(
-              Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 1.0)); // FIXME: full turn speed in 2 sec
+              Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
+
+    m_turningPIDController.setTolerance(0.05);
     
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
@@ -145,37 +150,9 @@ public class SwerveModule {
    * Returns the current angle of the turn encoder in radians
    * @return The current angle of the module in radians
    */
-  public double getRawTurnAngle() {
+  public double getTurnAngle() {
     return m_turningEncoder.getAbsolutePosition();
   }
-
-  /**
-   * Angle return with offset calculation function.
-   * Returns the adjusted turn encoder value in radians
-   */
-  public double getTurnAngle() {
-    double input_pos = m_turningEncoder.getAbsolutePosition();
-    double offset = turn_offset;
-    double output_pos = 0.0;
-
-   // Positive offset (clockwise)
-    if (offset >= 0) {
-      output_pos = input_pos + offset;
-   // If offset pushes us past 180, then we need to convert it to negative value
-      if (output_pos > Math.PI) {
-        output_pos = output_pos - 2*Math.PI;
-      }
-   // Negative offset (counter clockwise)
-  } else {
-      output_pos = input_pos + offset;
-   // If offset pushes us past -180, then we need to convert it to positive value
-      if (output_pos < -Math.PI) {
-        output_pos = output_pos + 2*Math.PI;
-      }
-    }
-    return output_pos;
-  }
-
 
   /**
    * Zeroes the turn encoders
@@ -191,10 +168,6 @@ public class SwerveModule {
    */
   public double getDriveSpeed() {
     return m_driveMotor.getSelectedSensorVelocity() * encUnitMeters * 10;
-  }
-
-  public void invertDrive(boolean inverted) {
-    m_driveMotor.setInverted(inverted);
   }
 
   /**
