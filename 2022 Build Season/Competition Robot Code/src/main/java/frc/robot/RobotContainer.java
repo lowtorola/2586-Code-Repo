@@ -4,11 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.HomeTelescopes;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -97,7 +96,6 @@ public class RobotContainer {
     // driver left trig. button runs intake fwd.
     new JoystickButton(m_operator, DS4.L_TRIGBUTTON)
     // requires intake subsystem (i think)
-    // FIXME: Make sure requiring the subsystem doesn't break raising/lowering
     .whileHeld(new InstantCommand(m_intake::intake))
     .whenReleased(new InstantCommand(m_intake::stop));
 
@@ -122,13 +120,37 @@ public class RobotContainer {
 
     // driver options reverses feeder
     new JoystickButton(m_operator, DS4.OPTIONS)
-<<<<<<< Updated upstream
-    .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(1))
-=======
     .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(0.3))
->>>>>>> Stashed changes
     .whenReleased(new InstantCommand(m_shooter::stopFeeder));
+    
+    // Fight Stick X button extends telescope
+    new JoystickButton(m_fightStick, FightStick.X)
+    .whenPressed(new InstantCommand(m_climber::teleHigh), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
+    // Fight Stick A button retracts telescope
+    new JoystickButton(m_fightStick, FightStick.A)
+    .whenPressed(new InstantCommand(m_climber::teleLow), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+
+    // Fight Stick Y button stages tele
+    new JoystickButton(m_fightStick, FightStick.Y)
+    .whenPressed(new InstantCommand(m_climber::teleStage), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+
+    // Fight stick Right bumper homes tele
+    new JoystickButton(m_fightStick, FightStick.R_BUMPER)
+    .whenPressed(new HomeTelescopes(m_climber), true)
+    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+
+    // Fight stick up POV extends pivot
+    new POVButton(m_fightStick, 0)
+    .whenPressed(new InstantCommand(m_climber::extendPivot));
+
+    // fight stick down POV retracts pivot
+    new POVButton(m_fightStick, 180)
+    .whenPressed(new InstantCommand(m_climber::retractPivot));
+    
     // driver X button runs shooter and feeder
     new JoystickButton(m_operator, DS4.X)
     // requires the shooter
@@ -137,6 +159,7 @@ public class RobotContainer {
       new ConditionalCommand(
         new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true)
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
+
 /*
     // Fight stick Left POV extends pivot
       new POVButton(m_fightStick, 0)
@@ -155,7 +178,7 @@ public class RobotContainer {
     new JoystickButton(m_fightStick, FightStick.A)
     .whileHeld(new InstantCommand(m_climber::retractTele))
     .whenReleased(new InstantCommand(m_climber::stopTele));
-*/
+    */
   }
 
   /**
