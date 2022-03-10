@@ -27,6 +27,7 @@ public class ShooterSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
     m_encoder = m_flywheel.getEncoder();
+    m_feeder.setInverted(true);
   }
 
   /**
