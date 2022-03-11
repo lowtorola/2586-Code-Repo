@@ -55,7 +55,7 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftTele.setSmartCurrentLimit(40);
     m_rightTele.setSmartCurrentLimit(40);
     m_leftTele.setIdleMode(IdleMode.kBrake);
-    m_rightTele.setIdleMode(IdleMode.kCoast);
+    m_rightTele.setIdleMode(IdleMode.kBrake);
 
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
@@ -123,20 +123,44 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   /**
+   * Method for determining if the telescopes are bound due to height difference.
+   * @return If left is higher, will return positive. If right is higher, will return negative.
+   */
+  public double getTeleDiff() {
+    return getLeftPos() - getRightPos();
+  }
+
+  public boolean leftBound() {
+    return (getTeleDiff() < -BIND_DIST);
+  }
+
+  public boolean rightBound() {
+    return (getTeleDiff() > BIND_DIST);
+  }
+
+  /**
    * Sets the telescopes to begin moving towards their highest extension, e.g. step 1 of the climbing sequence
    */
   public void teleHigh() {
     m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
-     // FIXME: if this doesn't work, try setting it to the left's velocity?
-    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion); 
+    m_rightController.setReference(MAX_HEIGHT + 0.5, ControlType.kSmartMotion); 
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
-    m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-     // FIXME: if this doesn't work, try setting it to the left's velocity?
-    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
+    m_leftController.setReference(MIN_HEIGHT - 0.9, ControlType.kSmartMotion);
+    m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    // if(leftBound()) {
+    // m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    // m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
+    // } else if(rightBound()) {
+    // m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    // m_leftController.setReference(getRightPos(), ControlType.kSmartMotion);
+    // } else {
+    //   m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    //   m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    // }
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer
@@ -144,8 +168,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleStage() {
     m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
-     // FIXME: if this doesn't work, try setting it to the left's velocity?
-    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
+    m_rightController.setReference(STAGE_HEIGHT + 1.0, ControlType.kSmartMotion);
   }
 
   public void stopLeft() {
@@ -181,7 +204,8 @@ public class ClimbSubsystem extends SubsystemBase {
   public void periodic() {
 
 
-
+    SmartDashboard.putBoolean("Left Tele Pressed", getLeftLimit());
+    SmartDashboard.putBoolean("Right tele pressed", getRightLimit());
     SmartDashboard.putNumber("Left tele pos", getLeftPos());
     SmartDashboard.putNumber("Right tele pos", getRightPos());
     SmartDashboard.putNumber("Left output", m_leftTele.getAppliedOutput());
