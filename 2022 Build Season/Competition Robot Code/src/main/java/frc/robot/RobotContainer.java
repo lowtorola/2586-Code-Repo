@@ -40,16 +40,16 @@ import java.util.FormatFlagsConversionMismatchException;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  //private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
   private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final DriveSubsystem m_drivetrain = new DriveSubsystem();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  private final ExampleSubsystem m_example = new ExampleSubsystem();
+  private final ExampleCommand m_autoCommand = new ExampleCommand(m_example);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {

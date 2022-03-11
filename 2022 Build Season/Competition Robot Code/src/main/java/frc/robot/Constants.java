@@ -88,9 +88,9 @@ public final class Constants {
         public static final int RIGHT_TELESCOPE = 15;
         public static final double WINCH_SPEED = 0.8;
 
-        public static final double MIN_HEIGHT = -1.5; // rotations
-        public static final double MAX_HEIGHT = 78; // rotations
-        public static final int STAGE_HEIGHT = 8; // rotations: find actual stage height
+        public static final double MIN_HEIGHT = 0; // rotations
+        public static final double MAX_HEIGHT = 80; // rotations
+        public static final int STAGE_HEIGHT = 14; // rotations: find actual stage height
 
         public static final int[] PIVOT = {6,9};
 
@@ -103,12 +103,12 @@ public final class Constants {
         public static final double KFF_LEFT = 0.00046; 
         public static final double KFF_RIGHT = 0.00046;
         public static final double KMAX_OUTPUT = 0.9;
-        public static final double KMIN_OUTPUT = -0.9;
+        public static final double KMIN_OUTPUT = -1.0;
         public static final int MAX_RPM = 5700;
         public static final int MAX_VEL = 5000;
         public static final int MIN_VEL = 0;
         public static final int MAX_ACC = 2000;
-        public static final double ALLOWED_ERR = 0; // 1 rotation for real climb
+        public static final double ALLOWED_ERR = 0.5; // 1 rotation for real climb
     }
 
     /**

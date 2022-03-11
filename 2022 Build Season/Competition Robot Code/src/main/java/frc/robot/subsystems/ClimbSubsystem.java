@@ -43,19 +43,13 @@ public class ClimbSubsystem extends SubsystemBase {
   private final SparkMaxPIDController m_rightController;
   private final SparkMaxLimitSwitch m_leftLimit;
   private final SparkMaxLimitSwitch m_rightLimit;
-  
-    private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
-    private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
 
-    private final RelativeEncoder m_leftEncoder;
-    private final RelativeEncoder m_rightEncoder;
-
-    private final DoubleSolenoid m_leftPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_LEFT[0], PIVOT_LEFT[1]);
-    private final DoubleSolenoid m_rightPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_RIGHT[0], PIVOT_RIGHT[1]);
-
-  /** Creates a new ExampleSubsystem. */
+  // Class-wide position reference variable
+  private final int m_referencePos;
 
   public ClimbSubsystem() {
+
+    m_referencePos = 0;
 
     m_rightTele.setInverted(true);
     m_leftTele.setSmartCurrentLimit(40);
@@ -127,14 +121,14 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleHigh() {
     m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MAX_HEIGHT + 1.5, ControlType.kSmartMotion);
+    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
     m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer
@@ -142,7 +136,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleStage() {
     m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(STAGE_HEIGHT + 1, ControlType.kSmartMotion);
+    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
   }
 
   public void stopLeft() {
@@ -176,6 +170,9 @@ public class ClimbSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+
+
     SmartDashboard.putNumber("Left tele pos", getLeftPos());
     SmartDashboard.putNumber("Right tele pos", getRightPos());
     SmartDashboard.putNumber("Left output", m_leftTele.getAppliedOutput());
