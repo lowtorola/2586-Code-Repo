@@ -84,12 +84,12 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftController.setSmartMotionMaxVelocity(MAX_VEL, SMART_MOTION_SLOT);
     m_leftController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
     m_leftController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
-    m_leftController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR, SMART_MOTION_SLOT);
+    m_leftController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR_LEFT, SMART_MOTION_SLOT);
     // set right smart motion settings
     m_rightController.setSmartMotionMaxVelocity(MAX_VEL, SMART_MOTION_SLOT);
     m_rightController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
     m_rightController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
-    m_rightController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR, SMART_MOTION_SLOT);
+    m_rightController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR_RIGHT, SMART_MOTION_SLOT);
   }
   
   public double getLeftPos() {

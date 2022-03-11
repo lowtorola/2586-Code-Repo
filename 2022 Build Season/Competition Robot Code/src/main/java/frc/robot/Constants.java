@@ -108,7 +108,8 @@ public final class Constants {
         public static final int MAX_VEL = 5000;
         public static final int MIN_VEL = 0;
         public static final int MAX_ACC = 2000;
-        public static final double ALLOWED_ERR = 0.5; // 1 rotation for real climb
+        public static final double ALLOWED_ERR_LEFT = 0.5; // 1 rotation for real climb
+        public static final double ALLOWED_ERR_RIGHT = 0.1;
     }
 
     /**
