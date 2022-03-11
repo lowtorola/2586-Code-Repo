@@ -18,7 +18,7 @@ public class LimelightTarget extends CommandBase {
         this.m_limelight = limelight;
         this.m_driveSubsystem = driveSubsystem;
 
-        addRequirements(m_limelight, m_driveSubsystem);
+        addRequirements(m_driveSubsystem);
     }
 
     @Override

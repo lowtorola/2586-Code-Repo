@@ -8,10 +8,12 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.HomeTelescopes;
+import frc.robot.commands.LimelightTarget;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -49,6 +51,7 @@ public class RobotContainer {
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
+  private final LimelightSubsystem m_limelight = new LimelightSubsystem();
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -122,6 +125,10 @@ public class RobotContainer {
     new JoystickButton(m_operator, DS4.OPTIONS)
     .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(0.3))
     .whenReleased(new InstantCommand(m_shooter::stopFeeder));
+
+    // driver square button limelight targets
+    new JoystickButton(m_driver, DS4.SQUARE)
+    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
     
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
