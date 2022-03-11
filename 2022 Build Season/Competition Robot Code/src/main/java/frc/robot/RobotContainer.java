@@ -40,7 +40,7 @@ import java.util.FormatFlagsConversionMismatchException;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  //private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
   private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...

@@ -54,6 +54,20 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 5;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 11;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55); // FIXME Measure and set back right steer offset
+
+    }
+
+    public static final class LimelightConstants {
+
+        public static final int DISABLED_PIPELINE = 0;
+        public static final int AIM_PIPELINE = 1; // TODO: create pipeline in slot 1
+        public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
+        public static final double LIMELIGHT_HEIGHT = 0.5; // TODO: measure height of LL
+        public static final double LIMELIGHT_ANGLE = 65.0; // TODO: measure actual angle of LL
+        public static final double MAX_ANGLE_ERROR_X = 45.0; // TODO: find actual max reportable TX
+        public static final double MAX_ANGLE_ERROR_Y = 20.0; // TODO: find actual max reportable TY
+        public static final double TOLERANCE_ERROR_X = 2.0; 
+        public static final double TOLERANCE_ERROR_Y = 2.0;
     }
 
     /**

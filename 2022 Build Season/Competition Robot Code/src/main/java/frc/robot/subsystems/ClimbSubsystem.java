@@ -43,15 +43,6 @@ public class ClimbSubsystem extends SubsystemBase {
   private final SparkMaxPIDController m_rightController;
   private final SparkMaxLimitSwitch m_leftLimit;
   private final SparkMaxLimitSwitch m_rightLimit;
-  
-    private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
-    private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
-
-    private final RelativeEncoder m_leftEncoder;
-    private final RelativeEncoder m_rightEncoder;
-
-    private final DoubleSolenoid m_leftPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_LEFT[0], PIVOT_LEFT[1]);
-    private final DoubleSolenoid m_rightPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_RIGHT[0], PIVOT_RIGHT[1]);
 
   /** Creates a new ExampleSubsystem. */
 
