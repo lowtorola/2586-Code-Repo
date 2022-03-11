@@ -17,6 +17,10 @@ public class LimelightSubsystem extends SubsystemBase{
         System.out.println("LL set!");
     }
 
+    /**
+     * Get the distance from the target using library calculations
+     * @return Target distance in meters
+     */
     public double getDistFromTarget() {
         return m_limelight.getDist(TARGET_HEIGHT, LIMELIGHT_HEIGHT, LIMELIGHT_ANGLE);
   }
@@ -29,20 +33,36 @@ public class LimelightSubsystem extends SubsystemBase{
       return m_limelight.getTY();
   }
 
+  /**
+   * Get the percent of max error in the robot rotation. Capped to a max measurable angle (bc of distance target size changes)
+   * @return Percent of max rotation error currently observed
+   */
   public double getPercentErrorX() {
-    return Math.abs(getAngleErrorX()) / MAX_ANGLE_ERROR_X;
+    if(Math.abs(getAngleErrorX()) > MAX_ANGLE_ERROR_X) {
+        return 1.0;
+    } else {
+        return Math.abs(getAngleErrorX()) / MAX_ANGLE_ERROR_X;
+    }
   }
 
+    /**
+   * Get the percent of max error in the distance to target. Capped to a max measurable angle (bc of overshoot)
+   * @return Percent of max dist to target error currently observed
+   */
   public double getPercentErrorY() {
-    return Math.abs(getAngleErrorY()) / MAX_ANGLE_ERROR_Y;
+    if(Math.abs(getAngleErrorY()) > MAX_ANGLE_ERROR_Y) {
+        return 1.0;
+    } else {
+        return Math.abs(getAngleErrorY()) / MAX_ANGLE_ERROR_Y;
+    }
   }
 
   public boolean inPositionX() {
-      return Math.abs(getAngleErrorX()) <= MAX_ANGLE_ERROR_X;
+      return Math.abs(getAngleErrorX()) <= TOLERANCE_ERROR_X;
   }
 
   public boolean inPositionY() {
-      return Math.abs(getAngleErrorY()) <= MAX_ANGLE_ERROR_Y;
+      return Math.abs(getAngleErrorY()) <= TOLERANCE_ERROR_Y;
   }
 
   public void limelightDriveConfig() {

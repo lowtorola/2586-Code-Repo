@@ -64,8 +64,8 @@ public final class Constants {
         public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
         public static final double LIMELIGHT_HEIGHT = 0.5; // TODO: measure height of LL
         public static final double LIMELIGHT_ANGLE = 65.0; // TODO: measure actual angle of LL
-        public static final double MAX_ANGLE_ERROR_X = 45.0; // TODO: find actual max reportable TX
-        public static final double MAX_ANGLE_ERROR_Y = 20.0; // TODO: find actual max reportable TY
+        public static final double MAX_ANGLE_ERROR_X = 45.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
+        public static final double MAX_ANGLE_ERROR_Y = 20.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
         public static final double TOLERANCE_ERROR_X = 2.0; 
         public static final double TOLERANCE_ERROR_Y = 2.0;
     }
