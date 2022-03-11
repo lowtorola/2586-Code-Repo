@@ -122,6 +122,16 @@ public class RobotContainer {
     new JoystickButton(m_operator, DS4.OPTIONS)
     .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(0.3))
     .whenReleased(new InstantCommand(m_shooter::stopFeeder));
+
+    // driver X button runs shooter and feeder
+    new JoystickButton(m_operator, DS4.X)
+    // requires the shooter
+    .whileHeld(new ParallelCommandGroup(
+      new InstantCommand(m_shooter::shootVolts), 
+      new ConditionalCommand(
+        new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true)
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
+
     
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
@@ -130,12 +140,12 @@ public class RobotContainer {
 
     // Fight Stick A button retracts telescope
     new JoystickButton(m_fightStick, FightStick.A)
-    .whenPressed(new InstantCommand(m_climber::teleLow), true)
+    .whileHeld(new InstantCommand(m_climber::teleLow), true)
     .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight Stick Y button stages tele
     new JoystickButton(m_fightStick, FightStick.Y)
-    .whenPressed(new InstantCommand(m_climber::teleStage), true)
+    .whileHeld(new InstantCommand(m_climber::teleStage), true)
     .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight stick Right bumper homes tele
@@ -151,15 +161,6 @@ public class RobotContainer {
     new POVButton(m_fightStick, 180)
     .whenPressed(new InstantCommand(m_climber::retractPivot));
     
-    // driver X button runs shooter and feeder
-    new JoystickButton(m_operator, DS4.X)
-    // requires the shooter
-    .whileHeld(new ParallelCommandGroup(
-      new InstantCommand(m_shooter::shootVolts), 
-      new ConditionalCommand(
-        new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true)
-    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
-
 /*
     // Fight stick Left POV extends pivot
       new POVButton(m_fightStick, 0)

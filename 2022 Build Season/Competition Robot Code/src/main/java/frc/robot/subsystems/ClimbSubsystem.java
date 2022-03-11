@@ -54,6 +54,8 @@ public class ClimbSubsystem extends SubsystemBase {
     m_rightTele.setInverted(true);
     m_leftTele.setSmartCurrentLimit(40);
     m_rightTele.setSmartCurrentLimit(40);
+    m_leftTele.setIdleMode(IdleMode.kBrake);
+    m_rightTele.setIdleMode(IdleMode.kCoast);
 
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
@@ -90,6 +92,10 @@ public class ClimbSubsystem extends SubsystemBase {
     m_rightController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
     m_rightController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
     m_rightController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR_RIGHT, SMART_MOTION_SLOT);
+
+    // FIXME: delete if this doesn't get rid of the REV CAN errors
+    m_leftController.setReference(0.0, ControlType.kDutyCycle);
+    m_rightController.setReference(0.0, ControlType.kDutyCycle);
   }
   
   public double getLeftPos() {
@@ -121,13 +127,15 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleHigh() {
     m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
+     // FIXME: if this doesn't work, try setting it to the left's velocity?
+    m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion); 
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
     m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+     // FIXME: if this doesn't work, try setting it to the left's velocity?
     m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
   }
   /**
@@ -136,6 +144,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleStage() {
     m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
+     // FIXME: if this doesn't work, try setting it to the left's velocity?
     m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
   }
 
