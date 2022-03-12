@@ -25,11 +25,14 @@ public class ShooterSubsystem extends SubsystemBase {
     private RelativeEncoder m_encoder;
     private SparkMaxPIDController m_pidController;
     int feederState;
+    double m_targetRPM;
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
     m_encoder = m_flywheel.getEncoder();
     m_feeder.setInverted(true);
+
+    m_targetRPM = 0.0;
 
     m_pidController = m_flywheel.getPIDController();
     m_pidController.setP(KP);
@@ -51,6 +54,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * Sets the shooter to a given speed (RPM)
    */
   public void shootRPM(double speed) {
+    m_targetRPM = speed;
     m_pidController.setReference(speed, ControlType.kVelocity);
   }
 
@@ -79,7 +83,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * stop only the shooter flywheel
    */
   public void stopFlywheel() {
-      m_flywheel.set(0);
+      m_flywheel.stopMotor();
   }
 
   /**
@@ -114,8 +118,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean atSpeed() {
-      return (getVelocity() >= (SHOOT_RPM - 500));
-
+      return Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;// (getVelocity() >= (SHOOT_RPM - 500));
   }
 
   @Override
