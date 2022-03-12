@@ -39,9 +39,13 @@ public class LimelightSubsystem extends SubsystemBase{
    */
   public double getPercentErrorX() {
     if(Math.abs(getAngleErrorX()) > MAX_ANGLE_ERROR_X) {
-        return 1.0;
+        if(getAngleErrorX() < 0) {
+            return -1.0;
+        } else {
+            return 1.0;
+        }
     } else {
-        return Math.abs(getAngleErrorX()) / MAX_ANGLE_ERROR_X;
+        return getAngleErrorX() / MAX_ANGLE_ERROR_X;
     }
   }
 
@@ -51,9 +55,13 @@ public class LimelightSubsystem extends SubsystemBase{
    */
   public double getPercentErrorY() {
     if(Math.abs(getAngleErrorY()) > MAX_ANGLE_ERROR_Y) {
-        return 1.0;
+        if(getAngleErrorY() < 0) {
+            return -1.0;
+        } else {
+            return 1.0;
+        }
     } else {
-        return Math.abs(getAngleErrorY()) / MAX_ANGLE_ERROR_Y;
+        return getAngleErrorY() / MAX_ANGLE_ERROR_Y;
     }
   }
 

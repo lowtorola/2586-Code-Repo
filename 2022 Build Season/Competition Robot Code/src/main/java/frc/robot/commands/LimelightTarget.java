@@ -36,9 +36,9 @@ public class LimelightTarget extends CommandBase {
         m_angleErrorY = m_limelight.getAngleErrorY();
         
         m_targetSpeeds = new ChassisSpeeds(
-            m_limelight.getPercentErrorY() * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+            m_limelight.getPercentErrorY() * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND * 0.5, // change scale factor
             0.0,
-            m_limelight.getPercentErrorX() * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+            m_limelight.getPercentErrorX() * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.5 // change scale factor
         );
         m_driveSubsystem.drive(m_targetSpeeds);
     }
