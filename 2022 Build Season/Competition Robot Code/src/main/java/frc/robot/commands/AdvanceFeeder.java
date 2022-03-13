@@ -47,12 +47,6 @@ public class AdvanceFeeder extends CommandBase {
         case 1:
         m_shooter.feederIndex();
         break;
-        case 2:
-        m_shooter.stopFeeder();
-        break;
-        case 3:
-        m_shooter.stopFeeder();
-        break;
         default: 
         m_shooter.stopFeeder();
         break;

@@ -42,7 +42,6 @@ public class Limelight {
     public Limelight() {
         m_tableName = "limelight";
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
-        _hearBeat.startPeriodic(_hearBeatPeriod);
     }
 
     /**

@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -171,17 +172,22 @@ public class RobotContainer {
 
     // operator X button autoshoots low
     new JoystickButton(m_operator, DS4.X)
-    .whenPressed(new AutoShoot(() -> m_shooter.shootRPM(1500), m_shooter))
+    .whileHeld(new AutoShoot(() -> m_shooter.shootRPM(3250), m_shooter))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
   
     // driver square button limelight targets
     new JoystickButton(m_driver, DS4.SQUARE)
-    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
+    .whenPressed(new LimelightTarget(m_limelight, m_drivetrain), true);
     
     // operator square button autoshoots high
     new JoystickButton(m_operator, DS4.SQUARE)
     // requires the shooter
-    .whenPressed(new AutoShoot(() -> m_shooter.shootRPM(3500), m_shooter))
+    .whenPressed(new ParallelCommandGroup(
+      new SequentialCommandGroup(
+        new LimelightTarget(m_limelight, m_drivetrain),
+        new InstantCommand(m_shooter::feederFwd)),
+      new InstantCommand(() -> m_shooter.shootRPM(3200))
+    ))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
 
     /*

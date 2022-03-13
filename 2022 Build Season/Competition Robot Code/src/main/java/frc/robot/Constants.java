@@ -106,8 +106,8 @@ public final class Constants {
         public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
         public static final double LIMELIGHT_HEIGHT = 0.5; // TODO: measure height of LL
         public static final double LIMELIGHT_ANGLE = 65.0; // TODO: measure actual angle of LL
-        public static final double MAX_ANGLE_ERROR_X = 45.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
-        public static final double MAX_ANGLE_ERROR_Y = 20.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
+        public static final double MAX_ANGLE_ERROR_X = 15.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
+        public static final double MAX_ANGLE_ERROR_Y = 15.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
         public static final double TOLERANCE_ERROR_X = 2.0; 
         public static final double TOLERANCE_ERROR_Y = 2.0;
     }
@@ -133,7 +133,7 @@ public final class Constants {
         public static final int BOTTOM_BB = 1;
         public static final int SHOOT_RPM = 1850; // change this to change voltage output
         public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.25;
-        public static final double FEEDER_FWD = 0.8;
+        public static final double FEEDER_FWD = 0.9;
         public static final double FEEDER_INDEX = 0.5;
         public static final double FEEDER_REV = -0.4;
         
@@ -145,7 +145,7 @@ public final class Constants {
         public static final int KMAX_OUTPUT = 1; 
         public static final int KMIN_OUTPUT = 0;
         public static final int KMAX_RPM = 5500;
-        public static final double TOLERANCE_RPM = 100.0;
+        public static final double TOLERANCE_RPM = 150.0;
     }
 
     public static final class ClimbConstants {

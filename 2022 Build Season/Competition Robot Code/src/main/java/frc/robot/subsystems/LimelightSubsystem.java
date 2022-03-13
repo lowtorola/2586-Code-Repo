@@ -6,17 +6,26 @@ import frc.robot.lib.ControlMode.LedMode;
 
 import static frc.robot.Constants.LimelightConstants.*;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LimelightSubsystem extends SubsystemBase{
  
     private final Limelight m_limelight;
 
+    private NetworkTable m_table;
+    private String m_tableName;
+
     public LimelightSubsystem() {
+
+        m_tableName = "limelight";
+        m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
+        
         m_limelight = new Limelight();
-        m_limelight.setLEDMode(LedMode.kforceOff);
-        m_limelight.setCamMode(CamMode.kdriver);
-        m_limelight.setPipeline(0);
+     //   m_limelight.setLEDMode(LedMode.kforceOff);
+     //   m_limelight.setCamMode(CamMode.kdriver);
+        limelightDriveConfig();
         System.out.println("LL set!");
     }
 
@@ -25,7 +34,7 @@ public class LimelightSubsystem extends SubsystemBase{
   }
 
   public double getAngleErrorY() {
-      return m_limelight.getdegVerticalToTarget();
+      return -m_limelight.getdegVerticalToTarget();
   }
 
   /**
@@ -68,18 +77,20 @@ public class LimelightSubsystem extends SubsystemBase{
       return Math.abs(getAngleErrorY()) <= TOLERANCE_ERROR_Y;
   }
 
+  public boolean hasTarget() {
+      return m_limelight.getIsTargetFound();
+  }
+
   public void limelightDriveConfig() {
         m_limelight.setPipeline(DISABLED_PIPELINE);
         m_limelight.setLEDMode(LedMode.kforceOff);
-        m_limelight.setCamMode(CamMode.kdriver);
+      //  m_limelight.setCamMode(CamMode.kdriver);
   }
 
   public void limelightAimConfig() {
         System.out.println("Targeting started!");
         m_limelight.setPipeline(AIM_PIPELINE);
-        // m_limelight.setLEDMode(3);
+        m_limelight.setLEDMode(LedMode.kforceOn);
   }
-
-
 
 }
