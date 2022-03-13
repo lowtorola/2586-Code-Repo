@@ -4,13 +4,19 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.TestAuto;
 import frc.robot.commands.HomeTelescopes;
 import frc.robot.commands.LimelightTarget;
 import frc.robot.subsystems.ClimbSubsystem;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -26,11 +32,16 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.ClimbConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.AdvanceFeeder;
 import static frc.robot.Constants.OIConstants.*;
 import java.time.Instant;
 import java.util.FormatFlagsConversionMismatchException;
+
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 
 /**
@@ -47,12 +58,14 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final DriveSubsystem m_drivetrain = new DriveSubsystem();
+  private final Drivetrain m_drivetrain = new Drivetrain();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
   private final LimelightSubsystem m_limelight = new LimelightSubsystem();
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+
+  private SendableChooser<Command> m_autonomousChooser = new SendableChooser();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -63,10 +76,39 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     m_drivetrain.setDefaultCommand(new DefaultDriveCommand(
             m_drivetrain,
-            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+            () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+            () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
+
+    SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
+
+    PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", 5.0, 3.0);
+    PathPlannerTrajectory straight = PathPlanner.loadPath("STRAIGHT", 1.0, 0.5);
+
+    m_autonomousChooser.setDefaultOption("Test PP Path", 
+      new PPSwerveControllerCommand(
+       testTrajectory, 
+       () -> m_drivetrain.m_odometry.getPoseMeters(), 
+       Drivetrain.m_kinematics, 
+       new PIDController(0.3, 0, .01), 
+       new PIDController(0.3, 0, .01), 
+       new ProfiledPIDController(1.5, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND)), 
+       (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
+       m_drivetrain));
+
+       m_autonomousChooser.addOption("Multi Step Test", new TestAuto(m_drivetrain, m_intake, m_shooter));
+
+       m_autonomousChooser.addOption("Straight Path", 
+       new PPSwerveControllerCommand(
+       straight, 
+       () -> m_drivetrain.m_odometry.getPoseMeters(), 
+       Drivetrain.m_kinematics, 
+       new PIDController(0.05, 0, .01), 
+       new PIDController(0.03, 0, .01), 
+       new ProfiledPIDController(1.5, 0, .01, new Constraints(3.0, 1.5)), 
+       (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
+       m_drivetrain));
 
 
     // Configure the button bindings
@@ -84,7 +126,7 @@ public class RobotContainer {
     // Driver share button zeros the gyro
     new JoystickButton(m_driver, DS4.SHARE)
     // no requirements since we don't have to interrupt anything
-    .whenPressed(new InstantCommand(m_drivetrain::zeroGyroscope));
+    .whenPressed(new InstantCommand(m_drivetrain::resetGyro));
 
     // Driver right bumper lowers intake
     new JoystickButton(m_operator, DS4.R_BUMPER)
@@ -195,8 +237,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+    
+    // returns the command selected in the chooser!!
+    return m_autonomousChooser.getSelected();
+
   }
 
   private static double deadband(double value, double deadband) {
