@@ -6,12 +6,23 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxLimitSwitch;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.revrobotics.SparkMaxLimitSwitch.Type;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import static frc.robot.Constants.ClimbConstants.*;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -22,77 +33,143 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbSubsystem extends SubsystemBase {
 
-    private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
-    private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
+  private final CANSparkMax m_rightTele = new CANSparkMax(RIGHT_TELESCOPE, MotorType.kBrushless);
+  private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
+  private final RelativeEncoder m_leftTeleEnc;
+  private final RelativeEncoder m_rightTeleEnc;
+  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT[0], PIVOT[1]);
 
-    private final DigitalInput m_leftLowLim = new DigitalInput(8);
-    private final DigitalInput m_rightLowLim = new DigitalInput(9);
-
-    private final RelativeEncoder m_leftEncoder;
-    private final RelativeEncoder m_rightEncoder;
-
-    private final DoubleSolenoid m_leftPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_LEFT[0], PIVOT_LEFT[1]);
-    private final DoubleSolenoid m_rightPivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT_RIGHT[0], PIVOT_RIGHT[1]);
+  private final SparkMaxPIDController m_leftController;
+  private final SparkMaxPIDController m_rightController;
+  private final SparkMaxLimitSwitch m_leftLimit;
+  private final SparkMaxLimitSwitch m_rightLimit;
 
   /** Creates a new ExampleSubsystem. */
-  public ClimbSubsystem() {
-    m_leftEncoder = m_leftTele.getEncoder();
-    m_rightEncoder = m_rightTele.getEncoder();
 
-    m_leftTele.restoreFactoryDefaults();
-    m_rightTele.restoreFactoryDefaults();
+  public ClimbSubsystem() {
+
     m_rightTele.setInverted(true);
     m_leftTele.setSmartCurrentLimit(40);
     m_rightTele.setSmartCurrentLimit(40);
-    // m_leftTele.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
-    // m_rightTele.setSoftLimit(SoftLimitDirection.kForward, MAX_HEIGHT);
-    m_leftTele.setIdleMode(IdleMode.kBrake);
-    m_rightTele.setIdleMode(IdleMode.kBrake);
-    m_leftTele.setOpenLoopRampRate(0.5);
-    m_rightTele.setOpenLoopRampRate(0.5);
+
+    m_leftTeleEnc = m_leftTele.getEncoder();
+    m_rightTeleEnc = m_rightTele.getEncoder();
+
+    resetEncoders();
+
+    m_leftController = m_leftTele.getPIDController();
+    m_rightController = m_rightTele.getPIDController();
+
+    m_leftLimit = m_leftTele.getReverseLimitSwitch(Type.kNormallyOpen);
+    m_rightLimit = m_rightTele.getReverseLimitSwitch(Type.kNormallyOpen);
+
+    // set left gains
+    m_leftController.setP(KP_LEFT);
+    m_leftController.setI(KI);
+    m_leftController.setD(KD);
+    m_leftController.setIZone(KIZ);
+    m_leftController.setFF(KFF_LEFT);
+    m_leftController.setOutputRange(KMIN_OUTPUT, KMAX_OUTPUT);
+    // set right gains
+    m_rightController.setP(KP_RIGHT);
+    m_rightController.setI(KI);
+    m_rightController.setD(KD);
+    m_rightController.setIZone(KIZ);
+    m_rightController.setFF(KFF_RIGHT);
+    m_rightController.setOutputRange(KMIN_OUTPUT, KMAX_OUTPUT);
+    // set left smart motion settings
+    m_leftController.setSmartMotionMaxVelocity(MAX_VEL, SMART_MOTION_SLOT);
+    m_leftController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
+    m_leftController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
+    m_leftController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR, SMART_MOTION_SLOT);
+    // set right smart motion settings
+    m_rightController.setSmartMotionMaxVelocity(MAX_VEL, SMART_MOTION_SLOT);
+    m_rightController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
+    m_rightController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
+    m_rightController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR, SMART_MOTION_SLOT);
+  }
+  
+  public double getLeftPos() {
+    return m_leftTeleEnc.getPosition();
   }
 
-    public void retractTele() {
-      if(m_leftLowLim.get() && m_rightLowLim.get()){
-      m_leftTele.set(-WINCH_SPEED);
-      m_rightTele.set(-WINCH_SPEED);
-      }
-    }
-    public void extendTele() {
-      m_leftTele.set(WINCH_SPEED);
-      m_rightTele.set(WINCH_SPEED);
-    }
-    public void stopTele() {
-      m_leftTele.stopMotor();
-      m_rightTele.stopMotor();
-    }
+  public double getRightPos() {
+    return m_rightTeleEnc.getPosition();
+  }
 
-    public void extendPivot() {
-      m_leftPivot.set(Value.kForward);
-      m_rightPivot.set(Value.kForward);
-    }
-    public void retractPivot() {
-      m_leftPivot.set(Value.kReverse);
-      m_rightPivot.set(Value.kReverse);
-    }
+  public void setLeftTele() {
+    m_leftTele.set(-0.1);
+  }
 
-    public void resetEncoders() {
-      m_leftEncoder.setPosition(0);
-      m_rightEncoder.setPosition(0);
-    }
+  public void setRightTele() {
+    m_rightTele.set(-0.1);
+  }
+
+  public void extendPivot() {
+    m_pivot.set(Value.kForward);
+  }
+
+  public void retractPivot() {
+    m_pivot.set(Value.kReverse);
+  }
+
+  /**
+   * Sets the telescopes to begin moving towards their highest extension, e.g. step 1 of the climbing sequence
+   */
+  public void teleHigh() {
+    m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(MAX_HEIGHT + 1.5, ControlType.kSmartMotion);
+  }
+  /**
+   * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
+   */
+  public void teleLow() {
+    m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+  }
+  /**
+   * Sets the telescopes to begin moving towards just being clear of the bar to transfer
+   * the hold to the pivot arms
+   */
+  public void teleStage() {
+    m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(STAGE_HEIGHT + 1, ControlType.kSmartMotion);
+  }
+
+  public void stopLeft() {
+    m_leftTele.stopMotor();
+  }
+
+  public void stopRight() {
+    m_rightTele.stopMotor();
+  }
+
+  public void resetEncoders() {
+    m_leftTeleEnc.setPosition(0);
+    m_rightTeleEnc.setPosition(0);
+  }
+
+  /**
+   * Get the state of the left telescope hall effect switch
+   * @return Whether or not the hall effect is "pressed"
+   */
+  public boolean getLeftLimit() {
+    return m_leftLimit.isPressed();
+  }
+  /**
+   * Get the state of the right telescope hall effect switch
+   * @return Whether or not the hall effect is "pressed"
+   */
+  public boolean getRightLimit() {
+    return m_rightLimit.isPressed();
+
+  }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("Left Tele Limit", m_leftLowLim.get());
-    SmartDashboard.putBoolean("Right Tele Limit", m_rightLowLim.get());
-    SmartDashboard.putNumber("Left Tele Pos", m_leftEncoder.getPosition());
-    SmartDashboard.putNumber("Right Tele Pos", m_rightEncoder.getPosition());
-
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    SmartDashboard.putNumber("Left tele pos", getLeftPos());
+    SmartDashboard.putNumber("Right tele pos", getRightPos());
+    SmartDashboard.putNumber("Left output", m_leftTele.getAppliedOutput());
+    SmartDashboard.putNumber("Right output", m_rightTele.getAppliedOutput());
   }
 }
