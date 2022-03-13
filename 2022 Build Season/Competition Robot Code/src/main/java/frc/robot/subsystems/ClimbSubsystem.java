@@ -142,8 +142,8 @@ public class ClimbSubsystem extends SubsystemBase {
    * Sets the telescopes to begin moving towards their highest extension, e.g. step 1 of the climbing sequence
    */
   public void teleHigh() {
-    m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MAX_HEIGHT + 0.5, ControlType.kSmartMotion); 
+    m_leftController.setReference(MAX_HEIGHT + 1.4, ControlType.kSmartMotion);
+    m_rightController.setReference(MAX_HEIGHT, ControlType.kSmartMotion); 
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
