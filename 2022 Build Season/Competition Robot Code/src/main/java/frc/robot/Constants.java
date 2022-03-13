@@ -136,6 +136,16 @@ public final class Constants {
         public static final double FEEDER_FWD = 0.8;
         public static final double FEEDER_INDEX = 0.5;
         public static final double FEEDER_REV = -0.4;
+        
+        public static final double KP = 0.0000355;
+        public static final int KI = 0;
+        public static final int KD = 0; 
+        public static final int KIZ = 0; 
+        public static final double KFF = 0.000185;
+        public static final int KMAX_OUTPUT = 1; 
+        public static final int KMIN_OUTPUT = 0;
+        public static final int KMAX_RPM = 5500;
+        public static final double TOLERANCE_RPM = 100.0;
     }
 
     public static final class ClimbConstants {

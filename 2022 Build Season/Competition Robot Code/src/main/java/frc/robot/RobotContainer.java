@@ -35,6 +35,8 @@ import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.AdvanceFeeder;
+import frc.robot.commands.AutoShoot;
+
 import static frc.robot.Constants.OIConstants.*;
 import java.time.Instant;
 import java.util.FormatFlagsConversionMismatchException;
@@ -53,7 +55,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  //private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
   private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
@@ -128,26 +130,25 @@ public class RobotContainer {
     // no requirements since we don't have to interrupt anything
     .whenPressed(new InstantCommand(m_drivetrain::resetGyro));
 
-    // Driver right bumper lowers intake
+    // operator right bumper lowers intake
     new JoystickButton(m_operator, DS4.R_BUMPER)
     // no requirements, the cylinders can't extend and retract at the same time
     .whenPressed(new InstantCommand(m_intake::extend));
 
-    // Driver left bumper raises intake
+    // operator left bumper raises intake
     new JoystickButton(m_operator, DS4.L_BUMPER)
     // no requirements (see lowering button)
     .whenPressed(new InstantCommand(m_intake::retract));
 
-    // driver left trig. button runs intake fwd.
+    // operator left trig. button runs intake fwd.
     new JoystickButton(m_operator, DS4.L_TRIGBUTTON)
     // requires intake subsystem (i think)
     .whileHeld(new InstantCommand(m_intake::intake))
     .whenReleased(new InstantCommand(m_intake::stop));
 
-    // driver right trig. button runs intake rev.
+    // operator right trig. button runs intake rev.
     new JoystickButton(m_operator, DS4.R_TRIGBUTTON)
     // requires intake subsystem (i think)
-    // FIXME: Make sure requiring the subsystem doesn't break raising/lowering
     .whileHeld(new InstantCommand(m_intake::reverse))
     .whenReleased(new InstantCommand(m_intake::stop));
 
@@ -157,28 +158,30 @@ public class RobotContainer {
     .whileHeld(new InstantCommand(m_shooter::shootVolts))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel));
 
-    // driver center pad runs feeder at index speed
+    // operator center pad runs feeder at index speed
     new JoystickButton(m_operator, DS4.CENTER_PAD)
     // no requirements
-    .whenPressed(new AdvanceFeeder(m_shooter).withTimeout(1), true)
+    .whenPressed(new AdvanceFeeder(m_shooter).withTimeout(0.5), true)
     .whenReleased(new InstantCommand(m_shooter::stopFeeder), false);
 
-    // driver options reverses feeder
+    // operator options reverses feeder
     new JoystickButton(m_operator, DS4.OPTIONS)
     .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(0.3))
     .whenReleased(new InstantCommand(m_shooter::stopFeeder));
 
+    // operator X button autoshoots low
+    new JoystickButton(m_operator, DS4.X)
+    .whenPressed(new AutoShoot(() -> m_shooter.shootRPM(1500), m_shooter))
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
+  
     // driver square button limelight targets
     new JoystickButton(m_driver, DS4.SQUARE)
     .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
     
-    // driver X button runs shooter and feeder
-    new JoystickButton(m_operator, DS4.X)
+    // operator square button autoshoots high
+    new JoystickButton(m_operator, DS4.SQUARE)
     // requires the shooter
-    .whileHeld(new ParallelCommandGroup(
-      new InstantCommand(m_shooter::shootVolts), 
-      new ConditionalCommand(
-        new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)), true)
+    .whenPressed(new AutoShoot(() -> m_shooter.shootRPM(3500), m_shooter))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
 
     /*
@@ -226,8 +229,9 @@ public class RobotContainer {
 
     // Fight Stick A button retractsright
     new JoystickButton(m_fightStick, FightStick.A)
-    .whileHeld(new InstantCommand(m_climber::setRightTele))
-    .whenReleased(new InstantCommand(m_climber::stopRight));
+    .whileHeld(new InstantCommand(m_climber::retractTele))
+    .whenReleased(new InstantCommand(m_climber::stopTele));
+
     */
   }
 
