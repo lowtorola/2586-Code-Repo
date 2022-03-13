@@ -53,7 +53,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 public class RobotContainer {
 
   private final Joystick m_driver = new Joystick(DRIVER_PORT);
-  private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
+  //private final Joystick m_fightStick = new Joystick(FIGHT_STICK);
   private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
@@ -210,7 +210,7 @@ public class RobotContainer {
     new POVButton(m_fightStick, 180)
     .whenPressed(new InstantCommand(m_climber::retractPivot));
     */
-
+/*
     // Fight stick Left POV extends pivot
       new POVButton(m_fightStick, 0)
       .whenActive(new InstantCommand(m_climber::extendPivot));
@@ -228,7 +228,7 @@ public class RobotContainer {
     new JoystickButton(m_fightStick, FightStick.A)
     .whileHeld(new InstantCommand(m_climber::setRightTele))
     .whenReleased(new InstantCommand(m_climber::stopRight));
-    
+    */
   }
 
   /**

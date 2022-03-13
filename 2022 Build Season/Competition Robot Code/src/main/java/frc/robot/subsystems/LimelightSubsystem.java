@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import frc.robot.lib.Limelight;
+import frc.robot.lib.ControlMode.CamMode;
+import frc.robot.lib.ControlMode.LedMode;
+
 import static frc.robot.Constants.LimelightConstants.*;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -11,26 +14,18 @@ public class LimelightSubsystem extends SubsystemBase{
 
     public LimelightSubsystem() {
         m_limelight = new Limelight();
-        m_limelight.setLEDMode(0);
-        m_limelight.setCAMMode(1);
+        m_limelight.setLEDMode(LedMode.kforceOff);
+        m_limelight.setCamMode(CamMode.kdriver);
         m_limelight.setPipeline(0);
         System.out.println("LL set!");
     }
 
-    /**
-     * Get the distance from the target using library calculations
-     * @return Target distance in meters
-     */
-    public double getDistFromTarget() {
-        return m_limelight.getDist(TARGET_HEIGHT, LIMELIGHT_HEIGHT, LIMELIGHT_ANGLE);
-  }
-
   public double getAngleErrorX() {
-      return m_limelight.getTX();
+      return m_limelight.getdegRotationToTarget();
   }
 
   public double getAngleErrorY() {
-      return m_limelight.getTY();
+      return m_limelight.getdegVerticalToTarget();
   }
 
   /**
@@ -75,11 +70,12 @@ public class LimelightSubsystem extends SubsystemBase{
 
   public void limelightDriveConfig() {
         m_limelight.setPipeline(DISABLED_PIPELINE);
-        m_limelight.setLEDMode(1);
-        m_limelight.setCAMMode(1);
+        m_limelight.setLEDMode(LedMode.kforceOff);
+        m_limelight.setCamMode(CamMode.kdriver);
   }
 
   public void limelightAimConfig() {
+        System.out.println("Targeting started!");
         m_limelight.setPipeline(AIM_PIPELINE);
         // m_limelight.setLEDMode(3);
   }

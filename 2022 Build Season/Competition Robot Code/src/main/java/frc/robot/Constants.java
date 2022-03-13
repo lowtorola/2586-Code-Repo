@@ -96,16 +96,6 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 11;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55);
     public static final double BACK_RIGHT_OFFSET_DEGREES = 272.55;
-    // PID constants for Back Right Module
-    public static final double BACK_RIGHT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55); // FIXME Measure and set back right steer offset
 
     }
 
@@ -158,7 +148,7 @@ public final class Constants {
         public static final double MAX_HEIGHT = 78; // rotations
         public static final int STAGE_HEIGHT = 8; // rotations: find actual stage height
 
-        public static final int[] PIVOT = {6,9};
+        public static final int[] PIVOT = {6,8};
 
         public static final int SMART_MOTION_SLOT = 0;
         public static final double KP_LEFT = 0.0004; // FIXME: plug in tuned values for all these!!

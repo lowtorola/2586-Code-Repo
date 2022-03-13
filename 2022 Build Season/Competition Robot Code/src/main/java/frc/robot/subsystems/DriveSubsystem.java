@@ -23,8 +23,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.lib.Limelight;
-import frc.robot.lib.limelight_mode;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -82,25 +80,6 @@ public class DriveSubsystem extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
 
-  // Swerve motors, for PID control
-  private final WPI_TalonFX m_frontLeftDrive;
-  private final WPI_TalonFX m_frontLeftTurn;
-  private final CANCoder m_frontLeftTurnEncoder;
-  private final CANCoder m_frontRightTurnEncoder;
-  private final CANCoder m_backLeftTurnEncoder;
-  private final CANCoder m_backRightTurnEncoder;
-  private final PIDController m_frontLeftSteerController;
-  private final PIDController m_frontRightSteerController;
-  private final PIDController m_backLeftSteerController;
-  private final PIDController m_backRightSteerController;  
-  private final WPI_TalonFX m_frontRightDrive;
-  private final WPI_TalonFX m_frontRightTurn;
-  private final WPI_TalonFX m_backLeftDrive;
-  private final WPI_TalonFX m_backLeftTurn;
-  private final WPI_TalonFX m_backRightDrive;
-  private final WPI_TalonFX m_backRightTurn;
-
-
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
   public final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getGyroscopeRotation());
@@ -127,19 +106,7 @@ public class DriveSubsystem extends SubsystemBase {
             // This is how much the steer encoder is offset from true zero (In our case, zero is facing straight forward)
             FRONT_LEFT_MODULE_STEER_OFFSET
     );
-    // Access drive & turn motors, then set PIDF constants for closed-loop control
-    // drive motor
-    m_frontLeftDrive = (WPI_TalonFX) m_frontLeftModule.getDriveMotor();
-    m_frontLeftDrive.config_kP(0, FRONT_LEFT_MODULE_DRIVE_KP);
-    m_frontLeftDrive.config_kI(0, FRONT_LEFT_MODULE_DRIVE_KI);
-    m_frontLeftDrive.config_kD(0, FRONT_LEFT_MODULE_DRIVE_KD);
-    m_frontLeftDrive.config_kF(0, FRONT_LEFT_MODULE_DRIVE_KF);
-    // turn motor
-    m_frontLeftTurn = (WPI_TalonFX) m_frontLeftModule.getSteerMotor();
-    m_frontLeftTurnEncoder = (CANCoder) m_frontLeftModule.getSteerEncoder();
-    m_frontLeftSteerController = new PIDController(FRONT_LEFT_MODULE_TURN_KP, FRONT_LEFT_MODULE_TURN_KI, FRONT_LEFT_MODULE_TURN_KD);
-    m_frontLeftSteerController.setTolerance(Math.toRadians(2.0)); // FIXME: Find actual angle tolerance of controller
-
+   
     // We will do the same for the other modules
     m_frontRightModule = Mk4SwerveModuleHelper.createFalcon500(
             tab.getLayout("Front Right Module", BuiltInLayouts.kList)
@@ -151,19 +118,7 @@ public class DriveSubsystem extends SubsystemBase {
             FRONT_RIGHT_MODULE_STEER_ENCODER,
             FRONT_RIGHT_MODULE_STEER_OFFSET
     );
-    // Access drive & turn motors, then set PIDF constants for closed-loop control
-    // drive motor
-    m_frontRightDrive = (WPI_TalonFX) m_frontRightModule.getDriveMotor();
-    m_frontRightDrive.config_kP(0, FRONT_RIGHT_MODULE_DRIVE_KP);
-    m_frontRightDrive.config_kI(0, FRONT_RIGHT_MODULE_DRIVE_KI);
-    m_frontRightDrive.config_kD(0, FRONT_RIGHT_MODULE_DRIVE_KD);
-    m_frontRightDrive.config_kF(0, FRONT_RIGHT_MODULE_DRIVE_KF);
-    // turn motor
-    m_frontRightTurn = (WPI_TalonFX) m_frontRightModule.getSteerMotor();
-    m_frontRightTurnEncoder = (CANCoder) m_frontRightModule.getSteerEncoder();
-    m_frontRightSteerController = new PIDController(FRONT_RIGHT_MODULE_TURN_KP, FRONT_RIGHT_MODULE_TURN_KI, FRONT_RIGHT_MODULE_TURN_KD);
-    m_frontRightSteerController.setTolerance(Math.toRadians(2.0)); // FIXME: Find actual angle tolerance of controller
-
+    
     m_backLeftModule = Mk4SwerveModuleHelper.createFalcon500(
             tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
