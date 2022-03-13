@@ -74,6 +74,7 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
 
     PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", 5.0, 3.0);
+    PathPlannerTrajectory straight = PathPlanner.loadPath("STRAIGHT", 1.0, 0.5);
 
     m_autonomousChooser.setDefaultOption("Test PP Path", 
       new PPSwerveControllerCommand(
@@ -82,11 +83,22 @@ public class RobotContainer {
        Drivetrain.m_kinematics, 
        new PIDController(0.3, 0, .01), 
        new PIDController(0.3, 0, .01), 
-       new ProfiledPIDController(0.4, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 0.4)), 
+       new ProfiledPIDController(1.5, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND)), 
        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
        m_drivetrain));
 
        m_autonomousChooser.addOption("Multi Step Test", new TestAuto(m_drivetrain, m_intake, m_shooter));
+
+       m_autonomousChooser.addOption("Straight Path", 
+       new PPSwerveControllerCommand(
+       straight, 
+       () -> m_drivetrain.m_odometry.getPoseMeters(), 
+       Drivetrain.m_kinematics, 
+       new PIDController(0.05, 0, .01), 
+       new PIDController(0.03, 0, .01), 
+       new ProfiledPIDController(1.5, 0, .01, new Constraints(3.0, 1.5)), 
+       (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
+       m_drivetrain));
 
 
     // Configure the button bindings

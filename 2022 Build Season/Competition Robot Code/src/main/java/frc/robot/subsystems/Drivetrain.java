@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,18 +30,19 @@ public class Drivetrain extends SubsystemBase {
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
   private final SwerveModule m_frontLeft = new SwerveModule(FRONT_LEFT_MODULE_DRIVE_MOTOR, FRONT_LEFT_MODULE_STEER_MOTOR,
-    FRONT_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -214.52, 3.5, 0.43, 0.1);
+    FRONT_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -214.52, 4.141, 0.025, 0.72673, 0.2163, 0.005); //kD is .158
 
   private final SwerveModule m_frontRight = new SwerveModule(FRONT_RIGHT_MODULE_DRIVE_MOTOR, FRONT_RIGHT_MODULE_STEER_MOTOR, 
-    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -79.78, 3.5, 0.3, 0.1);
+    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -79.78, 4.648, 0.025, 0.732, 0.234, 0.007); //kD is .219
 
   private final SwerveModule m_backLeft = new SwerveModule(BACK_LEFT_MODULE_DRIVE_MOTOR, BACK_LEFT_MODULE_STEER_MOTOR, 
-    BACK_LEFT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -138.51, 3.7, 0.65, 0.1);
+    BACK_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -138.51, 4.226, 0.025, 0.767, 0.235, 0.005); //kD is .162
 
   private final SwerveModule m_backRight = new SwerveModule(BACK_RIGHT_MODULE_DRIVE_MOTOR, BACK_RIGHT_MODULE_STEER_MOTOR, 
-    BACK_RIGHT_MODULE_STEER_ENCODER, false, 0.672, 0.702, 2.69, -270.45, 3.5, 0.43, 0.1);
+    BACK_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -270.45, 4.089, 0.025, 0.734, 0.228, 0.005); //kD is .145
 
-  private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
+  // private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
+  private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
 
   public static final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
@@ -117,7 +119,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getGyroAngle() {
-    return m_gyro.getAngle();
+    return 360 - m_gyro.getAngle();
   }
 
   public void resetGyro() {

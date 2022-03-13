@@ -111,7 +111,7 @@ public final class Constants {
      */
     public static final class IntakeConstants {
         public static final int ROLLER_MOTOR = 1;
-        public static final int[] CYLINDER = {7,8};
+        public static final int[] CYLINDER = {7,9};
         public static final PneumaticsModuleType CYLINDER_MODULE_TYPE = PneumaticsModuleType.REVPH;
         public static final double FWD_SPEED = -0.85;
         public static final double REV_SPEED = 0.5;

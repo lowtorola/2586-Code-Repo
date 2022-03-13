@@ -32,7 +32,7 @@ public class DefaultDriveCommand extends CommandBase {
             -m_translationXSupplier.getAsDouble(),
             -m_translationYSupplier.getAsDouble(),
             -m_rotationSupplier.getAsDouble(),
-            false
+            true
         );
     }
 

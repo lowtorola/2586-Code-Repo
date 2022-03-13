@@ -18,19 +18,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
-
-
-/*
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
-*/
 public class SwerveModule {
   private static final double kWheelRadius = 0.0508;
   private static final int kEncoderResolution = 4096;
@@ -44,9 +31,6 @@ public class SwerveModule {
   private boolean driveMotorInverted;
 
   private double turn_offset;
-  private double turn_kP;
-  private double turn_kS;
-  private double turn_kV;
 
   // private final CANCoder m_driveEncoder;
   double encUnitMeters = 2 * Math.PI * kWheelRadius / kEncoderResolution / 6.75;
@@ -72,10 +56,13 @@ public class SwerveModule {
    * @param drive_kP kP value for drive control
    * @param drive_kS kS value for drive control
    * @param drive_kV kV value for drive control
+   * @param drive_kA kA value for drive control
    * @param turn_offset turn offset for module
    * @param turn_kP kP value for turn control
+   * @param turn_kD kD value for turn control
    * @param turn_kS kS value for turn feedforward
    * @param turn_kV kV value for turn feedforward
+   * @param turn_kA kA value for turn feedforward
    */
   public SwerveModule(
       int driveMotorID,
@@ -85,16 +72,21 @@ public class SwerveModule {
       double drive_kP,
       double drive_kS,
       double drive_kV,
+      double drive_kA,
       double turn_offset,
       double turn_kP,
+      double turn_kD,
       double turn_kS,
-      double turn_kV) {
+      double turn_kV,
+      double turn_kA) {
     m_driveMotor = new WPI_TalonFX(driveMotorID);
     m_turningMotor = new WPI_TalonFX(turningMotorID);
     m_turningEncoder = new CANCoder(turningEncoderID);
 
     this.turn_offset = turn_offset;
     this.driveMotorInverted = driveMotorInverted;
+
+
 
     m_driveMotor.setInverted(this.driveMotorInverted);
     m_driveMotor.setNeutralMode(NeutralMode.Brake);
@@ -121,9 +113,10 @@ public class SwerveModule {
       new ProfiledPIDController(
           turn_kP,
           0,
-          0,
+          turn_kD,
           new TrapezoidProfile.Constraints(
-              Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
+            5 * Math.PI, 3 * Math.PI));
+              // Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
     m_turningPIDController.setTolerance(0.05);
     
@@ -134,8 +127,8 @@ public class SwerveModule {
     // Gains are for example purposes only - must be determined for your own robot!
     m_drivePIDController = new PIDController(drive_kP, 0, 0);
 
-    m_driveFeedforward = new SimpleMotorFeedforward(drive_kS, drive_kV); // kS, kV
-    m_turnFeedforward = new SimpleMotorFeedforward(turn_kS, turn_kV); // kS, kV
+    m_driveFeedforward = new SimpleMotorFeedforward(drive_kS, drive_kV, drive_kA); // kS, kV, kA
+    m_turnFeedforward = new SimpleMotorFeedforward(turn_kS, turn_kV, turn_kA); // kS, kV, kA
 
   }
 
@@ -196,8 +189,8 @@ public class SwerveModule {
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-    m_driveMotor.setVoltage(driveOutput + driveFeedforward);
-    m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+    m_driveMotor.setVoltage(deadband(driveOutput + driveFeedforward, 0.04));
+    m_turningMotor.setVoltage(deadband(turnOutput + turnFeedforward, 0.05));
   }
 
   public ProfiledPIDController getTurnPID() {
