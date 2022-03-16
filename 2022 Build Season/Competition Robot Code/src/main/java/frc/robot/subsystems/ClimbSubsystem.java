@@ -37,7 +37,7 @@ public class ClimbSubsystem extends SubsystemBase {
   private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
   private final RelativeEncoder m_leftTeleEnc;
   private final RelativeEncoder m_rightTeleEnc;
-  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT[0], PIVOT[1]);
+  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PIVOT[0], PIVOT[1]);
 
   private final SparkMaxPIDController m_leftController;
   private final SparkMaxPIDController m_rightController;
@@ -54,6 +54,8 @@ public class ClimbSubsystem extends SubsystemBase {
 
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
+
+    m_pivot.set(Value.kReverse);
 
     resetEncoders();
 

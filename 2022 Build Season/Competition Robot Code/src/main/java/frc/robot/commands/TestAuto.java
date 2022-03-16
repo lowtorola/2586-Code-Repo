@@ -50,7 +50,7 @@ public class TestAuto extends ParallelCommandGroup {
                     new PIDController(0.3, 0, .01), 
                     new PIDController(0.3, 0, .01), 
                     new ProfiledPIDController(0.4, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 0.4)), 
-                    (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
+                    (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), true), 
                     m_drivetrain)
             );
     }

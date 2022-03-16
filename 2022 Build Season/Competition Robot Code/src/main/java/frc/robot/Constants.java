@@ -117,7 +117,7 @@ public final class Constants {
      */
     public static final class IntakeConstants {
         public static final int ROLLER_MOTOR = 1;
-        public static final int[] CYLINDER = {7,9};
+        public static final int[] CYLINDER = {0,6};
         public static final PneumaticsModuleType CYLINDER_MODULE_TYPE = PneumaticsModuleType.REVPH;
         public static final double FWD_SPEED = -0.85;
         public static final double REV_SPEED = 0.5;
@@ -134,7 +134,7 @@ public final class Constants {
         public static final int SHOOT_RPM = 1850; // change this to change voltage output
         public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.25;
         public static final double FEEDER_FWD = 0.9;
-        public static final double FEEDER_INDEX = 0.5;
+        public static final double FEEDER_INDEX = 0.45;
         public static final double FEEDER_REV = -0.4;
         
         public static final double KP = 0.0000355;
@@ -158,7 +158,7 @@ public final class Constants {
         public static final double MAX_HEIGHT = 78; // rotations
         public static final int STAGE_HEIGHT = 8; // rotations: find actual stage height
 
-        public static final int[] PIVOT = {6,8};
+        public static final int[] PIVOT = {1,7};
 
         public static final int SMART_MOTION_SLOT = 0;
         public static final double KP_LEFT = 0.0004; // FIXME: plug in tuned values for all these!!
@@ -195,8 +195,8 @@ public final class Constants {
             public static final int X = 2;
             public static final int CIRCLE = 3;
             public static final int TRIANGLE = 4;
-            public static final int R_BUMPER = 5;
-            public static final int L_BUMPER = 6;
+            public static final int R_BUMPER = 6;
+            public static final int L_BUMPER = 5;
             public static final int R_TRIGBUTTON = 7;
             public static final int L_TRIGBUTTON = 8;
             public static final int SHARE = 9;

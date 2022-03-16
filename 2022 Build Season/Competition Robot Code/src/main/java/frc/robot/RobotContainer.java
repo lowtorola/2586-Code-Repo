@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -44,6 +45,7 @@ import java.util.FormatFlagsConversionMismatchException;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 
@@ -68,7 +70,7 @@ public class RobotContainer {
   private final LimelightSubsystem m_limelight = new LimelightSubsystem();
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private SendableChooser<Command> m_autonomousChooser = new SendableChooser();
+  private SendableChooser<String> m_autonomousChooser = new SendableChooser();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -86,33 +88,10 @@ public class RobotContainer {
 
     SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
 
-    PathPlannerTrajectory testTrajectory = PathPlanner.loadPath("Test PP Path", 5.0, 3.0);
-    PathPlannerTrajectory straight = PathPlanner.loadPath("STRAIGHT", 1.0, 0.5);
-
-    m_autonomousChooser.setDefaultOption("Test PP Path", 
-      new PPSwerveControllerCommand(
-       testTrajectory, 
-       () -> m_drivetrain.m_odometry.getPoseMeters(), 
-       Drivetrain.m_kinematics, 
-       new PIDController(0.3, 0, .01), 
-       new PIDController(0.3, 0, .01), 
-       new ProfiledPIDController(1.5, 0, .01, new Constraints(Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND)), 
-       (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
-       m_drivetrain));
-
-       m_autonomousChooser.addOption("Multi Step Test", new TestAuto(m_drivetrain, m_intake, m_shooter));
-
-       m_autonomousChooser.addOption("Straight Path", 
-       new PPSwerveControllerCommand(
-       straight, 
-       () -> m_drivetrain.m_odometry.getPoseMeters(), 
-       Drivetrain.m_kinematics, 
-       new PIDController(0.05, 0, .01), 
-       new PIDController(0.03, 0, .01), 
-       new ProfiledPIDController(1.5, 0, .01, new Constraints(3.0, 1.5)), 
-       (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states)), 
-       m_drivetrain));
-
+    m_autonomousChooser.setDefaultOption("Blue 1 Ball", "Blue 1 ball auto");
+    m_autonomousChooser.addOption("Blue 2 ball", "Blue 2 ball auto");
+    m_autonomousChooser.addOption("Red 1 ball", "Red 1 ball auto");
+    m_autonomousChooser.addOption("Red 2 ball", "Red 2 ball auto");
 
     // Configure the button bindings
     configureButtonBindings();
@@ -131,15 +110,15 @@ public class RobotContainer {
     // no requirements since we don't have to interrupt anything
     .whenPressed(new InstantCommand(m_drivetrain::resetGyro));
 
-    // operator right bumper lowers intake
+    // operator right bumper lowers intake when pressed, raises when released
     new JoystickButton(m_operator, DS4.R_BUMPER)
     // no requirements, the cylinders can't extend and retract at the same time
-    .whenPressed(new InstantCommand(m_intake::extend));
+    .whenPressed(new InstantCommand(m_intake::extend))
+    .whenReleased(new InstantCommand(m_intake::retract));
 
-    // operator left bumper raises intake
+    // operator left bumper toggles intake
     new JoystickButton(m_operator, DS4.L_BUMPER)
-    // no requirements (see lowering button)
-    .whenPressed(new InstantCommand(m_intake::retract));
+    .whenPressed(new InstantCommand(m_intake::toggleIntake));
 
     // operator left trig. button runs intake fwd.
     new JoystickButton(m_operator, DS4.L_TRIGBUTTON)
@@ -153,44 +132,45 @@ public class RobotContainer {
     .whileHeld(new InstantCommand(m_intake::reverse))
     .whenReleased(new InstantCommand(m_intake::stop));
 
-    // driver circle button runs only shooter
-    new JoystickButton(m_driver, DS4.CIRCLE)
-    // no requirements
-    .whileHeld(new InstantCommand(m_shooter::shootVolts))
-    .whenReleased(new InstantCommand(m_shooter::stopFlywheel));
-
-    // operator center pad runs feeder at index speed
+    // operator center pad advances feeder
     new JoystickButton(m_operator, DS4.CENTER_PAD)
     // no requirements
-    .whenPressed(new AdvanceFeeder(m_shooter).withTimeout(0.5), true)
+    .whenPressed(new AdvanceFeeder(m_shooter), true)
     .whenReleased(new InstantCommand(m_shooter::stopFeeder), false);
 
     // operator options reverses feeder
     new JoystickButton(m_operator, DS4.OPTIONS)
-    .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter).withTimeout(0.3))
+    .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter))
     .whenReleased(new InstantCommand(m_shooter::stopFeeder));
 
     // operator X button autoshoots low
     new JoystickButton(m_operator, DS4.X)
-    .whileHeld(new AutoShoot(() -> m_shooter.shootRPM(3250), m_shooter))
+    .whileHeld(new AutoShoot(() -> m_shooter.shootRPM(1400), m_shooter))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
   
-    // driver square button limelight targets
+    // driver square button limelight targets (no shoot)
     new JoystickButton(m_driver, DS4.SQUARE)
-    .whenPressed(new LimelightTarget(m_limelight, m_drivetrain), true);
+    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true)
+    .whenReleased(new InstantCommand(m_limelight::limelightDriveConfig));
     
-    // operator square button autoshoots high
+        // operator X button autoshoots high
     new JoystickButton(m_operator, DS4.SQUARE)
-    // requires the shooter
-    .whenPressed(new ParallelCommandGroup(
-      new SequentialCommandGroup(
-        new LimelightTarget(m_limelight, m_drivetrain),
-        new InstantCommand(m_shooter::feederFwd)),
-      new InstantCommand(() -> m_shooter.shootRPM(3200))
-    ))
+    .whileHeld(new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
 
-    /*
+    // operator square button autoshoots high (target while spooling then run feeder unconditionally)
+
+    // new JoystickButton(m_operator, DS4.SQUARE)
+    // // requires the shooter
+    // .whenHeld(new ParallelCommandGroup(
+    //   new SequentialCommandGroup(
+    //     new LimelightTarget(m_limelight, m_drivetrain),
+    //     new InstantCommand(m_shooter::feederFwd)),
+    //   new InstantCommand(() -> m_shooter.shootRPM(2550))
+    // ))
+    // .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
+
+    
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
     .whenPressed(new InstantCommand(m_climber::teleHigh), true)
@@ -218,7 +198,7 @@ public class RobotContainer {
     // fight stick down POV retracts pivot
     new POVButton(m_fightStick, 180)
     .whenPressed(new InstantCommand(m_climber::retractPivot));
-    */
+    
 /*
     // Fight stick Left POV extends pivot
       new POVButton(m_fightStick, 0)
@@ -248,8 +228,98 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     
-    // returns the command selected in the chooser!!
-    return m_autonomousChooser.getSelected();
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath(m_autonomousChooser.getSelected(), 2.0, 1.0);
+
+    PathPlannerState initialState = trajectory.getInitialState();
+    Pose2d startingPose = new Pose2d(trajectory.getInitialPose().getTranslation(), initialState.holonomicRotation);
+
+    switch(m_autonomousChooser.getSelected()) {
+
+      case "Blue 1 ball auto":
+      return new SequentialCommandGroup(
+        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(3),
+        new WaitCommand(3),
+        new PPSwerveControllerCommand(
+        trajectory, 
+        () -> m_drivetrain.m_odometry.getPoseMeters(), 
+        Drivetrain.m_kinematics, 
+        new PIDController(0.065, 0, .01), 
+        new PIDController(0.065, 0, .01), 
+        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
+        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
+        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)))
+       );
+
+      case "Blue 2 ball auto":
+      return new SequentialCommandGroup(
+        new InstantCommand(m_intake::extend),
+        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(2.5),
+        new WaitCommand(2.5),
+        new PPSwerveControllerCommand(
+        trajectory, 
+        () -> m_drivetrain.m_odometry.getPoseMeters(), 
+        Drivetrain.m_kinematics, 
+        new PIDController(0.065, 0, .01), 
+        new PIDController(0.065, 0, .01), 
+        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
+        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
+        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose))).withTimeout(5).alongWith(new InstantCommand(m_intake::intake)).andThen(m_intake::stop),
+        new ParallelCommandGroup(
+      new SequentialCommandGroup(
+        new LimelightTarget(m_limelight, m_drivetrain),
+        new InstantCommand(m_shooter::feederFwd)),
+      new InstantCommand(() -> m_shooter.shootRPM(2550)))
+       );
+       case "Red 1 ball auto":
+       return new SequentialCommandGroup(
+        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(2.5),
+        new WaitCommand(2.5),
+        new PPSwerveControllerCommand(
+        trajectory, 
+        () -> m_drivetrain.m_odometry.getPoseMeters(), 
+        Drivetrain.m_kinematics, 
+        new PIDController(0.065, 0, .01), 
+        new PIDController(0.065, 0, .01), 
+        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
+        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
+        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)))
+       );
+       case "Red 2 ball auto":
+       return new SequentialCommandGroup(
+        new InstantCommand(m_intake::extend),
+        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(2.5),
+        new WaitCommand(2.5),
+        new PPSwerveControllerCommand(
+        trajectory, 
+        () -> m_drivetrain.m_odometry.getPoseMeters(), 
+        Drivetrain.m_kinematics, 
+        new PIDController(0.065, 0, .01), 
+        new PIDController(0.065, 0, .01), 
+        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
+        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
+        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose))).withTimeout(5).alongWith(new InstantCommand(m_intake::intake)).andThen(m_intake::stop),
+        new ParallelCommandGroup(
+      new SequentialCommandGroup(
+        new LimelightTarget(m_limelight, m_drivetrain),
+        new InstantCommand(m_shooter::feederFwd)),
+      new InstantCommand(() -> m_shooter.shootRPM(2550)))
+       );
+       default:
+       return new SequentialCommandGroup(
+        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(4),
+        new PPSwerveControllerCommand(
+        trajectory, 
+        () -> m_drivetrain.m_odometry.getPoseMeters(), 
+        Drivetrain.m_kinematics, 
+        new PIDController(0.065, 0, .01), 
+        new PIDController(0.065, 0, .01), 
+        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
+        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
+        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose))).withTimeout(6),
+        new AutoShoot(()->m_shooter.shootRPM(2500), m_shooter).withTimeout(4)
+       );
+    }
+
 
   }
 

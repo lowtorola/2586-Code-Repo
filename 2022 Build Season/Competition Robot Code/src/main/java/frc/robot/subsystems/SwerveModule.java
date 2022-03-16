@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -20,7 +22,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class SwerveModule {
   private static final double kWheelRadius = 0.0508;
-  private static final int kEncoderResolution = 4096;
+  private static final int kDistEncoderResolution = 2048;
+  private static final int kTurnEncoderResolution = 4096;
 
   private static final double kModuleMaxAngularVelocity = DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND;
   private static final double kModuleMaxAngularAcceleration =
@@ -33,7 +36,7 @@ public class SwerveModule {
   private double turn_offset;
 
   // private final CANCoder m_driveEncoder;
-  double encUnitMeters = 2 * Math.PI * kWheelRadius / kEncoderResolution / 6.75;
+  double encUnitMeters = 2 * Math.PI * kWheelRadius / kDistEncoderResolution / 6.75;
   private final CANCoder m_turningEncoder;
 
   private ProfiledPIDController m_turningPIDController;
@@ -92,6 +95,12 @@ public class SwerveModule {
     m_driveMotor.setNeutralMode(NeutralMode.Brake);
     m_turningMotor.setNeutralMode(NeutralMode.Brake);
 
+    // Set current limits for drive and turn motors
+    m_driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 45, 0.5));
+    m_driveMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 40, 45, 0.5));
+    m_turningMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 30, 0.5));
+    m_turningMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 35, 0.5));
+
     // Set the distance per pulse for the drive encoder. We can simply use the
     // distance traveled for one rotation of the wheel divided by the encoder
     // resolution.
@@ -101,7 +110,7 @@ public class SwerveModule {
     // Set the distance (in this case, angle) per pulse for the turning encoder.
     // This is the the angle through an entire rotation (2 * pi) divided by the
     // encoder resolution.
-    double encUnitRadians = 2 * Math.PI / kEncoderResolution;
+    double encUnitRadians = 2 * Math.PI / kTurnEncoderResolution;
     
     m_turningEncoder.configFeedbackCoefficient(encUnitRadians, "radians", SensorTimeBase.PerSecond);
     m_turningEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
@@ -115,7 +124,7 @@ public class SwerveModule {
           0,
           turn_kD,
           new TrapezoidProfile.Constraints(
-            5 * Math.PI, 3 * Math.PI));
+            5.5 * Math.PI, 3.5 * Math.PI));
               // Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
     m_turningPIDController.setTolerance(0.05);

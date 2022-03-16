@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class AutoShoot extends ParallelCommandGroup {
@@ -18,7 +20,17 @@ public class AutoShoot extends ParallelCommandGroup {
 
         addCommands(
             new InstantCommand(m_shooterCommand), 
-            new ConditionalCommand(
-            new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed));
+            new SequentialCommandGroup(
+                new WaitCommand(0.5),
+                new InstantCommand(m_shooter::feederFwd),
+                new WaitCommand(2)
+                
+            ));
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        m_shooter.stopFlywheel();
+        m_shooter.stopFeeder();
     }
 }
