@@ -169,22 +169,24 @@ public class RobotContainer {
     //   new InstantCommand(() -> m_shooter.shootRPM(2550))
     // ))
     // .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
-
     
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
-    .whenPressed(new InstantCommand(m_climber::teleHigh), true)
-    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+    .whenPressed(new InstantCommand(m_climber::teleHigh), true);
+  //  .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight Stick A button retracts telescope
     new JoystickButton(m_fightStick, FightStick.A)
-    .whenPressed(new InstantCommand(m_climber::teleLow), true)
-    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+    .whenPressed(new InstantCommand(m_climber::teleLow), true);
+   // .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight Stick Y button stages tele
     new JoystickButton(m_fightStick, FightStick.Y)
-    .whenPressed(new InstantCommand(m_climber::teleStage), true)
-    .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+    .whenPressed(new InstantCommand(m_climber::teleStage), true);
+   // .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+
+   new JoystickButton(m_fightStick, FightStick.B)
+   .whenPressed(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight stick Right bumper homes tele
     new JoystickButton(m_fightStick, FightStick.R_BUMPER)
