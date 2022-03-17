@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -37,7 +38,7 @@ public class ClimbSubsystem extends SubsystemBase {
   private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
   private final RelativeEncoder m_leftTeleEnc;
   private final RelativeEncoder m_rightTeleEnc;
-  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT[0], PIVOT[1]);
+  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PIVOT[0], PIVOT[1]);
 
   private final SparkMaxPIDController m_leftController;
   private final SparkMaxPIDController m_rightController;
@@ -56,6 +57,11 @@ public class ClimbSubsystem extends SubsystemBase {
     m_rightTele.setSmartCurrentLimit(40);
     m_leftTele.setIdleMode(IdleMode.kBrake);
     m_rightTele.setIdleMode(IdleMode.kBrake);
+
+    m_leftTele.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 50);
+    m_leftTele.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 50);
+    m_rightTele.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 50);
+    m_rightTele.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 50);
 
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
