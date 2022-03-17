@@ -2,44 +2,42 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Drivetrain;
 
 import java.util.function.DoubleSupplier;
 
 public class DefaultDriveCommand extends CommandBase {
-    private final DriveSubsystem m_driveSubsystem;
+    private final Drivetrain m_drivetrain;
 
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
 
-    public DefaultDriveCommand(DriveSubsystem DriveSubsystem,
+    public DefaultDriveCommand(Drivetrain drivetrain,
                                DoubleSupplier translationXSupplier,
                                DoubleSupplier translationYSupplier,
                                DoubleSupplier rotationSupplier) {
-        this.m_driveSubsystem = DriveSubsystem;
+        this.m_drivetrain = drivetrain;
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
         this.m_rotationSupplier = rotationSupplier;
 
-        addRequirements(DriveSubsystem);
+        addRequirements(drivetrain);
     }
 
     @Override
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
-        m_driveSubsystem.drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        m_translationXSupplier.getAsDouble(),
-                        m_translationYSupplier.getAsDouble(),
-                        m_rotationSupplier.getAsDouble(),
-                        m_driveSubsystem.getGyroscopeRotation()
-                )
+        m_drivetrain.drive(
+            -m_translationXSupplier.getAsDouble(),
+            -m_translationYSupplier.getAsDouble(),
+            -m_rotationSupplier.getAsDouble(),
+            true
         );
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_driveSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+        m_drivetrain.drive(0.0, 0.0, 0.0, false);
     }
 }

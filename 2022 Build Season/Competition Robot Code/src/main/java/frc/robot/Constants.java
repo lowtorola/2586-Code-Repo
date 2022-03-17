@@ -18,10 +18,17 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public final class Constants {
 
     /**
-     * This class contains all drivebase constants & limelight constants, as the limelight is contained within
-     * the drivetrain subsystem for lambda reasons!!
+     * This class contains all drivebase constants & limelight constants
      */
     public static final class DriveConstants {
+
+    // Drive PID Constants
+    // FIXME: Use SysID to determine actual values
+    public static final double DRIVE_KP = 0.1;
+    public static final double DRIVE_KS = 0.0;
+    public static final double DRIVE_KA = 0.0;
+    public static final double DRIVE_KV = 0.0;
+
     /**
      * The left-to-right distance between the drivetrain wheels
      *
@@ -35,25 +42,74 @@ public final class Constants {
      */
     public static final double DRIVETRAIN_WHEELBASE_METERS = 0.572;
 
+    // Front left module
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 4;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 3;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 10;
     public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(216.65); 
+    public static final double FRONT_LEFT_OFFSET_DEGREES = 216.65;
+    // PID constants for Front Left Module
+    public static final double FRONT_LEFT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_LEFT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
+    // front right module
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2;
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 21; // FIXME: Change this to fit into range
+    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 21;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 9;
     public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(80.42); 
+    public static final double FRONT_RIGHT_OFFSET_DEGREES = 80.42;
+    // PID constants for Front Right Module
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
+    public static final double FRONT_RIGHT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
+    // back left module
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 8;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 7;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 12;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(137.81); // FIXME Measure and set back left steer offset
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(137.81); 
+    public static final double BACK_LEFT_OFFSET_DEGREES = 137.81;
+    // PID constants for Back Left Module
+    public static final double BACK_LEFT_MODULE_DRIVE_KP = 0.1; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_DRIVE_KI = 0.0; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_DRIVE_KD = 0.01; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_DRIVE_KF = 0.0; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KP = 0.2; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KI = 0.0; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KD = 0.1; // FIXME: get from sysid values
+    public static final double BACK_LEFT_MODULE_TURN_KF = 0.0; // FIXME: get from sysid values
 
+    // back right module
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 6;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 5;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 11;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55); // FIXME Measure and set back right steer offset
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(272.55);
+    public static final double BACK_RIGHT_OFFSET_DEGREES = 272.55;
+
+    }
+
+    public static final class LimelightConstants {
+
+        public static final int DISABLED_PIPELINE = 0;
+        public static final int AIM_PIPELINE = 1; // TODO: create pipeline in slot 1
+        public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
+        public static final double LIMELIGHT_HEIGHT = 0.5; // TODO: measure height of LL
+        public static final double LIMELIGHT_ANGLE = 65.0; // TODO: measure actual angle of LL
+        public static final double MAX_ANGLE_ERROR_X = 15.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
+        public static final double MAX_ANGLE_ERROR_Y = 15.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
+        public static final double TOLERANCE_ERROR_X = 2.0; 
+        public static final double TOLERANCE_ERROR_Y = 2.0;
     }
 
     /**
@@ -77,9 +133,19 @@ public final class Constants {
         public static final int BOTTOM_BB = 1;
         public static final int SHOOT_RPM = 1850; // change this to change voltage output
         public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.25;
-        public static final double FEEDER_FWD = 0.8;
-        public static final double FEEDER_INDEX = 0.5;
+        public static final double FEEDER_FWD = 0.9;
+        public static final double FEEDER_INDEX = 0.45;
         public static final double FEEDER_REV = -0.4;
+        
+        public static final double KP = 0.0000355;
+        public static final int KI = 0;
+        public static final int KD = 0; 
+        public static final int KIZ = 0; 
+        public static final double KFF = 0.000185;
+        public static final int KMAX_OUTPUT = 1; 
+        public static final int KMIN_OUTPUT = 0;
+        public static final int KMAX_RPM = 5500;
+        public static final double TOLERANCE_RPM = 150.0;
     }
 
     public static final class ClimbConstants {
@@ -131,8 +197,8 @@ public final class Constants {
             public static final int X = 2;
             public static final int CIRCLE = 3;
             public static final int TRIANGLE = 4;
-            public static final int R_BUMPER = 5;
-            public static final int L_BUMPER = 6;
+            public static final int R_BUMPER = 6;
+            public static final int L_BUMPER = 5;
             public static final int R_TRIGBUTTON = 7;
             public static final int L_TRIGBUTTON = 8;
             public static final int SHARE = 9;

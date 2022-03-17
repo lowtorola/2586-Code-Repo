@@ -66,6 +66,8 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
 
+    m_pivot.set(Value.kReverse);
+
     resetEncoders();
 
     m_leftController = m_leftTele.getPIDController();
@@ -209,12 +211,5 @@ public class ClimbSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-
-    SmartDashboard.putBoolean("Left Tele Pressed", getLeftLimit());
-    SmartDashboard.putBoolean("Right tele pressed", getRightLimit());
-    SmartDashboard.putNumber("Left tele pos", getLeftPos());
-    SmartDashboard.putNumber("Right tele pos", getRightPos());
-    SmartDashboard.putNumber("Left output", m_leftTele.getAppliedOutput());
-    SmartDashboard.putNumber("Right output", m_rightTele.getAppliedOutput());
   }
 }

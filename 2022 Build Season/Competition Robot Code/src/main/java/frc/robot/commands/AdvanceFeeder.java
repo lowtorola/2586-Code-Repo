@@ -39,6 +39,7 @@ public class AdvanceFeeder extends CommandBase {
   public void execute() {
 
     feederState = m_shooter.getFeederState();
+    SmartDashboard.putNumber("Feeder State", feederState);
 
     switch(feederState) {
         case 0:
@@ -50,7 +51,7 @@ public class AdvanceFeeder extends CommandBase {
         case 2:
         m_shooter.stopFeeder();
         break;
-        case 3:
+        case 3: 
         m_shooter.stopFeeder();
         break;
         default: 
@@ -62,7 +63,9 @@ public class AdvanceFeeder extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_shooter.stopFeeder();
+  }
 
   // Returns true when the command should end.
   @Override

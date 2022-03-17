@@ -15,10 +15,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private Spark m_intakeRoller = new Spark(ROLLER_MOTOR);
   private DoubleSolenoid m_intakeCylinder = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, CYLINDER[0], CYLINDER[1]);
+  public boolean m_intakeState;
 
   /** Creates a new ExampleSubsystem. */
   public IntakeSubsystem() {
-    m_intakeCylinder.set(Value.kReverse);
+    retract();
   }
 
   @Override
@@ -45,6 +46,7 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void extend() {
       m_intakeCylinder.set(Value.kForward);
+      m_intakeState = true;
   }
 
   /**
@@ -52,7 +54,16 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void retract() {
       m_intakeCylinder.set(Value.kReverse);
+      m_intakeState = false;
   }
+
+  public void toggleIntake() {
+    if(m_intakeState) {
+      retract();
+    } else {
+      extend();
+    }
+   }
 
   /**
    * Stop the intake roller.
