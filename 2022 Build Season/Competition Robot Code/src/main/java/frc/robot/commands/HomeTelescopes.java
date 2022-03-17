@@ -28,12 +28,12 @@ public class HomeTelescopes extends CommandBase {
         rightFinished = m_climbSubsystem.getRightLimit();
 
         if(leftFinished == false) {
-            m_climbSubsystem.setLeftTele(); // FIXME: make sure this doesn't zip past limit
+            m_climbSubsystem.setLeftTele();
          } // else {
         //     m_climbSubsystem.stopLeft();
         // }
         if(rightFinished == false) {
-            m_climbSubsystem.setRightTele(); // FIXME: make sure this doesn't zip past limit
+            m_climbSubsystem.setRightTele();
         } //else {
           //  m_climbSubsystem.stopRight();
        // }
