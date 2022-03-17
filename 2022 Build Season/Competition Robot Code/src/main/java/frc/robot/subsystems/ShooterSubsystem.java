@@ -15,6 +15,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -31,6 +32,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     m_encoder = m_flywheel.getEncoder();
     m_feeder.setInverted(true);
+    m_flywheel.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 40);
+    m_flywheel.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 40);
 
     m_targetRPM = 0.0;
 
@@ -133,12 +136,6 @@ public class ShooterSubsystem extends SubsystemBase {
     } else {
         feederState = 0;
     }
-
-    SmartDashboard.putNumber("feeder state", feederState);
-    SmartDashboard.putBoolean("top bb", getTopBB());
-    SmartDashboard.putBoolean("bottom bb", getBottomBB());
-    SmartDashboard.putBoolean("Shooter at speed", atSpeed());
-    SmartDashboard.putNumber("Shooter RPM", getVelocity());
   }
 
   @Override

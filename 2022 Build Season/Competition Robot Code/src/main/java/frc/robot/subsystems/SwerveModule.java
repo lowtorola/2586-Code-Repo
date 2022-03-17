@@ -6,10 +6,12 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 
@@ -94,6 +96,12 @@ public class SwerveModule {
     m_driveMotor.setInverted(this.driveMotorInverted);
     m_driveMotor.setNeutralMode(NeutralMode.Brake);
     m_turningMotor.setNeutralMode(NeutralMode.Brake);
+
+    m_driveMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 40);
+    m_turningMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 40);
+    m_turningEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 40);
+    m_driveMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 20);
+    m_turningMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 20);
 
     // Set current limits for drive and turn motors
     m_driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 45, 0.5));
