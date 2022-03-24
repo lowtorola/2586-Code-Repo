@@ -131,6 +131,7 @@ public final class Constants {
         public static final int FEEDER = 0;
         public static final int TOP_BB = 0;
         public static final int BOTTOM_BB = 1;
+        public static final int INDEX_BB = 2;
         public static final int SHOOT_RPM = 1850; // change this to change voltage output
         public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.25;
         public static final double FEEDER_FWD = 0.9;

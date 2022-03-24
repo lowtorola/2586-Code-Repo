@@ -41,22 +41,17 @@ public class AdvanceFeeder extends CommandBase {
     feederState = m_shooter.getFeederState();
     SmartDashboard.putNumber("Feeder State", feederState);
 
+    // index if in state 1 or 2, otherwise stop
     switch(feederState) {
-        case 0:
-        m_shooter.feederIndex();
-        break;
-        case 1:
-        m_shooter.feederIndex();
-        break;
-        case 2:
-        m_shooter.stopFeeder();
-        break;
-        case 3: 
-        m_shooter.stopFeeder();
-        break;
-        default: 
-        m_shooter.stopFeeder();
-        break;
+      case 1:
+      m_shooter.feederIndex();
+      break;
+      case 2:
+      m_shooter.feederIndex();
+      break;
+      default:
+      m_shooter.stopFeeder();
+      break;
     }
 
   }
@@ -65,17 +60,5 @@ public class AdvanceFeeder extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     m_shooter.stopFeeder();
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-      if(feederState > startingState) {
-          System.out.println("finished!");
-          m_shooter.stopFeeder();
-        return true;
-      } else {
-        return false;
-      }
   }
 }
