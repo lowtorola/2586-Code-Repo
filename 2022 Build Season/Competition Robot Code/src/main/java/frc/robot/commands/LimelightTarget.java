@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
 
@@ -37,9 +36,9 @@ public class LimelightTarget extends CommandBase {
         m_angleErrorY = m_limelight.getAngleErrorY();
         
         m_targetSpeeds = new ChassisSpeeds(
-            m_limelight.getPercentErrorY() * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND * 0.25, // change scale factor
+            m_limelight.getPercentErrorY() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 0.25,
             0.0,
-            m_limelight.getPercentErrorX() * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -0.2 // change scale factor
+            m_limelight.getPercentErrorX() * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -0.25
         );
         m_drivetrain.driveFromSpeeds(m_targetSpeeds, false);
     }

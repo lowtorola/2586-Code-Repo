@@ -14,7 +14,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -85,7 +84,7 @@ public class Drivetrain extends SubsystemBase {
       m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
         chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond, robotRotation2d());
     } else {
-    m_chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, -chassisSpeeds.omegaRadiansPerSecond);
+    m_chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
     }
   }
 
@@ -103,25 +102,26 @@ public class Drivetrain extends SubsystemBase {
     m_odometry.resetPosition(pose, robotRotation2d());
   }
 
+    /**
+   * Returns the currently-estimated pose of the robot.
+   * @return The pose.
+   */
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
+  }
+
   public double getGyroAngle() {
     return -1.0 * m_gyro.getAngle();
   }
   public Rotation2d robotRotation2d() {
     return new Rotation2d(Math.toRadians(getGyroAngle()));
   }
-
   public void resetGyro() {
     m_gyro.reset();
   }
 
   @Override
   public void periodic() {
-
-    if(getGyroAngle() >= 360.0) {
-      resetGyro();
-    } else if(getGyroAngle() <= -360.0) {
-      resetGyro();
-    }
 
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
@@ -130,6 +130,9 @@ public class Drivetrain extends SubsystemBase {
     m_frontRight.setDesiredState(states[1]);
     m_backLeft.setDesiredState(states[2]);
     m_backRight.setDesiredState(states[3]);
+
+    // Update the odometry in the periodic block
+    updateOdometry();
 
     SmartDashboard.putNumber("Front Left Angle", Math.toDegrees(m_frontLeft.getTurnAngle()));
     SmartDashboard.putNumber("Front Right Angle", Math.toDegrees(m_frontRight.getTurnAngle()));

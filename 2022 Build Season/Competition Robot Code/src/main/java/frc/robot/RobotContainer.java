@@ -4,49 +4,45 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.OIConstants.DRIVER_PORT;
+import static frc.robot.Constants.OIConstants.FIGHT_STICK;
+import static frc.robot.Constants.OIConstants.OPERATOR_PORT;
+
+import java.time.Instant;
+
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.TestAuto;
-import frc.robot.commands.HomeTelescopes;
-import frc.robot.commands.LimelightTarget;
-import frc.robot.subsystems.ClimbSubsystem;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import frc.robot.Constants.ClimbConstants;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.Constants.OIConstants.DS4;
+import frc.robot.Constants.OIConstants.FightStick;
 import frc.robot.commands.AdvanceFeeder;
 import frc.robot.commands.AutoShoot;
-
-import static frc.robot.Constants.OIConstants.*;
-import java.time.Instant;
-import java.util.FormatFlagsConversionMismatchException;
-
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.HomeTelescopes;
+import frc.robot.commands.LimelightTarget;
+import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 
 /**
@@ -62,15 +58,13 @@ public class RobotContainer {
   private final Joystick m_operator = new Joystick(OPERATOR_PORT);
 
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
   private final LimelightSubsystem m_limelight = new LimelightSubsystem();
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private SendableChooser<String> m_autonomousChooser = new SendableChooser();
+//  private SendableChooser<String> m_autonomousChooser = new SendableChooser();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -86,12 +80,12 @@ public class RobotContainer {
             () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
 
-    SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
+    // SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
 
-    m_autonomousChooser.setDefaultOption("Blue 1 Ball", "Blue 1 ball auto");
-    m_autonomousChooser.addOption("Blue 2 ball", "Blue 2 ball auto");
-    m_autonomousChooser.addOption("Red 1 ball", "Red 1 ball auto");
-    m_autonomousChooser.addOption("Red 2 ball", "Red 2 ball auto");
+    // m_autonomousChooser.setDefaultOption("Blue 1 Ball", "Blue 1 ball auto");
+    // m_autonomousChooser.addOption("Blue 2 ball", "Blue 2 ball auto");
+    // m_autonomousChooser.addOption("Red 1 ball", "Red 1 ball auto");
+    // m_autonomousChooser.addOption("Red 2 ball", "Red 2 ball auto");
 
     // Configure the button bindings
     configureButtonBindings();
@@ -153,7 +147,7 @@ public class RobotContainer {
     .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true)
     .whenReleased(new InstantCommand(m_limelight::limelightDriveConfig));
     
-        // operator X button autoshoots high
+    // operator X button autoshoots high
     new JoystickButton(m_operator, DS4.SQUARE)
     .whileHeld(new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
@@ -230,98 +224,23 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     
-    PathPlannerTrajectory trajectory = PathPlanner.loadPath(m_autonomousChooser.getSelected(), 2.0, 1.0);
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath("Triangle Path", 3.0, 1.5);
 
     PathPlannerState initialState = trajectory.getInitialState();
     Pose2d startingPose = new Pose2d(trajectory.getInitialPose().getTranslation(), initialState.holonomicRotation);
 
-    switch(m_autonomousChooser.getSelected()) {
+    PPSwerveControllerCommand triangle = 
+    new PPSwerveControllerCommand(
+        trajectory, 
+        () -> m_drivetrain.getPose(), 
+        Drivetrain.m_kinematics, 
+        new PIDController(0.065, 0, .01), 
+        new PIDController(0.065, 0, .01), 
+        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
+        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
+        m_drivetrain);
 
-      case "Blue 1 ball auto":
-      return new SequentialCommandGroup(
-        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(3),
-        new WaitCommand(3),
-        new PPSwerveControllerCommand(
-        trajectory, 
-        () -> m_drivetrain.m_odometry.getPoseMeters(), 
-        Drivetrain.m_kinematics, 
-        new PIDController(0.065, 0, .01), 
-        new PIDController(0.065, 0, .01), 
-        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
-        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
-        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)))
-       );
-
-      case "Blue 2 ball auto":
-      return new SequentialCommandGroup(
-        new InstantCommand(m_intake::extend),
-        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(2.5),
-        new WaitCommand(2.5),
-        new PPSwerveControllerCommand(
-        trajectory, 
-        () -> m_drivetrain.m_odometry.getPoseMeters(), 
-        Drivetrain.m_kinematics, 
-        new PIDController(0.065, 0, .01), 
-        new PIDController(0.065, 0, .01), 
-        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
-        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
-        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose))).withTimeout(5).alongWith(new InstantCommand(m_intake::intake)).andThen(m_intake::stop),
-        new ParallelCommandGroup(
-      new SequentialCommandGroup(
-        new LimelightTarget(m_limelight, m_drivetrain),
-        new InstantCommand(m_shooter::feederFwd)),
-      new InstantCommand(() -> m_shooter.shootRPM(2550)))
-       );
-       case "Red 1 ball auto":
-       return new SequentialCommandGroup(
-        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(2.5),
-        new WaitCommand(2.5),
-        new PPSwerveControllerCommand(
-        trajectory, 
-        () -> m_drivetrain.m_odometry.getPoseMeters(), 
-        Drivetrain.m_kinematics, 
-        new PIDController(0.065, 0, .01), 
-        new PIDController(0.065, 0, .01), 
-        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
-        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
-        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)))
-       );
-       case "Red 2 ball auto":
-       return new SequentialCommandGroup(
-        new InstantCommand(m_intake::extend),
-        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(2.5),
-        new WaitCommand(2.5),
-        new PPSwerveControllerCommand(
-        trajectory, 
-        () -> m_drivetrain.m_odometry.getPoseMeters(), 
-        Drivetrain.m_kinematics, 
-        new PIDController(0.065, 0, .01), 
-        new PIDController(0.065, 0, .01), 
-        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
-        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
-        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose))).withTimeout(5).alongWith(new InstantCommand(m_intake::intake)).andThen(m_intake::stop),
-        new ParallelCommandGroup(
-      new SequentialCommandGroup(
-        new LimelightTarget(m_limelight, m_drivetrain),
-        new InstantCommand(m_shooter::feederFwd)),
-      new InstantCommand(() -> m_shooter.shootRPM(2550)))
-       );
-       default:
-       return new SequentialCommandGroup(
-        new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter).withTimeout(4),
-        new PPSwerveControllerCommand(
-        trajectory, 
-        () -> m_drivetrain.m_odometry.getPoseMeters(), 
-        Drivetrain.m_kinematics, 
-        new PIDController(0.065, 0, .01), 
-        new PIDController(0.065, 0, .01), 
-        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
-        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
-        m_drivetrain).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose))).withTimeout(6),
-        new AutoShoot(()->m_shooter.shootRPM(2500), m_shooter).withTimeout(4)
-       );
-    }
-
+    return triangle.beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)));
 
   }
 
@@ -339,7 +258,7 @@ public class RobotContainer {
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.07);
+    value = deadband(value, 0.04);
 
     // Square the axis
     value = Math.copySign(value * value, value);
