@@ -145,7 +145,7 @@ public final class Constants {
         public static final int KMAX_OUTPUT = 1; 
         public static final int KMIN_OUTPUT = 0;
         public static final int KMAX_RPM = 5500;
-        public static final double TOLERANCE_RPM = 150.0;
+        public static final double TOLERANCE_RPM = 100.0;
     }
 
     public static final class ClimbConstants {
