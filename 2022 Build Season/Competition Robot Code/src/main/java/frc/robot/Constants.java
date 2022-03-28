@@ -104,8 +104,6 @@ public final class Constants {
         public static final int DISABLED_PIPELINE = 0;
         public static final int AIM_PIPELINE = 1; // TODO: create pipeline in slot 1
         public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
-        public static final double LIMELIGHT_HEIGHT = 0.5; // TODO: measure height of LL
-        public static final double LIMELIGHT_ANGLE = 65.0; // TODO: measure actual angle of LL
         public static final double MAX_ANGLE_ERROR_X = 15.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
         public static final double MAX_ANGLE_ERROR_Y = 15.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
         public static final double TOLERANCE_ERROR_X = 2.0; 
@@ -147,6 +145,9 @@ public final class Constants {
         public static final int KMIN_OUTPUT = 0;
         public static final int KMAX_RPM = 5500;
         public static final double TOLERANCE_RPM = 150.0;
+        // linear regression constants for RPM calc
+        public static final double KLINEAR = 0.0; // TODO: find linear RPM regression (practice and real)
+        public static final double KCONSTANT = 0.0; // TODO: find linear RPM regression (practice and real)
     }
 
     public static final class ClimbConstants {

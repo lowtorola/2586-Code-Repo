@@ -39,7 +39,7 @@ public class LimelightTarget extends CommandBase {
         m_targetSpeeds = new ChassisSpeeds(
             m_limelight.getPercentErrorY() * DriveSubsystem.MAX_VELOCITY_METERS_PER_SECOND * 0.25, // change scale factor
             0.0,
-            m_limelight.getPercentErrorX() * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -0.2 // change scale factor
+            m_limelight.getPercentErrorX() * DriveSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -0.25 // change scale factor
         );
         m_drivetrain.driveFromSpeeds(m_targetSpeeds, false);
     }
@@ -48,6 +48,7 @@ public class LimelightTarget extends CommandBase {
     public boolean isFinished() {
         if(m_limelight.inPositionX() && m_limelight.inPositionY() && m_limelight.hasTarget()) {
             m_limelight.limelightDriveConfig();
+            System.out.println("Locked On!!");
             return true;
         } else {
             return false;

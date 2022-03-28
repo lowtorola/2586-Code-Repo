@@ -88,7 +88,6 @@ public class LimelightSubsystem extends SubsystemBase{
   }
 
   public void limelightAimConfig() {
-        System.out.println("Targeting started!");
         m_limelight.setPipeline(AIM_PIPELINE);
         m_limelight.setLEDMode(LedMode.kforceOn);
   }

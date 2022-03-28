@@ -59,7 +59,15 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void shootRPM(double speed) {
     m_targetRPM = speed;
-    m_pidController.setReference(speed, ControlType.kVelocity);
+    m_pidController.setReference(m_targetRPM, ControlType.kVelocity);
+  }
+
+  /**
+   * Sets the shooter to a calculated RPM value
+   */
+  public void shootAuto(double vertAngleError) {
+    m_targetRPM = linReg(vertAngleError);
+    m_pidController.setReference(m_targetRPM, ControlType.kVelocity);
   }
 
   /**
@@ -132,6 +140,14 @@ public class ShooterSubsystem extends SubsystemBase {
   public boolean atSpeed() {
       return Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;// (getVelocity() >= (SHOOT_RPM - 500));
   }
+/**
+ * Linear regression for rpm
+ * @param input angle error from LL
+ * @return target RPM
+ */
+  public double linReg(double input) {
+    return (input * KLINEAR) + KCONSTANT;
+  }
 
   @Override
   public void periodic() {
@@ -149,6 +165,8 @@ public class ShooterSubsystem extends SubsystemBase {
     } else {
         feederState = 0;
     }
+    // update at speed value periodically
+    // atSpeed = Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;
   }
 
   @Override
