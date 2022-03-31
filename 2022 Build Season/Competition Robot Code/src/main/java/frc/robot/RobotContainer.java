@@ -131,19 +131,27 @@ public class RobotContainer {
         m_shooter::atSpeed)))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
   
-    // driver square button limelight targets (no shoot)
-    new JoystickButton(m_driver, DS4.SQUARE)
-    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true)
-    .whenReleased(new InstantCommand(m_limelight::limelightDriveConfig));
+    // driver right bumper limelight targets (no shoot)
+    new JoystickButton(m_driver, DS4.R_BUMPER)
+    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
     
-        // operator X button autoshoots high
+        // operator square button shoots high
     new JoystickButton(m_operator, DS4.SQUARE)
-    .whileHeld(new InstantCommand(() -> m_shooter.shootRPM(3550)).alongWith(
+    .whileHeld(new InstantCommand(() -> m_shooter.shootRPM(2650)).alongWith(
       new ConditionalCommand(
         new InstantCommand(m_shooter::feederFwd), 
-        new InstantCommand(m_shooter::feederRev), 
+        new InstantCommand(m_shooter::stopFeeder), 
         m_shooter::atSpeed)))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
+
+    // driver circle button autoshoots high
+    new JoystickButton(m_driver, DS4.CIRCLE)
+    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())).alongWith(
+      new ConditionalCommand(
+        new InstantCommand(m_shooter::feederFwd), 
+        new InstantCommand(m_shooter::stopFeeder), 
+        m_shooter::atSpeed)))
+      .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
 
     // // new auto limelight and shoot code. Only run after doing RPM regression!
     // new JoystickButton(m_driver, DS4.R_BUMPER)
@@ -153,7 +161,7 @@ public class RobotContainer {
     //     // target, then run the feeder. If needed, just run the feeder unconditionally instead of by atSpeed
     //     new SequentialCommandGroup(
     //       new LimelightTarget(m_limelight, m_drivetrain),
-    //       new ConditionalCommand(new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::feederRev), m_shooter::atSpeed)
+    //       new ConditionalCommand(new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)
     //   ),
     //     new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY()))
     // ));

@@ -107,7 +107,7 @@ public final class Constants {
         public static final double MAX_ANGLE_ERROR_X = 15.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
         public static final double MAX_ANGLE_ERROR_Y = 15.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
         public static final double TOLERANCE_ERROR_X = 2.0; 
-        public static final double TOLERANCE_ERROR_Y = 2.0;
+        public static final double TOLERANCE_ERROR_Y = 10.0; // we can shoot inside of a ~10 deg range
     }
 
     /**
@@ -117,7 +117,7 @@ public final class Constants {
         public static final int ROLLER_MOTOR = 1;
         public static final int[] CYLINDER = {0,6};
         public static final PneumaticsModuleType CYLINDER_MODULE_TYPE = PneumaticsModuleType.REVPH;
-        public static final double FWD_SPEED = -0.85;
+        public static final double FWD_SPEED = -0.75;
         public static final double REV_SPEED = 0.5;
     }
 
@@ -144,10 +144,11 @@ public final class Constants {
         public static final int KMAX_OUTPUT = 1; 
         public static final int KMIN_OUTPUT = 0;
         public static final int KMAX_RPM = 5500;
-        public static final double TOLERANCE_RPM = 150.0;
+        public static final double TOLERANCE_RPM = 100.0;
         // linear regression constants for RPM calc
-        public static final double KLINEAR = 0.0; // TODO: find linear RPM regression (practice and real)
-        public static final double KCONSTANT = 0.0; // TODO: find linear RPM regression (practice and real)
+        public static final double KQUADRATIC = 1.1729;
+        public static final double KLINEAR = -37.724;
+        public static final double KCONSTANT = 2934.797;
     }
 
     public static final class ClimbConstants {

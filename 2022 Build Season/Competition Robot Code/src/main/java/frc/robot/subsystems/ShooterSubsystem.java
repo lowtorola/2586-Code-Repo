@@ -66,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * Sets the shooter to a calculated RPM value
    */
   public void shootAuto(double vertAngleError) {
-    m_targetRPM = linReg(vertAngleError);
+    m_targetRPM = quadReg(vertAngleError);
     m_pidController.setReference(m_targetRPM, ControlType.kVelocity);
   }
 
@@ -141,12 +141,12 @@ public class ShooterSubsystem extends SubsystemBase {
       return Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;// (getVelocity() >= (SHOOT_RPM - 500));
   }
 /**
- * Linear regression for rpm
+ * Quadratic regression for rpm
  * @param input angle error from LL
  * @return target RPM
  */
-  public double linReg(double input) {
-    return (input * KLINEAR) + KCONSTANT;
+  public double quadReg(double input) {
+    return (KQUADRATIC * Math.pow(input, 2)) + (input * KLINEAR) + KCONSTANT;
   }
 
   @Override
