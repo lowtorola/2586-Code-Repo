@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -146,12 +148,22 @@ public class RobotContainer {
 
     // driver circle button autoshoots high
     new JoystickButton(m_driver, DS4.CIRCLE)
-    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())).alongWith(
-      new ConditionalCommand(
+    .whileHeld(
+      new ParallelCommandGroup(
+        new InstantCommand(m_limelight::limelightAimConfig),
+        new PrintCommand("Spooling"),
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+        new ConditionalCommand(
         new InstantCommand(m_shooter::feederFwd), 
         new InstantCommand(m_shooter::stopFeeder), 
-        m_shooter::atSpeed)))
-      .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
+        m_shooter::atSpeed)
+    ))
+    .whenReleased(
+      new ParallelCommandGroup(
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_shooter::stopFeeder),
+        new InstantCommand(m_limelight::limelightDriveConfig)
+      ));
 
     // // new auto limelight and shoot code. Only run after doing RPM regression!
     // new JoystickButton(m_driver, DS4.R_BUMPER)

@@ -102,7 +102,7 @@ public final class Constants {
     public static final class LimelightConstants {
 
         public static final int DISABLED_PIPELINE = 0;
-        public static final int AIM_PIPELINE = 1; // TODO: create pipeline in slot 1
+        public static final int AIM_PIPELINE = 2; // TODO: change back to 1!!!
         public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
         public static final double MAX_ANGLE_ERROR_X = 15.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
         public static final double MAX_ANGLE_ERROR_Y = 15.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
@@ -115,7 +115,7 @@ public final class Constants {
      */
     public static final class IntakeConstants {
         public static final int ROLLER_MOTOR = 1;
-        public static final int[] CYLINDER = {0,6};
+        public static final int[] CYLINDER = {2,5};
         public static final PneumaticsModuleType CYLINDER_MODULE_TYPE = PneumaticsModuleType.REVPH;
         public static final double FWD_SPEED = -0.75;
         public static final double REV_SPEED = 0.5;
@@ -132,7 +132,7 @@ public final class Constants {
         public static final int INDEX_BB = 2;
         public static final int SHOOT_RPM = 1850; // change this to change voltage output
         public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.25;
-        public static final double FEEDER_FWD = 0.9;
+        public static final double FEEDER_FWD = 0.8;
         public static final double FEEDER_INDEX = 0.45;
         public static final double FEEDER_REV = -0.4;
         
@@ -140,15 +140,15 @@ public final class Constants {
         public static final int KI = 0;
         public static final int KD = 0; 
         public static final int KIZ = 0; 
-        public static final double KFF = 0.000185;
+        public static final double KFF = 0.000187;
         public static final int KMAX_OUTPUT = 1; 
         public static final int KMIN_OUTPUT = 0;
         public static final int KMAX_RPM = 5500;
-        public static final double TOLERANCE_RPM = 100.0;
+        public static final double TOLERANCE_RPM = 150.0;
         // linear regression constants for RPM calc
-        public static final double KQUADRATIC = 1.1729;
-        public static final double KLINEAR = -37.724;
-        public static final double KCONSTANT = 2934.797;
+        public static final double KQUADRATIC = 1.173; // 1.1729
+        public static final double KLINEAR = -37.724; // -37.724
+        public static final double KCONSTANT = 2935.0; // 2934.79
     }
 
     public static final class ClimbConstants {
@@ -161,7 +161,7 @@ public final class Constants {
         public static final double MAX_HEIGHT = 79; // rotations
         public static final int STAGE_HEIGHT = 14; // rotations: find actual stage height
 
-        public static final int[] PIVOT = {1,7};
+        public static final int[] PIVOT = {3,4};
 
         public static final int SMART_MOTION_SLOT = 0;
         public static final double KP_LEFT = 0.00045; // FIXME: plug in tuned values for all these!!
