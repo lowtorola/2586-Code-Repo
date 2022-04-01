@@ -135,7 +135,7 @@ public class SwerveModule {
             5.5 * Math.PI, 3.5 * Math.PI));
               // Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
-    m_turningPIDController.setTolerance(0.05);
+    m_turningPIDController.setTolerance(0.005);
     
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
@@ -207,7 +207,7 @@ public class SwerveModule {
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
     m_driveMotor.setVoltage(deadband(driveOutput + driveFeedforward, 0.04));
-    m_turningMotor.setVoltage(deadband(turnOutput + turnFeedforward, 0.05));
+    m_turningMotor.setVoltage(deadband(turnOutput + turnFeedforward, 0.04));
   }
 
   public ProfiledPIDController getTurnPID() {

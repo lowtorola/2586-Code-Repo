@@ -31,16 +31,16 @@ public class Drivetrain extends SubsystemBase {
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
   private final SwerveModule m_frontLeft = new SwerveModule(FRONT_LEFT_MODULE_DRIVE_MOTOR, FRONT_LEFT_MODULE_STEER_MOTOR,
-    FRONT_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -214.52, 4.549, 0.03, 0.805, 0.228, 0.006); //kD is .18
+    FRONT_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -214.52, 4.599, 0.01, 0.635, 0.228, 0.006); //kP is +.3 kS is +0.2
 
   private final SwerveModule m_frontRight = new SwerveModule(FRONT_RIGHT_MODULE_DRIVE_MOTOR, FRONT_RIGHT_MODULE_STEER_MOTOR, 
-    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -79.78, 4.832, 0.03, 0.870, 0.236, 0.007); //kD is .22
+    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -79.78, 4.732, 0.01, 0.600, 0.236, 0.007); //kP is +.3
 
   private final SwerveModule m_backLeft = new SwerveModule(BACK_LEFT_MODULE_DRIVE_MOTOR, BACK_LEFT_MODULE_STEER_MOTOR, 
-    BACK_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -138.51, 4.784, 0.03, 0.911, 0.236, 0.007); //kD is .22
+    BACK_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -138.51, 4.954, 0.01, 0.611, 0.236, 0.007); //kP is +1
 
   private final SwerveModule m_backRight = new SwerveModule(BACK_RIGHT_MODULE_DRIVE_MOTOR, BACK_RIGHT_MODULE_STEER_MOTOR, 
-    BACK_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -270.45, 4.900, 0.03, 0.884, 0.232, 0.007); //kD is .23
+    BACK_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -270.45, 4.900, 0.01, 0.684, 0.232, 0.007); //kP is +1
 
   // private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
   private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
@@ -84,7 +84,7 @@ public class Drivetrain extends SubsystemBase {
       m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
         chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond, robotRotation2d());
     } else {
-    m_chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
+    m_chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, -chassisSpeeds.omegaRadiansPerSecond);
     }
   }
 

@@ -38,7 +38,7 @@ public class ClimbSubsystem extends SubsystemBase {
   private final CANSparkMax m_leftTele = new CANSparkMax(LEFT_TELESCOPE, MotorType.kBrushless);
   private final RelativeEncoder m_leftTeleEnc;
   private final RelativeEncoder m_rightTeleEnc;
-  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PIVOT[0], PIVOT[1]);
+  private final DoubleSolenoid m_pivot = new DoubleSolenoid(PneumaticsModuleType.REVPH, PIVOT[0], PIVOT[1]);
 
   private final SparkMaxPIDController m_leftController;
   private final SparkMaxPIDController m_rightController;
@@ -104,6 +104,9 @@ public class ClimbSubsystem extends SubsystemBase {
     // FIXME: delete if this doesn't get rid of the REV CAN errors
     m_leftController.setReference(0.0, ControlType.kDutyCycle);
     m_rightController.setReference(0.0, ControlType.kDutyCycle);
+
+    m_leftTele.burnFlash();
+    m_rightTele.burnFlash();
   }
   
   public double getLeftPos() {

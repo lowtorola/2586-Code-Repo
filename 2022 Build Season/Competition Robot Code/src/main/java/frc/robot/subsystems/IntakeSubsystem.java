@@ -14,7 +14,7 @@ import static frc.robot.Constants.IntakeConstants.*;
 public class IntakeSubsystem extends SubsystemBase {
 
   private Spark m_intakeRoller = new Spark(ROLLER_MOTOR);
-  private DoubleSolenoid m_intakeCylinder = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, CYLINDER[0], CYLINDER[1]);
+  private DoubleSolenoid m_intakeCylinder = new DoubleSolenoid(PneumaticsModuleType.REVPH, CYLINDER[0], CYLINDER[1]);
   public boolean m_intakeState;
 
   /** Creates a new ExampleSubsystem. */

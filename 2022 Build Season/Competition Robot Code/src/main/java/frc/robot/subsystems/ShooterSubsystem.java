@@ -45,6 +45,8 @@ public class ShooterSubsystem extends SubsystemBase {
     m_pidController.setIZone(KIZ);
     m_pidController.setFF(KFF);
     m_pidController.setOutputRange(KMIN_OUTPUT, KMAX_OUTPUT);
+
+    m_flywheel.burnFlash();
   }
 
   /**

@@ -15,10 +15,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -26,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants.DS4;
 import frc.robot.Constants.OIConstants.FightStick;
 import frc.robot.commands.AdvanceFeeder;
-import frc.robot.commands.AutoShoot;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.HomeTelescopes;
 import frc.robot.commands.LimelightTarget;
@@ -243,7 +245,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     
-    PathPlannerTrajectory trajectory = PathPlanner.loadPath("Blue 3 ball auto", 4.0, 2.0);
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath("Blue 3 ball auto", 1.75, 1.0);
 
     PathPlannerState initialState = trajectory.getInitialState();
     Pose2d startingPose = new Pose2d(trajectory.getInitialPose().getTranslation(), initialState.holonomicRotation);
@@ -253,9 +255,9 @@ public class RobotContainer {
         trajectory, 
         () -> m_drivetrain.getPose(), 
         Drivetrain.m_kinematics, 
-        new PIDController(0.5, 0, .01), // tune this
-        new PIDController(0.5, 0, .01), // and this
-        new ProfiledPIDController(0.5, 0, .01, new Constraints(5, 2.5)), // and this....
+        new PIDController(1.0, 0, .01), // tune this
+        new PIDController(1.0, 0, .01), // and this
+        new ProfiledPIDController(1.5, 0, 0.0, new Constraints(6.5, 4.5)), // and this....
         (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
         m_drivetrain);
 
@@ -277,7 +279,7 @@ public class RobotContainer {
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.04);
+    value = deadband(value, 0.06);
 
     // Square the axis
     value = Math.copySign(value * value, value);

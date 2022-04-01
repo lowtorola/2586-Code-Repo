@@ -115,7 +115,7 @@ public final class Constants {
      */
     public static final class IntakeConstants {
         public static final int ROLLER_MOTOR = 1;
-        public static final int[] CYLINDER = {2,5};
+        public static final int[] CYLINDER = {15,1};
         public static final PneumaticsModuleType CYLINDER_MODULE_TYPE = PneumaticsModuleType.REVPH;
         public static final double FWD_SPEED = -0.75;
         public static final double REV_SPEED = 0.5;
@@ -161,7 +161,7 @@ public final class Constants {
         public static final double MAX_HEIGHT = 79; // rotations
         public static final int STAGE_HEIGHT = 14; // rotations: find actual stage height
 
-        public static final int[] PIVOT = {3,4};
+        public static final int[] PIVOT = {14,0};
 
         public static final int SMART_MOTION_SLOT = 0;
         public static final double KP_LEFT = 0.00045; // FIXME: plug in tuned values for all these!!
