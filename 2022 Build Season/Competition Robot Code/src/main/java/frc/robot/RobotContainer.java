@@ -224,23 +224,23 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     
-    PathPlannerTrajectory trajectory = PathPlanner.loadPath("Triangle Path", 3.0, 1.5);
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath("Blue 3 ball auto", 4.0, 2.0);
 
     PathPlannerState initialState = trajectory.getInitialState();
     Pose2d startingPose = new Pose2d(trajectory.getInitialPose().getTranslation(), initialState.holonomicRotation);
 
-    PPSwerveControllerCommand triangle = 
+    PPSwerveControllerCommand blue3Ball = 
     new PPSwerveControllerCommand(
         trajectory, 
         () -> m_drivetrain.getPose(), 
         Drivetrain.m_kinematics, 
-        new PIDController(0.065, 0, .01), 
-        new PIDController(0.065, 0, .01), 
-        new ProfiledPIDController(0.1, 0, .01, new Constraints(5, 2.5)), 
+        new PIDController(0.5, 0, .01), // tune this
+        new PIDController(0.5, 0, .01), // and this
+        new ProfiledPIDController(0.5, 0, .01, new Constraints(5, 2.5)), // and this....
         (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
         m_drivetrain);
 
-    return triangle.beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)));
+    return blue3Ball.beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)));
 
   }
 

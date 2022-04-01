@@ -131,17 +131,9 @@ public class Drivetrain extends SubsystemBase {
     m_backLeft.setDesiredState(states[2]);
     m_backRight.setDesiredState(states[3]);
 
-    // Update the odometry in the periodic block
+    // Update the odometry in the periodic block -- duh @me
     updateOdometry();
 
-    SmartDashboard.putNumber("Front Left Angle", Math.toDegrees(m_frontLeft.getTurnAngle()));
-    SmartDashboard.putNumber("Front Right Angle", Math.toDegrees(m_frontRight.getTurnAngle()));
-    SmartDashboard.putNumber("Back Left Angle", Math.toDegrees(m_backLeft.getTurnAngle()));
-    SmartDashboard.putNumber("Back Right Angle", Math.toDegrees(m_backRight.getTurnAngle()));
-    SmartDashboard.putNumber("Target Front Left Angle", Math.toDegrees(m_frontLeft.moduleState().angle.getRadians()));
-    SmartDashboard.putNumber("Target Front Right Angle", Math.toDegrees(m_frontRight.moduleState().angle.getRadians()));
-    SmartDashboard.putNumber("Target Back Left Angle", Math.toDegrees(m_backLeft.moduleState().angle.getRadians()));
-    SmartDashboard.putNumber("Target Back Right Angle", Math.toDegrees(m_backLeft.moduleState().angle.getRadians()));
     SmartDashboard.putNumber("Gyro Return", getGyroAngle());
 
   }
