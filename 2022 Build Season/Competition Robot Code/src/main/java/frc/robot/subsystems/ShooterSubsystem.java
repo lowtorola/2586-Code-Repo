@@ -146,7 +146,11 @@ public class ShooterSubsystem extends SubsystemBase {
  * @return target RPM
  */
   public double quadReg(double input) {
-    return (KQUADRATIC * Math.pow(input, 2)) + (input * KLINEAR) + KCONSTANT;
+    if(input > 5.0) {
+      return 2620.0;
+    } else {
+    return ((KQUADRATIC * Math.pow(input, 2)) + (input * KLINEAR) + KCONSTANT);
+    }
   }
 
   @Override
@@ -167,6 +171,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
     // update at speed value periodically
     // atSpeed = Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;
+    SmartDashboard.putNumber("Shooter RPM", m_encoder.getVelocity());
+    SmartDashboard.putNumber("Target RPM", m_targetRPM);
   }
 
   @Override

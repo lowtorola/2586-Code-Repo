@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -69,9 +70,9 @@ public class RobotContainer {
             () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
 
-    // m_shooter.setDefaultCommand(new AdvanceFeeder(
-    //   m_shooter
-    // ));
+    m_shooter.setDefaultCommand(new AdvanceFeeder(
+      m_shooter
+    ));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -112,24 +113,17 @@ public class RobotContainer {
     .whileHeld(new InstantCommand(m_intake::reverse))
     .whenReleased(new InstantCommand(m_intake::stop));
 
-    // SHOULDN'T NEED THIS ANYMORE! feeder should now be automated
-    // operator center pad advances feeder
-    new JoystickButton(m_operator, DS4.CENTER_PAD)
-    // no requirements
-    .whenPressed(new AdvanceFeeder(m_shooter), true)
-    .whenReleased(new InstantCommand(m_shooter::stopFeeder), false);
-
     // operator options reverses feeder
     new JoystickButton(m_operator, DS4.OPTIONS)
-    .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter))
-    .whenReleased(new InstantCommand(m_shooter::stopFeeder));
+    .whileHeld(new InstantCommand(m_shooter::feederRev, m_shooter))
+    .whenReleased(new InstantCommand(m_shooter::stopFeeder, m_shooter));
 
     // operator X button autoshoots low
     new JoystickButton(m_operator, DS4.X)
     .whileHeld(new InstantCommand(() -> m_shooter.shootRPM(1600)).alongWith(
       new ConditionalCommand(
-        new InstantCommand(m_shooter::feederFwd), 
-        new InstantCommand(m_shooter::feederRev), 
+        new InstantCommand(m_shooter::feederFwd, m_shooter), 
+        new InstantCommand(m_shooter::stopFeeder, m_shooter), 
         m_shooter::atSpeed)))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
   
@@ -166,17 +160,17 @@ public class RobotContainer {
       ));
 
     // // new auto limelight and shoot code. Only run after doing RPM regression!
-    // new JoystickButton(m_driver, DS4.R_BUMPER)
-    // .whenHeld(
-    //   // begin all paths simultaneously
-    //   new ParallelCommandGroup(
-    //     // target, then run the feeder. If needed, just run the feeder unconditionally instead of by atSpeed
-    //     new SequentialCommandGroup(
-    //       new LimelightTarget(m_limelight, m_drivetrain),
-    //       new ConditionalCommand(new InstantCommand(m_shooter::feederFwd), new InstantCommand(m_shooter::stopFeeder), m_shooter::atSpeed)
-    //   ),
-    //     new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY()))
-    // ));
+    new JoystickButton(m_driver, DS4.R_BUMPER)
+    .whenHeld(
+      // begin all paths simultaneously
+      new ParallelCommandGroup(
+        // target, then run the feeder. If needed, just run the feeder unconditionally instead of by atSpeed
+        new SequentialCommandGroup(
+          new LimelightTarget(m_limelight, m_drivetrain),
+          new InstantCommand(m_shooter::feederFwd))
+    ))
+    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())))
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
 
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)

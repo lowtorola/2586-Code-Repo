@@ -34,7 +34,7 @@ public class LimelightSubsystem extends SubsystemBase{
   }
 
   public double getAngleErrorY() {
-      return -m_limelight.getdegVerticalToTarget();
+      return m_limelight.getdegVerticalToTarget();
   }
 
   /**
