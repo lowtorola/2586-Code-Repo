@@ -35,7 +35,7 @@ import frc.robot.Constants.OIConstants.DS4;
 import frc.robot.Constants.OIConstants.FightStick;
 import frc.robot.commands.AdvanceFeeder;
 import frc.robot.commands.AutoShoot;
-import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.DriveCommand;
 import frc.robot.commands.HomeTelescopes;
 import frc.robot.commands.LimelightTarget;
 import frc.robot.subsystems.ClimbSubsystem;
@@ -73,11 +73,12 @@ public class RobotContainer {
     // Left stick Y axis -> forward and backwards movement
     // Left stick X axis -> left and right movement
     // Right stick X axis -> rotation
-    m_drivetrain.setDefaultCommand(new DefaultDriveCommand(
+    m_drivetrain.setDefaultCommand(new DriveCommand(
             m_drivetrain,
             () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
             () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+            () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+            true
     ));
 
     // SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
@@ -103,6 +104,16 @@ public class RobotContainer {
     new JoystickButton(m_driver, DS4.SHARE)
     // no requirements since we don't have to interrupt anything
     .whenPressed(new InstantCommand(m_drivetrain::resetGyro));
+
+    // Driver left bumper turns off field-oriented drive
+    new JoystickButton(m_driver, DS4.L_BUMPER)
+    .whenHeld(new DriveCommand(
+      m_drivetrain,
+      () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+      false
+  ));
 
     // operator right bumper lowers intake when pressed, raises when released
     new JoystickButton(m_operator, DS4.R_BUMPER)
