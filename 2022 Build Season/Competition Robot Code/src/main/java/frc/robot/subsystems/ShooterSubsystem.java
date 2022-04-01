@@ -23,6 +23,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_flywheel = new CANSparkMax(FLYWHEEL, MotorType.kBrushless);
     private final DigitalInput m_topBB = new DigitalInput(TOP_BB);
     private final DigitalInput m_bottomBB = new DigitalInput(BOTTOM_BB);
+    private final DigitalInput m_indexBB = new DigitalInput(INDEX_BB);
     private RelativeEncoder m_encoder;
     private SparkMaxPIDController m_pidController;
     int feederState;
@@ -58,7 +59,15 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void shootRPM(double speed) {
     m_targetRPM = speed;
-    m_pidController.setReference(speed, ControlType.kVelocity);
+    m_pidController.setReference(m_targetRPM, ControlType.kVelocity);
+  }
+
+  /**
+   * Sets the shooter to a calculated RPM value
+   */
+  public void shootAuto(double vertAngleError) {
+    m_targetRPM = quadReg(vertAngleError);
+    m_pidController.setReference(m_targetRPM, ControlType.kVelocity);
   }
 
   /**
@@ -112,6 +121,14 @@ public class ShooterSubsystem extends SubsystemBase {
     return !m_topBB.get();
   }
 
+    /**
+   * Returns the state of the top shooter beam break
+   * @return Returns true when ball present, false when no ball
+   */
+  public boolean getIndexBB() {
+    return !m_indexBB.get();
+  }
+
   public int getFeederState() {
     return feederState;
   }
@@ -123,18 +140,38 @@ public class ShooterSubsystem extends SubsystemBase {
   public boolean atSpeed() {
       return Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;// (getVelocity() >= (SHOOT_RPM - 500));
   }
+/**
+ * Quadratic regression for rpm
+ * @param input angle error from LL
+ * @return target RPM
+ */
+  public double quadReg(double input) {
+    if(input > 5.0) {
+      return 2620.0;
+    } else {
+    return ((KQUADRATIC * Math.pow(input, 2)) + (input * KLINEAR) + KCONSTANT);
+    }
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(getBottomBB() && !getTopBB()) {
+    if(getIndexBB() && !getTopBB() && !getBottomBB()) {
         feederState = 1;         
-    } else if(getBottomBB() && getTopBB()) {
+    } else if(getIndexBB() && getBottomBB() && !getTopBB()) {
         feederState = 2;
-    } else if(!getBottomBB() && getTopBB()) {
+    } else if(!getIndexBB() && getBottomBB() && getTopBB()) {
         feederState = 3;
+    } else if(!getIndexBB() && getBottomBB() && !getTopBB()) {
+        feederState = 4;
+    } else if(!getIndexBB() && !getBottomBB() && getTopBB()) {
+        feederState = 5;
     } else {
         feederState = 0;
     }
+    // update at speed value periodically
+    // atSpeed = Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;
+    SmartDashboard.putNumber("Shooter RPM", m_encoder.getVelocity());
+    SmartDashboard.putNumber("Target RPM", m_targetRPM);
   }
 }

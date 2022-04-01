@@ -7,22 +7,14 @@ package frc.robot;
 import static frc.robot.Constants.OIConstants.DRIVER_PORT;
 import static frc.robot.Constants.OIConstants.FIGHT_STICK;
 import static frc.robot.Constants.OIConstants.OPERATOR_PORT;
-
-import java.time.Instant;
-
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -64,8 +56,6 @@ public class RobotContainer {
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
   private final LimelightSubsystem m_limelight = new LimelightSubsystem();
 
-//  private SendableChooser<String> m_autonomousChooser = new SendableChooser();
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Set up the default command for the drivetrain.
@@ -81,12 +71,9 @@ public class RobotContainer {
             true
     ));
 
-    // SmartDashboard.putData("Auto Chooser", m_autonomousChooser);
-
-    // m_autonomousChooser.setDefaultOption("Blue 1 Ball", "Blue 1 ball auto");
-    // m_autonomousChooser.addOption("Blue 2 ball", "Blue 2 ball auto");
-    // m_autonomousChooser.addOption("Red 1 ball", "Red 1 ball auto");
-    // m_autonomousChooser.addOption("Red 2 ball", "Red 2 ball auto");
+    m_shooter.setDefaultCommand(new AdvanceFeeder(
+      m_shooter
+    ));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -137,44 +124,65 @@ public class RobotContainer {
     .whileHeld(new InstantCommand(m_intake::reverse))
     .whenReleased(new InstantCommand(m_intake::stop));
 
-    // operator center pad advances feeder
-    new JoystickButton(m_operator, DS4.CENTER_PAD)
-    // no requirements
-    .whenPressed(new AdvanceFeeder(m_shooter), true)
-    .whenReleased(new InstantCommand(m_shooter::stopFeeder), false);
-
     // operator options reverses feeder
     new JoystickButton(m_operator, DS4.OPTIONS)
-    .whenPressed(new InstantCommand(m_shooter::feederRev, m_shooter))
-    .whenReleased(new InstantCommand(m_shooter::stopFeeder));
+    .whileHeld(new InstantCommand(m_shooter::feederRev, m_shooter))
+    .whenReleased(new InstantCommand(m_shooter::stopFeeder, m_shooter));
 
     // operator X button autoshoots low
     new JoystickButton(m_operator, DS4.X)
-    .whileHeld(new AutoShoot(() -> m_shooter.shootRPM(1400), m_shooter))
+    .whileHeld(new InstantCommand(() -> m_shooter.shootRPM(1600)).alongWith(
+      new ConditionalCommand(
+        new InstantCommand(m_shooter::feederFwd, m_shooter), 
+        new InstantCommand(m_shooter::stopFeeder, m_shooter), 
+        m_shooter::atSpeed)))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
   
-    // driver square button limelight targets (no shoot)
-    new JoystickButton(m_driver, DS4.SQUARE)
-    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true)
-    .whenReleased(new InstantCommand(m_limelight::limelightDriveConfig));
-    
-    // operator X button autoshoots high
+    // driver right bumper limelight targets (no shoot)
+    new JoystickButton(m_driver, DS4.R_BUMPER)
+    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
+
+    // operator square button shoots high
     new JoystickButton(m_operator, DS4.SQUARE)
-    .whileHeld(new AutoShoot(() -> m_shooter.shootRPM(2500), m_shooter))
+    .whileHeld(new InstantCommand(() -> m_shooter.shootRPM(2650)).alongWith(
+      new ConditionalCommand(
+        new InstantCommand(m_shooter::feederFwd), 
+        new InstantCommand(m_shooter::stopFeeder), 
+        m_shooter::atSpeed)))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
 
-    // operator square button autoshoots high (target while spooling then run feeder unconditionally)
+    // driver circle button autoshoots high
+    new JoystickButton(m_driver, DS4.CIRCLE)
+    .whileHeld(
+      new ParallelCommandGroup(
+        new InstantCommand(m_limelight::limelightAimConfig),
+        new PrintCommand("Spooling"),
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+        new ConditionalCommand(
+        new InstantCommand(m_shooter::feederFwd), 
+        new InstantCommand(m_shooter::stopFeeder), 
+        m_shooter::atSpeed)
+    ))
+    .whenReleased(
+      new ParallelCommandGroup(
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_shooter::stopFeeder),
+        new InstantCommand(m_limelight::limelightDriveConfig)
+      ));
 
-    // new JoystickButton(m_operator, DS4.SQUARE)
-    // // requires the shooter
-    // .whenHeld(new ParallelCommandGroup(
-    //   new SequentialCommandGroup(
-    //     new LimelightTarget(m_limelight, m_drivetrain),
-    //     new InstantCommand(m_shooter::feederFwd)),
-    //   new InstantCommand(() -> m_shooter.shootRPM(2550))
-    // ))
-    // .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
-    
+    // // new auto limelight and shoot code. Only run after doing RPM regression!
+    new JoystickButton(m_driver, DS4.R_BUMPER)
+    .whenHeld(
+      // begin all paths simultaneously
+      new ParallelCommandGroup(
+        // target, then run the feeder. If needed, just run the feeder unconditionally instead of by atSpeed
+        new SequentialCommandGroup(
+          new LimelightTarget(m_limelight, m_drivetrain),
+          new InstantCommand(m_shooter::feederFwd))
+    ))
+    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())))
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
+
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
     .whenPressed(new InstantCommand(m_climber::teleHigh), true);

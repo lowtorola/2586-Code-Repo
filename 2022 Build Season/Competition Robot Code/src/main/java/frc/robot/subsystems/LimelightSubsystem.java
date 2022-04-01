@@ -34,7 +34,7 @@ public class LimelightSubsystem extends SubsystemBase{
   }
 
   public double getAngleErrorY() {
-      return -m_limelight.getdegVerticalToTarget();
+      return m_limelight.getdegVerticalToTarget();
   }
 
   /**
@@ -88,7 +88,6 @@ public class LimelightSubsystem extends SubsystemBase{
   }
 
   public void limelightAimConfig() {
-        System.out.println("Targeting started!");
         m_limelight.setPipeline(AIM_PIPELINE);
         m_limelight.setLEDMode(LedMode.kforceOn);
   }
