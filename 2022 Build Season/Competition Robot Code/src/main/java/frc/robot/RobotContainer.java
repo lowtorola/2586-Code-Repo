@@ -144,9 +144,9 @@ public class RobotContainer {
     new JoystickButton(m_driver, DS4.R_BUMPER)
     .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
 
-    // operator square button shoots high
-    new JoystickButton(m_operator, DS4.SQUARE)
-    .whileHeld(new InstantCommand(() -> m_shooter.shootRPM(2650)).alongWith(
+    // driver square button shoots high
+    new JoystickButton(m_driver, DS4.SQUARE)
+    .whileHeld(new InstantCommand(() -> m_shooter.shootRPM(2550)).alongWith(
       new ConditionalCommand(
         new InstantCommand(m_shooter::feederFwd), 
         new InstantCommand(m_shooter::stopFeeder), 
@@ -161,7 +161,7 @@ public class RobotContainer {
         new PrintCommand("Spooling"),
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
         new ConditionalCommand(
-        new InstantCommand(m_shooter::feederFwd), 
+        new InstantCommand(m_shooter::feederFwd, m_shooter), 
         new InstantCommand(m_shooter::stopFeeder), 
         m_shooter::atSpeed)
     ))
@@ -173,17 +173,21 @@ public class RobotContainer {
       ));
 
     // // new auto limelight and shoot code. Only run after doing RPM regression!
-    new JoystickButton(m_driver, DS4.R_BUMPER)
+    new JoystickButton(m_driver, DS4.L_BUMPER)
     .whenHeld(
       // begin all paths simultaneously
       new ParallelCommandGroup(
         // target, then run the feeder. If needed, just run the feeder unconditionally instead of by atSpeed
         new SequentialCommandGroup(
-          new LimelightTarget(m_limelight, m_drivetrain),
-          new InstantCommand(m_shooter::feederFwd))
+          new LimelightTarget(m_limelight, m_drivetrain)
+          )
     ))
-    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())))
-    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
+    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY()))
+        .alongWith(new ConditionalCommand(
+          new InstantCommand(m_shooter::feederFwd, m_shooter), 
+          new InstantCommand(m_shooter::stopFeeder), 
+          m_shooter::atSpeed)))
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
 
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)

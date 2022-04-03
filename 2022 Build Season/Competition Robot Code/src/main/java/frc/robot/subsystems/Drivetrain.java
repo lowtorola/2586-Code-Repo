@@ -31,16 +31,16 @@ public class Drivetrain extends SubsystemBase {
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
   private final SwerveModule m_frontLeft = new SwerveModule(FRONT_LEFT_MODULE_DRIVE_MOTOR, FRONT_LEFT_MODULE_STEER_MOTOR,
-    FRONT_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -214.52, 4.599, 0.01, 0.635, 0.228, 0.006); //kP is +.3 kS is +0.2
+    FRONT_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -214.52, 4.599, 0.01, 0.535, 0.228, 0.006); //kP is +.3 kS is +0.2
 
   private final SwerveModule m_frontRight = new SwerveModule(FRONT_RIGHT_MODULE_DRIVE_MOTOR, FRONT_RIGHT_MODULE_STEER_MOTOR, 
-    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -79.78, 4.732, 0.01, 0.600, 0.236, 0.007); //kP is +.3
+    FRONT_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -79.78, 4.732, 0.01, 0.500, 0.236, 0.007); //kP is +.3
 
   private final SwerveModule m_backLeft = new SwerveModule(BACK_LEFT_MODULE_DRIVE_MOTOR, BACK_LEFT_MODULE_STEER_MOTOR, 
-    BACK_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -138.51, 4.954, 0.01, 0.611, 0.236, 0.007); //kP is +1
+    BACK_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -138.51, 4.954, 0.01, 0.511, 0.236, 0.007); //kP is +1
 
   private final SwerveModule m_backRight = new SwerveModule(BACK_RIGHT_MODULE_DRIVE_MOTOR, BACK_RIGHT_MODULE_STEER_MOTOR, 
-    BACK_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -270.45, 4.900, 0.01, 0.684, 0.232, 0.007); //kP is +1
+    BACK_RIGHT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -270.45, 4.900, 0.01, 0.584, 0.232, 0.007); //kP is +1
 
   // private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
   private final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
@@ -97,6 +97,7 @@ public class Drivetrain extends SubsystemBase {
         m_backLeft.getState(),
         m_backRight.getState());
   }
+  
   /** Sets the robot odometry to a given Pose2d */
   public void resetOdometry(Pose2d pose) {
     m_odometry.resetPosition(pose, robotRotation2d());
@@ -135,6 +136,8 @@ public class Drivetrain extends SubsystemBase {
     updateOdometry();
 
     SmartDashboard.putNumber("Gyro Return", getGyroAngle());
+    SmartDashboard.putNumber("F Left Drive", m_frontLeft.getDriveSpeed());
+    
 
   }
 
