@@ -186,7 +186,8 @@ public class RobotContainer {
         .alongWith(new ConditionalCommand(
           new InstantCommand(m_shooter::feederFwd, m_shooter), 
           new InstantCommand(m_shooter::stopFeeder), 
-          m_shooter::atSpeed)))
+          // only feed once we're locked in everywhere !
+          ()->(m_shooter.atSpeed() && m_limelight.inPositionX()) )))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
 
     // Fight stick Left bumper goes to traverse height
@@ -263,8 +264,8 @@ public class RobotContainer {
         trajectory, 
         () -> m_drivetrain.getPose(), 
         Drivetrain.m_kinematics, 
-        new PIDController(1.0, 0, .01), // tune this
-        new PIDController(1.0, 0, .01), // and this
+        new PIDController(0.1, 0, 0.0), // tune this
+        new PIDController(0.1, 0, 0.0), // and this
         new ProfiledPIDController(1.5, 0, 0.0, new Constraints(6.5, 4.5)), // and this....
         (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
         m_drivetrain);
