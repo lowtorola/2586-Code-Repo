@@ -95,7 +95,7 @@ public class RobotContainer {
     .whenPressed(new InstantCommand(m_drivetrain::resetGyro));
 
     // Driver left bumper turns off field-oriented drive
-    new JoystickButton(m_driver, DS4.L_BUMPER)
+    new JoystickButton(m_driver, DS4.R_BUMPER)
     .whenHeld(new DriveCommand(
       m_drivetrain,
       () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
@@ -140,9 +140,9 @@ public class RobotContainer {
         m_shooter::atSpeed)))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_shooter::stopFeeder)));
   
-    // driver right bumper limelight targets (no shoot)
-    new JoystickButton(m_driver, DS4.R_BUMPER)
-    .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
+    // // driver right bumper limelight targets (no shoot)
+    // new JoystickButton(m_driver, DS4.R_BUMPER)
+    // .whenHeld(new LimelightTarget(m_limelight, m_drivetrain), true);
 
     // driver square button shoots high
     new JoystickButton(m_driver, DS4.SQUARE)
@@ -188,6 +188,10 @@ public class RobotContainer {
           new InstantCommand(m_shooter::stopFeeder), 
           m_shooter::atSpeed)))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
+
+    // Fight stick Left bumper goes to traverse height
+    new JoystickButton(m_fightStick, FightStick.L_BUMPER)
+    .whenPressed(new InstantCommand(m_climber::teleTraverse), true);
 
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)

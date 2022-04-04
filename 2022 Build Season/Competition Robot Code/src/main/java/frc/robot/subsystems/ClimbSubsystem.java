@@ -150,28 +150,26 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   /**
+   * Sets the telescopes to begin going to traverse height
+   */
+  public void teleTraverse() {
+    m_leftController.setReference(TRAVERSE_HEIGHT, ControlType.kSmartMotion);
+    m_rightController.setReference(TRAVERSE_HEIGHT, ControlType.kSmartMotion); 
+  }
+
+  /**
    * Sets the telescopes to begin moving towards their highest extension, e.g. step 1 of the climbing sequence
    */
   public void teleHigh() {
-    m_leftController.setReference(MAX_HEIGHT + 1.4, ControlType.kSmartMotion);
+    m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
     m_rightController.setReference(MAX_HEIGHT, ControlType.kSmartMotion); 
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
-    m_leftController.setReference(MIN_HEIGHT - 0.9, ControlType.kSmartMotion);
+    m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
     m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    // if(leftBound()) {
-    // m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    // m_rightController.setReference(getLeftPos(), ControlType.kSmartMotion);
-    // } else if(rightBound()) {
-    // m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    // m_leftController.setReference(getRightPos(), ControlType.kSmartMotion);
-    // } else {
-    //   m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    //   m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    // }
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer
@@ -179,7 +177,7 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public void teleStage() {
     m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(STAGE_HEIGHT + 1.0, ControlType.kSmartMotion);
+    m_rightController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
   }
 
   public void stopLeft() {
@@ -208,11 +206,21 @@ public class ClimbSubsystem extends SubsystemBase {
    */
   public boolean getRightLimit() {
     return m_rightLimit.isPressed();
-
   }
 
   @Override
   public void periodic() {
+
+    if(getLeftLimit()) {
+      m_leftTeleEnc.setPosition(0);
+    }
+    if(getRightLimit()) {
+      m_rightTeleEnc.setPosition(0);
+    }
+
+    SmartDashboard.putNumber("Left Tele Height", m_leftTeleEnc.getPosition());
+    SmartDashboard.putNumber("Right Tele Height", m_rightTeleEnc.getPosition());
+
 
   }
 }
