@@ -375,7 +375,7 @@ public class RobotContainer {
         // Step 3: drive to hub to shoot
         new FollowPath(m_drivetrain, step3).withTimeout(4),
         new InstantCommand(m_intake::stop),
-      //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // commented out for testing we're GONNA need this
+        new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1.5), // commented out for testing we're GONNA need this
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
         new WaitCommand(0.5),
         new InstantCommand(m_intake::intake),
