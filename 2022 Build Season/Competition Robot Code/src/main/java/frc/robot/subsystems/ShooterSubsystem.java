@@ -175,5 +175,6 @@ public class ShooterSubsystem extends SubsystemBase {
     // atSpeed = Math.abs(m_targetRPM - getVelocity()) < TOLERANCE_RPM;
     SmartDashboard.putNumber("Shooter RPM", m_encoder.getVelocity());
     SmartDashboard.putNumber("Target RPM", m_targetRPM);
+    SmartDashboard.putBoolean("At Speed", atSpeed());
   }
 }

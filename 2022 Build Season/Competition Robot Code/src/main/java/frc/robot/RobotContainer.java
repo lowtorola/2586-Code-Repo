@@ -14,8 +14,10 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -30,8 +32,10 @@ import frc.robot.Constants.OIConstants.DS4;
 import frc.robot.Constants.OIConstants.FightStick;
 import frc.robot.commands.AdvanceFeeder;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.FollowPath;
 import frc.robot.commands.HomeTelescopes;
 import frc.robot.commands.LimelightTarget;
+import frc.robot.commands.RunFeeder;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -58,6 +62,8 @@ public class RobotContainer {
   private final ClimbSubsystem m_climber = new ClimbSubsystem();
   private final LimelightSubsystem m_limelight = new LimelightSubsystem();
 
+  private final SendableChooser<String> m_autoChooser = new SendableChooser<>();
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Set up the default command for the drivetrain.
@@ -79,6 +85,16 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    SmartDashboard.putData("Autonomous Chooser", m_autoChooser);
+
+    // add auto options to smartdash chooser
+    m_autoChooser.addOption("Blue 3 Ball", "Blue 3 ball auto");
+    m_autoChooser.addOption("Red 3 Ball", "Red 3 ball auto");
+    m_autoChooser.addOption("1 Ball", "Blue 1 ball auto");
+    m_autoChooser.addOption("5 Ball", "Blue 5 ball auto");
+    m_autoChooser.setDefaultOption("2 Ball", "Blue 2 ball auto");
+
   }
 
   /**
@@ -184,10 +200,10 @@ public class RobotContainer {
     ))
     .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY()))
         .alongWith(new ConditionalCommand(
-          new InstantCommand(m_shooter::feederFwd, m_shooter), 
+          new RunFeeder(m_shooter), 
           new InstantCommand(m_shooter::stopFeeder), 
           // only feed once we're locked in everywhere !
-          ()->(m_shooter.atSpeed() && m_limelight.inPositionX()) )))
+          ()->(m_shooter.atSpeed() && m_limelight.inPositionX() && m_limelight.inPositionY()) )))
     .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
 
     // Fight stick Left bumper goes to traverse height
@@ -253,24 +269,123 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    
-    PathPlannerTrajectory trajectory = PathPlanner.loadPath("Blue 3 ball auto", 1.75, 1.0);
 
-    PathPlannerState initialState = trajectory.getInitialState();
-    Pose2d startingPose = new Pose2d(trajectory.getInitialPose().getTranslation(), initialState.holonomicRotation);
+    String chosenAuto = m_autoChooser.getSelected();
+  
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath(chosenAuto, 3.5, 2.0);
 
-    PPSwerveControllerCommand blue3Ball = 
-    new PPSwerveControllerCommand(
-        trajectory, 
-        () -> m_drivetrain.getPose(), 
-        Drivetrain.m_kinematics, 
-        new PIDController(0.1, 0, 0.0), // tune this
-        new PIDController(0.1, 0, 0.0), // and this
-        new ProfiledPIDController(1.5, 0, 0.0, new Constraints(6.5, 4.5)), // and this....
-        (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
-        m_drivetrain);
+    switch(chosenAuto) {
+      case "Blue 3 ball auto":
+      return new SequentialCommandGroup(
+        new InstantCommand(() -> m_shooter.shootRPM(2400)), // TODO: change to limelight shoot!
+        new WaitCommand(1),
+        new RunFeeder(m_shooter).withTimeout(1),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::extend),
+        new InstantCommand(m_intake::intake),
+        new FollowPath(m_drivetrain, trajectory),
+        new InstantCommand(m_intake::stop),
+        new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1),
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+        new InstantCommand(m_intake::intake),
+        new RunFeeder(m_shooter).withTimeout(2.5),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::stop)
+      );
+      case "Red 3 ball auto":
+      return new SequentialCommandGroup(
+        new InstantCommand(() -> m_shooter.shootRPM(2400)), // TODO: change to limelight shoot!
+        new WaitCommand(1),
+        new RunFeeder(m_shooter).withTimeout(1),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::extend),
+        new InstantCommand(m_intake::intake),
+        new FollowPath(m_drivetrain, trajectory),
+        new InstantCommand(m_intake::stop),
+        new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1),
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+        new InstantCommand(m_intake::intake),
+        new RunFeeder(m_shooter).withTimeout(2.5),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::stop)
+      );
+      case "Blue 2 ball auto":
+      return new SequentialCommandGroup(
+        new InstantCommand(() -> m_shooter.shootRPM(2400)), // TODO: change to limelight shoot!
+        new WaitCommand(1),
+        new RunFeeder(m_shooter).withTimeout(1),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::extend),
+        new InstantCommand(m_intake::intake),
+        new FollowPath(m_drivetrain, trajectory),
+        new InstantCommand(m_intake::stop),
+        // new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // Shouldn't be necessary for just a 2 ball
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+        new InstantCommand(m_intake::intake),
+        new RunFeeder(m_shooter).withTimeout(2),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::stop)
+      );
+      case "Blue 1 ball auto":
+      return new SequentialCommandGroup(
+        new InstantCommand(()->m_shooter.shootRPM(2400)), // TODO: change to limelight shoot?
+        new WaitCommand(1),
+        new RunFeeder(m_shooter).withTimeout(1),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new FollowPath(m_drivetrain, trajectory)
+      );
+      case "Blue 5 ball auto":
 
-    return blue3Ball.beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(startingPose)));
+      PathPlannerTrajectory step1 = PathPlanner.loadPath("Blue 5 ball step 1", 5.0, 3.0);
+      PathPlannerTrajectory step2 = PathPlanner.loadPath("Blue 5 ball step 2", 6.0, 3.0);
+      PathPlannerTrajectory step3 = PathPlanner.loadPath("Blue 5 ball step 3", 6.0, 3.0);
+
+      PathPlannerState m_initialState = step1.getInitialState();
+      Pose2d m_startingPose = new Pose2d(step1.getInitialPose().getTranslation(), m_initialState.holonomicRotation);
+
+      return new SequentialCommandGroup(
+        // Step 1: first 3 balls
+        new InstantCommand(() -> m_shooter.shootRPM(1600)), // TODO: change to limelight shoot!
+        new WaitCommand(0.5),
+        new RunFeeder(m_shooter).withTimeout(1.5),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::extend),
+        new InstantCommand(m_intake::intake),
+        new FollowPath(m_drivetrain, step1).withTimeout(6.5).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(m_startingPose))), // path following to pick up 2 balls
+        new InstantCommand(m_intake::stop),
+      //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // try no LL target to keep path accurate
+        new InstantCommand(() -> m_shooter.shootRPM(1600)),
+        new WaitCommand(0.5),
+        new InstantCommand(m_intake::intake),
+        new RunFeeder(m_shooter).withTimeout(1.5),
+        new InstantCommand(m_shooter::stopFlywheel),
+        // Step 2: drive back to terminal
+        
+        new FollowPath(
+          m_drivetrain, 
+          step2).withTimeout(3), // path following back to terminal
+        new WaitCommand(1), // give human player a chance to roll er in
+       
+        // Step 3: drive to hub to shoot
+        new FollowPath(m_drivetrain, step3).withTimeout(3),
+        new InstantCommand(m_intake::stop),
+      //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // commented out for testing we're GONNA need this
+        new InstantCommand(() -> m_shooter.shootRPM(1600)), // TODO: change to limelight shoot!
+        new WaitCommand(0.5),
+        new InstantCommand(m_intake::intake),
+        new RunFeeder(m_shooter).withTimeout(1.5),
+        new InstantCommand(m_shooter::stopFlywheel),
+        new InstantCommand(m_intake::stop)
+      );
+      default:
+      return null;
+
+    }
+
+
+
+
+
 
   }
 

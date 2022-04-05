@@ -7,6 +7,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -39,13 +40,13 @@ public class FollowPath extends ParallelCommandGroup {
                 (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
                 m_drivetrain)
             // home gyro before starting
-            .beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(m_startingPose)))
-        );
-        
-
+            // .beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(m_startingPose)))
+        );      
     }
 
-
-
+    @Override
+    public void end(boolean interrupted) {
+        m_drivetrain.driveFromSpeeds(new ChassisSpeeds(), false);
+    }
     
 }
