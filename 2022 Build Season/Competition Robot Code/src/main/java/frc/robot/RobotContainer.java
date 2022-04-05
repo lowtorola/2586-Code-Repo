@@ -271,8 +271,13 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
 
     String chosenAuto = m_autoChooser.getSelected();
+
+    SmartDashboard.putString("Chosen Auto", chosenAuto);
   
-    PathPlannerTrajectory trajectory = PathPlanner.loadPath(chosenAuto, 3.5, 2.0);
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath(chosenAuto, 5.0, 3.0);
+
+    PathPlannerState initialState = trajectory.getInitialState();
+    Pose2d initialPose = new Pose2d(trajectory.getInitialPose().getTranslation(), initialState.holonomicRotation);
 
     switch(chosenAuto) {
       case "Blue 3 ball auto":
@@ -283,7 +288,7 @@ public class RobotContainer {
         new InstantCommand(m_shooter::stopFlywheel),
         new InstantCommand(m_intake::extend),
         new InstantCommand(m_intake::intake),
-        new FollowPath(m_drivetrain, trajectory),
+        new FollowPath(m_drivetrain, trajectory).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose))),
         new InstantCommand(m_intake::stop),
         new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1),
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
@@ -300,7 +305,7 @@ public class RobotContainer {
         new InstantCommand(m_shooter::stopFlywheel),
         new InstantCommand(m_intake::extend),
         new InstantCommand(m_intake::intake),
-        new FollowPath(m_drivetrain, trajectory),
+        new FollowPath(m_drivetrain, trajectory).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose))),
         new InstantCommand(m_intake::stop),
         new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1),
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
@@ -317,7 +322,7 @@ public class RobotContainer {
         new InstantCommand(m_shooter::stopFlywheel),
         new InstantCommand(m_intake::extend),
         new InstantCommand(m_intake::intake),
-        new FollowPath(m_drivetrain, trajectory),
+        new FollowPath(m_drivetrain, trajectory).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose))),
         new InstantCommand(m_intake::stop),
         // new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // Shouldn't be necessary for just a 2 ball
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
@@ -332,7 +337,7 @@ public class RobotContainer {
         new WaitCommand(1),
         new RunFeeder(m_shooter).withTimeout(1),
         new InstantCommand(m_shooter::stopFlywheel),
-        new FollowPath(m_drivetrain, trajectory)
+        new FollowPath(m_drivetrain, trajectory).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose)))
       );
       case "Blue 5 ball auto":
 
@@ -340,22 +345,23 @@ public class RobotContainer {
       PathPlannerTrajectory step2 = PathPlanner.loadPath("Blue 5 ball step 2", 6.0, 3.0);
       PathPlannerTrajectory step3 = PathPlanner.loadPath("Blue 5 ball step 3", 6.0, 3.0);
 
-      PathPlannerState m_initialState = step1.getInitialState();
-      Pose2d m_startingPose = new Pose2d(step1.getInitialPose().getTranslation(), m_initialState.holonomicRotation);
+      PathPlannerState first_state = step1.getInitialState();
+      Pose2d first_pose = new Pose2d(step1.getInitialPose().getTranslation(), first_state.holonomicRotation);
 
       return new SequentialCommandGroup(
         // Step 1: first 3 balls
-        new InstantCommand(() -> m_shooter.shootRPM(1600)), // TODO: change to limelight shoot!
+        new InstantCommand(m_limelight::limelightAimConfig),
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
         new WaitCommand(0.5),
         new RunFeeder(m_shooter).withTimeout(1.5),
         new InstantCommand(m_shooter::stopFlywheel),
         new InstantCommand(m_intake::extend),
         new InstantCommand(m_intake::intake),
-        new FollowPath(m_drivetrain, step1).withTimeout(6.5).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(m_startingPose))), // path following to pick up 2 balls
+        new FollowPath(m_drivetrain, step1).withTimeout(6.5).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(first_pose))), // path following to pick up 2 balls
         new InstantCommand(m_intake::stop),
       //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // try no LL target to keep path accurate
-        new InstantCommand(() -> m_shooter.shootRPM(1600)),
-        new WaitCommand(0.5),
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+        new WaitCommand(1),
         new InstantCommand(m_intake::intake),
         new RunFeeder(m_shooter).withTimeout(1.5),
         new InstantCommand(m_shooter::stopFlywheel),
@@ -363,14 +369,14 @@ public class RobotContainer {
         
         new FollowPath(
           m_drivetrain, 
-          step2).withTimeout(3), // path following back to terminal
-        new WaitCommand(1), // give human player a chance to roll er in
+          step2).withTimeout(4), // path following back to terminal
+        new WaitCommand(0.5), // give human player a chance to roll er in
        
         // Step 3: drive to hub to shoot
-        new FollowPath(m_drivetrain, step3).withTimeout(3),
+        new FollowPath(m_drivetrain, step3).withTimeout(4),
         new InstantCommand(m_intake::stop),
       //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // commented out for testing we're GONNA need this
-        new InstantCommand(() -> m_shooter.shootRPM(1600)), // TODO: change to limelight shoot!
+        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
         new WaitCommand(0.5),
         new InstantCommand(m_intake::intake),
         new RunFeeder(m_shooter).withTimeout(1.5),
