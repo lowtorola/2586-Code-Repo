@@ -8,6 +8,7 @@ import static frc.robot.Constants.LimelightConstants.*;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LimelightSubsystem extends SubsystemBase{
@@ -90,6 +91,11 @@ public class LimelightSubsystem extends SubsystemBase{
   public void limelightAimConfig() {
         m_limelight.setPipeline(AIM_PIPELINE);
         m_limelight.setLEDMode(LedMode.kforceOn);
+  }
+
+  @Override
+  public void periodic() {
+      SmartDashboard.putBoolean("In Position", inPositionX());
   }
 
 }

@@ -34,14 +34,14 @@ public class LimelightTarget extends CommandBase {
             m_targetSpeeds = new ChassisSpeeds(
                 0.0,
                 0.0,
-                m_limelight.getPercentErrorX() * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -0.25
+                -m_limelight.getPercentErrorX() * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.4
             );
             m_drivetrain.driveFromSpeeds(m_targetSpeeds, false);
         } else {
         m_targetSpeeds = new ChassisSpeeds(
-            -m_limelight.getPercentErrorY() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 0.3, // change scale factor
+            -m_limelight.getPercentErrorY() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 0.35, // change scale factor
             0.0,
-            m_limelight.getPercentErrorX() * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -0.25 // change scale factor
+            -m_limelight.getPercentErrorX() * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.4 // change scale factor
         );
         m_drivetrain.driveFromSpeeds(m_targetSpeeds, false);
         }

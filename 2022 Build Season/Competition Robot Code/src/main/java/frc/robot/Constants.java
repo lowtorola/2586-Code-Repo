@@ -106,7 +106,7 @@ public final class Constants {
         public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
         public static final double MAX_ANGLE_ERROR_X = 15.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
         public static final double MAX_ANGLE_ERROR_Y = 15.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
-        public static final double TOLERANCE_ERROR_X = 1.0; 
+        public static final double TOLERANCE_ERROR_X = 2.0; 
         public static final double TOLERANCE_ERROR_Y = 8.0; // we can shoot inside of a ~10 deg range
     }
 
@@ -144,7 +144,7 @@ public final class Constants {
         public static final int KMAX_OUTPUT = 1; 
         public static final int KMIN_OUTPUT = 0;
         public static final int KMAX_RPM = 5500;
-        public static final double TOLERANCE_RPM = 150.0;
+        public static final double TOLERANCE_RPM = 250.0; // FIXME: Change back to 150?
         // linear regression constants for RPM calc
         public static final double KQUADRATIC = 2.8; // 1.1729
         public static final double KLINEAR = -35.814; // -37.724
