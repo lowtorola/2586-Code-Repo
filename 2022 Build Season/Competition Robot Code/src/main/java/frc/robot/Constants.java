@@ -165,11 +165,11 @@ public final class Constants {
         public static final int[] PIVOT = {14,0};
 
         public static final int SMART_MOTION_SLOT = 0;
-        public static final double KP_LEFT = 3.5; // 3.0
-        public static final double KP_RIGHT = 3.0;//2.3
+        public static final double KP_LEFT = 3.8; // 3.0
+        public static final double KP_RIGHT = 3.5;//2.3
         public static final double KI = 0.000175;//.0002
         public static final double KD = 0.0015; // 0.001
-        public static final double KIZ = 0;
+        public static final double KIZ = 10.0;
         public static final double KFF_LEFT = 0.000675; // .000675
         public static final double KFF_RIGHT = 0.000675;//.000675
         public static final double KMAX_OUTPUT = 0.7;
@@ -178,8 +178,8 @@ public final class Constants {
         public static final int MAX_VEL = 5000;
         public static final int MIN_VEL = 0;
         public static final int MAX_ACC = 1800;
-        public static final double ALLOWED_ERR_LEFT = 0.6; // 1 rotation for real climb
-        public static final double ALLOWED_ERR_RIGHT = 0.6;
+        public static final double ALLOWED_ERR_LEFT = 1.0; // 1 rotation for real climb
+        public static final double ALLOWED_ERR_RIGHT = 1.0;
         public static final double BIND_DIST = 2.0;
     }
 
