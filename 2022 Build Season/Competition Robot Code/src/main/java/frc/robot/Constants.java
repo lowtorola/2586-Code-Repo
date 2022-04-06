@@ -165,21 +165,21 @@ public final class Constants {
         public static final int[] PIVOT = {14,0};
 
         public static final int SMART_MOTION_SLOT = 0;
-        public static final double KP_LEFT = 0.000825; // FIXME: plug in tuned values for all these!!
-        public static final double KP_RIGHT = 0.000775; // FIXME: plug in tuned values for all these!!
-        public static final int KI = 0;
-        public static final double KD = 0.001; // 0.001
+        public static final double KP_LEFT = 3.5; // 3.0
+        public static final double KP_RIGHT = 3.0;//2.3
+        public static final double KI = 0.000175;//.0002
+        public static final double KD = 0.0015; // 0.001
         public static final double KIZ = 0;
-        public static final double KFF_LEFT = 0.000675; 
-        public static final double KFF_RIGHT = 0.0006;
-        public static final double KMAX_OUTPUT = 0.9;
-        public static final double KMIN_OUTPUT = -1.0;
+        public static final double KFF_LEFT = 0.000675; // .000675
+        public static final double KFF_RIGHT = 0.000675;//.000675
+        public static final double KMAX_OUTPUT = 0.7;
+        public static final double KMIN_OUTPUT = -0.6;
         public static final int MAX_RPM = 5700;
         public static final int MAX_VEL = 5000;
         public static final int MIN_VEL = 0;
-        public static final int MAX_ACC = 1950;
-        public static final double ALLOWED_ERR_LEFT = 0.2; // 1 rotation for real climb
-        public static final double ALLOWED_ERR_RIGHT = 0.2;
+        public static final int MAX_ACC = 1800;
+        public static final double ALLOWED_ERR_LEFT = 0.6; // 1 rotation for real climb
+        public static final double ALLOWED_ERR_RIGHT = 0.6;
         public static final double BIND_DIST = 2.0;
     }
 

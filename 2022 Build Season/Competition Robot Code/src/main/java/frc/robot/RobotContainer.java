@@ -208,25 +208,25 @@ public class RobotContainer {
 
     // Fight stick Left bumper goes to traverse height
     new JoystickButton(m_fightStick, FightStick.L_BUMPER)
-    .whenPressed(new InstantCommand(m_climber::teleTraverse), true);
+    .whileHeld(new InstantCommand(m_climber::teleTraverse), true);
 
     // Fight Stick X button extends telescope
     new JoystickButton(m_fightStick, FightStick.X)
-    .whenPressed(new InstantCommand(m_climber::teleHigh), true);
+    .whileHeld(new InstantCommand(m_climber::teleHigh), true);
   //  .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight Stick A button retracts telescope
     new JoystickButton(m_fightStick, FightStick.A)
-    .whenPressed(new InstantCommand(m_climber::teleLow), true);
+    .whileHeld(new InstantCommand(m_climber::teleLow), true);
    // .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight Stick Y button stages tele
     new JoystickButton(m_fightStick, FightStick.Y)
-    .whenPressed(new InstantCommand(m_climber::teleStage), true);
+    .whileHeld(new InstantCommand(m_climber::teleStage), true);
    // .whenReleased(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
    new JoystickButton(m_fightStick, FightStick.B)
-   .whenPressed(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
+   .whileHeld(new InstantCommand(m_climber::stopLeft).alongWith(new InstantCommand(m_climber::stopRight)));
 
     // Fight stick Right bumper homes tele
     new JoystickButton(m_fightStick, FightStick.R_BUMPER)

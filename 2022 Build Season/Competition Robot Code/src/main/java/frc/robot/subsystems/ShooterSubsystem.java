@@ -33,8 +33,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     m_encoder = m_flywheel.getEncoder();
     m_feeder.setInverted(true);
-    m_flywheel.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 40);
-    m_flywheel.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 40);
+    m_flywheel.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 50);
+    m_flywheel.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 50);
 
     m_targetRPM = 0.0;
 

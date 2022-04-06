@@ -52,16 +52,20 @@ public class ClimbSubsystem extends SubsystemBase {
 
     m_referencePos = 0;
 
+    m_leftTele.restoreFactoryDefaults();
+    m_rightTele.restoreFactoryDefaults();
+
     m_rightTele.setInverted(true);
-    m_leftTele.setSmartCurrentLimit(40);
-    m_rightTele.setSmartCurrentLimit(40);
+    m_leftTele.setInverted(true);
+    m_leftTele.setSmartCurrentLimit(55);
+    m_rightTele.setSmartCurrentLimit(55);
     m_leftTele.setIdleMode(IdleMode.kBrake);
     m_rightTele.setIdleMode(IdleMode.kBrake);
 
-    m_leftTele.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 50);
-    m_leftTele.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 50);
-    m_rightTele.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 50);
-    m_rightTele.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 50);
+    m_leftTele.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 30);
+    m_leftTele.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 40);
+    m_rightTele.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 30);
+    m_rightTele.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 40);
 
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
@@ -80,7 +84,7 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftController.setP(KP_LEFT);
     m_leftController.setI(KI);
     m_leftController.setD(KD);
-    m_leftController.setIZone(KIZ);
+    m_leftController.setIZone(10.0);
     m_leftController.setFF(KFF_LEFT);
     m_leftController.setOutputRange(KMIN_OUTPUT, KMAX_OUTPUT);
     // set right gains
@@ -100,10 +104,6 @@ public class ClimbSubsystem extends SubsystemBase {
     m_rightController.setSmartMotionMinOutputVelocity(MIN_VEL, SMART_MOTION_SLOT);
     m_rightController.setSmartMotionMaxAccel(MAX_ACC, SMART_MOTION_SLOT);
     m_rightController.setSmartMotionAllowedClosedLoopError(ALLOWED_ERR_RIGHT, SMART_MOTION_SLOT);
-
-    // FIXME: delete if this doesn't get rid of the REV CAN errors
-    m_leftController.setReference(0.0, ControlType.kDutyCycle);
-    m_rightController.setReference(0.0, ControlType.kDutyCycle);
 
     m_leftTele.burnFlash();
     m_rightTele.burnFlash();
@@ -134,50 +134,38 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   /**
-   * Method for determining if the telescopes are bound due to height difference.
-   * @return If left is higher, will return positive. If right is higher, will return negative.
-   */
-  public double getTeleDiff() {
-    return getLeftPos() - getRightPos();
-  }
-
-  public boolean leftBound() {
-    return (getTeleDiff() < -BIND_DIST);
-  }
-
-  public boolean rightBound() {
-    return (getTeleDiff() > BIND_DIST);
-  }
-
-  /**
    * Sets the telescopes to begin going to traverse height
    */
   public void teleTraverse() {
-    m_leftController.setReference(TRAVERSE_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(TRAVERSE_HEIGHT, ControlType.kSmartMotion); 
+   // m_leftController.setReference(TRAVERSE_HEIGHT - 2.0, ControlType.kPosition);
+    m_leftController.setReference(TRAVERSE_HEIGHT, ControlType.kPosition); 
+    m_rightController.setReference(getLeftPos() + 2.0, ControlType.kPosition);
   }
 
   /**
    * Sets the telescopes to begin moving towards their highest extension, e.g. step 1 of the climbing sequence
    */
   public void teleHigh() {
-    m_leftController.setReference(MAX_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MAX_HEIGHT, ControlType.kSmartMotion); 
+   // m_leftController.setReference(MAX_HEIGHT - 1.75, ControlType.kPosition);
+    m_leftController.setReference(MAX_HEIGHT, ControlType.kPosition); 
+    m_rightController.setReference(getLeftPos() + 1.75, ControlType.kPosition);
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
-    m_leftController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(MIN_HEIGHT, ControlType.kSmartMotion);
+   // m_leftController.setReference(MIN_HEIGHT - 0.5, ControlType.kPosition);
+    m_leftController.setReference(MIN_HEIGHT, ControlType.kPosition);
+    m_rightController.setReference(getLeftPos(), ControlType.kPosition);
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer
    * the hold to the pivot arms
    */
   public void teleStage() {
-    m_leftController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
-    m_rightController.setReference(STAGE_HEIGHT, ControlType.kSmartMotion);
+   // m_leftController.setReference(STAGE_HEIGHT - 0.75, ControlType.kPosition);
+    m_leftController.setReference(STAGE_HEIGHT, ControlType.kPosition);
+    m_rightController.setReference(getLeftPos() + 0.75, ControlType.kPosition);
   }
 
   public void stopLeft() {
@@ -208,8 +196,20 @@ public class ClimbSubsystem extends SubsystemBase {
     return m_rightLimit.isPressed();
   }
 
+  public void teleSafety() {
+
+    if(m_leftTele.getMotorTemperature() > 65) {
+      stopLeft();
+    }
+    if(m_rightTele.getMotorTemperature() > 65) {
+      stopRight();
+    }
+  }
+
   @Override
   public void periodic() {
+
+    // teleSafety();
 
     if(getLeftLimit()) {
       m_leftTeleEnc.setPosition(0);
@@ -221,6 +221,12 @@ public class ClimbSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Left Tele Height", m_leftTeleEnc.getPosition());
     SmartDashboard.putNumber("Right Tele Height", m_rightTeleEnc.getPosition());
 
+    SmartDashboard.putNumber("Left Output", m_leftTele.getAppliedOutput());
+    SmartDashboard.putNumber("Right Output", m_rightTele.getAppliedOutput());
+    SmartDashboard.putNumber("Left Current", m_leftTele.getOutputCurrent());
+    SmartDashboard.putNumber("Right Current", m_rightTele.getOutputCurrent());
+    SmartDashboard.putNumber("Left Temp", m_leftTele.getMotorTemperature());
+    SmartDashboard.putNumber("Right Temp", m_rightTele.getMotorTemperature());
 
   }
 }
