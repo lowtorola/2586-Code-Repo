@@ -56,11 +56,11 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftTele.restoreFactoryDefaults();
     m_rightTele.restoreFactoryDefaults();
 
-    m_rightTele.setInverted(false);
+    m_rightTele.setInverted(true);
     m_leftTele.setInverted(false);
 
-    m_leftTele.setSmartCurrentLimit(50);
-    m_rightTele.setSmartCurrentLimit(50);
+    m_leftTele.setSmartCurrentLimit(57);
+    m_rightTele.setSmartCurrentLimit(57);
     m_leftTele.setIdleMode(IdleMode.kBrake);
     m_rightTele.setIdleMode(IdleMode.kBrake);
 
@@ -74,7 +74,7 @@ public class ClimbSubsystem extends SubsystemBase {
     m_leftTeleEnc = m_leftTele.getEncoder();
     m_rightTeleEnc = m_rightTele.getEncoder();
 
-    m_pivot.set(Value.kReverse);
+    m_pivot.set(Value.kForward);
 
     resetEncoders();
 
@@ -131,18 +131,18 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void extendPivot() {
-    m_pivot.set(Value.kForward);
+    m_pivot.set(Value.kReverse);
   }
 
   public void retractPivot() {
-    m_pivot.set(Value.kReverse);
+    m_pivot.set(Value.kForward);
   }
 
   /**
    * Sets the telescopes to begin going to traverse height
    */
   public void teleTraverse() {
-    m_leftController.setReference(TRAVERSE_HEIGHT - 2.0, ControlType.kPosition);
+    m_leftController.setReference(TRAVERSE_HEIGHT - 2.15, ControlType.kPosition);
     m_rightController.setReference(TRAVERSE_HEIGHT, ControlType.kPosition);
   }
 
@@ -150,15 +150,15 @@ public class ClimbSubsystem extends SubsystemBase {
    * Sets the telescopes to begin moving towards their highest extension, e.g. step 1 of the climbing sequence
    */
   public void teleHigh() {
-    m_leftController.setReference(MAX_HEIGHT - 1.75, ControlType.kPosition);
+    m_leftController.setReference(MAX_HEIGHT - 1.95, ControlType.kPosition);
     m_rightController.setReference(MAX_HEIGHT, ControlType.kPosition);
   }
   /**
    * Sets the telescopes to begin moving towards their lowest extension, e.g. just above fully stowed
    */
   public void teleLow() {
-    m_leftController.setReference(MIN_HEIGHT - 0.5, ControlType.kPosition);
-    m_rightController.setReference(MIN_HEIGHT, ControlType.kPosition);
+    m_leftController.setReference(MIN_HEIGHT - 0.45, ControlType.kPosition);
+    m_rightController.setReference(MIN_HEIGHT - 0.45, ControlType.kPosition);
   }
   /**
    * Sets the telescopes to begin moving towards just being clear of the bar to transfer

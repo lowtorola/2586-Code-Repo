@@ -102,12 +102,12 @@ public final class Constants {
     public static final class LimelightConstants {
 
         public static final int DISABLED_PIPELINE = 0;
-        public static final int AIM_PIPELINE = 2; // TODO: change back to 1!!!
+        public static final int AIM_PIPELINE = 1; // TODO: change back to 1!!!
         public static final double TARGET_HEIGHT = 3.0; // TODO: get actual target height (or temp. one...)
         public static final double MAX_ANGLE_ERROR_X = 15.0; // TODO: find actual max reportable TX (FROM CLOSEST USEFUL SHOT!!)
         public static final double MAX_ANGLE_ERROR_Y = 15.0; // TODO: find actual max reportable TY (THAT WE WILL REASONABLY BE AIMING FROM!!!)
         public static final double TOLERANCE_ERROR_X = 2.0; 
-        public static final double TOLERANCE_ERROR_Y = 8.0; // we can shoot inside of a ~10 deg range
+        public static final double TOLERANCE_ERROR_Y = 6.0; // we can shoot inside of a ~10 deg range
     }
 
     /**
@@ -132,7 +132,7 @@ public final class Constants {
         public static final int INDEX_BB = 2;
         public static final int SHOOT_RPM = 1850; // change this to change voltage output
         public static final double SHOOT_VOLTS = VOLT_PER_RPM * SHOOT_RPM + 0.25;
-        public static final double FEEDER_FWD = 0.85;
+        public static final double FEEDER_FWD = 0.95;
         public static final double FEEDER_INDEX = 0.35;
         public static final double FEEDER_REV = -0.4;
         
@@ -140,15 +140,15 @@ public final class Constants {
         public static final int KI = 0;
         public static final int KD = 0; 
         public static final int KIZ = 0; 
-        public static final double KFF = 0.000187;
+        public static final double KFF = 0.000195;
         public static final int KMAX_OUTPUT = 1; 
         public static final int KMIN_OUTPUT = 0;
         public static final int KMAX_RPM = 5500;
-        public static final double TOLERANCE_RPM = 250.0; // FIXME: Change back to 150?
+        public static final double TOLERANCE_RPM = 100.0; // FIXME: Change back to 150?
         // linear regression constants for RPM calc
-        public static final double KQUADRATIC = 2.8; // 1.1729
+        public static final double KQUADRATIC = 2.9; // 1.1729
         public static final double KLINEAR = -35.814; // -37.724
-        public static final double KCONSTANT = 2800.0; // 2934.79
+        public static final double KCONSTANT = 2860.0; // 2934.79
     }
 
     public static final class ClimbConstants {
@@ -157,17 +157,17 @@ public final class Constants {
         public static final int RIGHT_TELESCOPE = 15;
         public static final double WINCH_SPEED = 0.8;
 
-        public static final double MIN_HEIGHT = -1.0; // rotations
+        public static final double MIN_HEIGHT = -1.5; // rotations
         public static final double MAX_HEIGHT = 68; // rotations
         public static final int STAGE_HEIGHT = 14; // rotations
-        public static final int TRAVERSE_HEIGHT = 80;
+        public static final double TRAVERSE_HEIGHT = 80.5;
 
         public static final int[] PIVOT = {14,0};
 
         public static final int SMART_MOTION_SLOT = 0;
-        public static final double KP_LEFT = 3.8; // 3.0
-        public static final double KP_RIGHT = 3.5;//2.3
-        public static final double KI = 0.000175;//.0002
+        public static final double KP_LEFT = 4.1; // 3.0
+        public static final double KP_RIGHT = 4.1;//2.3
+        public static final double KI = 0.000177;//.0002
         public static final double KD = 0.0015; // 0.001
         public static final double KIZ = 10.0;
         public static final double KFF_LEFT = 0.000675; // .000675

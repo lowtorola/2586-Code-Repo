@@ -47,7 +47,7 @@ public class AdvanceFeeder extends CommandBase {
       m_shooter.feederIndex();
       break;
       case 2:
-      m_shooter.feederIndex();
+      m_shooter.stopFeeder(); // FIXME: changed from m_shooter.feederIndex(); !!!
       break;
       default:
       m_shooter.stopFeeder();

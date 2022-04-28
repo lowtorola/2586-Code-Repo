@@ -21,14 +21,14 @@ import frc.robot.subsystems.SwerveModule;
 import static frc.robot.Constants.DriveConstants.*;
 
 /** Represents a swerve drive style drivetrain. */
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends SubsystemBase { 
 
   public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
   SdsModuleConfigurations.MK4_L2.getDriveReduction() *
-  SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI;
+  SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI * 1.2;
 
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
-          Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+          Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0) * 0.9;
 
   private final SwerveModule m_frontLeft = new SwerveModule(FRONT_LEFT_MODULE_DRIVE_MOTOR, FRONT_LEFT_MODULE_STEER_MOTOR,
     FRONT_LEFT_MODULE_STEER_ENCODER, false, 2.993, 0.632, 2.200, 0.304, -214.52, 4.599, 0.01, 0.535, 0.228, 0.006); //kP is +.3 kS is +0.2

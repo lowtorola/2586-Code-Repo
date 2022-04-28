@@ -178,14 +178,14 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
         new ConditionalCommand(
         new InstantCommand(m_shooter::feederFwd, m_shooter), 
-        new InstantCommand(m_shooter::stopFeeder), 
+        new InstantCommand(m_shooter::stopFeeder), // FIXME: don't want to turn off LL!
         m_shooter::atSpeed)
     ))
     .whenReleased(
       new ParallelCommandGroup(
         new InstantCommand(m_shooter::stopFlywheel),
-        new InstantCommand(m_shooter::stopFeeder),
-        new InstantCommand(m_limelight::limelightDriveConfig)
+        new InstantCommand(m_shooter::stopFeeder)
+       // new InstantCommand(m_limelight::limelightDriveConfig) FIXME: don't want to turn off LL!
       ));
 
     // // new auto limelight and shoot code. Only run after doing RPM regression!
@@ -204,7 +204,7 @@ public class RobotContainer {
           new InstantCommand(m_shooter::stopFeeder), 
           // only feed once we're locked in everywhere !
           ()->(m_shooter.atSpeed() && m_limelight.inPositionX() && m_limelight.inPositionY()) )))
-    .whenReleased(new InstantCommand(m_shooter::stopFlywheel).alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel)); // .alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
 
     // Fight stick Left bumper goes to traverse height
     new JoystickButton(m_fightStick, FightStick.L_BUMPER)
@@ -282,16 +282,17 @@ public class RobotContainer {
     switch(chosenAuto) {
       case "Blue 3 ball auto":
       return new SequentialCommandGroup(
-        new InstantCommand(() -> m_shooter.shootRPM(2400)), // TODO: change to limelight shoot!
-        new WaitCommand(1),
-        new RunFeeder(m_shooter).withTimeout(1),
+        new InstantCommand(m_limelight::limelightAimConfig),
+        new InstantCommand(() -> m_shooter.shootRPM(2670)),
+        new WaitCommand(1.5),
+        new RunFeeder(m_shooter).withTimeout(1.5),
         new InstantCommand(m_shooter::stopFlywheel),
         new InstantCommand(m_intake::extend),
         new InstantCommand(m_intake::intake),
         new FollowPath(m_drivetrain, trajectory).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose))),
         new InstantCommand(m_intake::stop),
-        new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1),
-        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+      //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(0.75),
+        new InstantCommand(() -> m_shooter.shootRPM(2800)),
         new InstantCommand(m_intake::intake),
         new RunFeeder(m_shooter).withTimeout(2.5),
         new InstantCommand(m_shooter::stopFlywheel),
@@ -299,7 +300,7 @@ public class RobotContainer {
       );
       case "Red 3 ball auto":
       return new SequentialCommandGroup(
-        new InstantCommand(() -> m_shooter.shootRPM(2400)), // TODO: change to limelight shoot!
+        new InstantCommand(() -> m_shooter.shootRPM(2700)), // TODO: change to limelight shoot!
         new WaitCommand(1),
         new RunFeeder(m_shooter).withTimeout(1),
         new InstantCommand(m_shooter::stopFlywheel),
@@ -307,7 +308,7 @@ public class RobotContainer {
         new InstantCommand(m_intake::intake),
         new FollowPath(m_drivetrain, trajectory).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose))),
         new InstantCommand(m_intake::stop),
-        new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1),
+        new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1.5),
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
         new InstantCommand(m_intake::intake),
         new RunFeeder(m_shooter).withTimeout(2.5),
@@ -316,16 +317,16 @@ public class RobotContainer {
       );
       case "Blue 2 ball auto":
       return new SequentialCommandGroup(
-        new InstantCommand(() -> m_shooter.shootRPM(2400)), // TODO: change to limelight shoot!
-        new WaitCommand(1),
-        new RunFeeder(m_shooter).withTimeout(1),
+        new InstantCommand(() -> m_shooter.shootRPM(2675)), // TODO: change to limelight shoot!
+        new WaitCommand(1.5),
+        new RunFeeder(m_shooter).withTimeout(1.5),
         new InstantCommand(m_shooter::stopFlywheel),
         new InstantCommand(m_intake::extend),
         new InstantCommand(m_intake::intake),
         new FollowPath(m_drivetrain, trajectory).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(initialPose))),
         new InstantCommand(m_intake::stop),
-        // new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // Shouldn't be necessary for just a 2 ball
-        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+      //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1.5), // Shouldn't be necessary for just a 2 ball
+        new InstantCommand(() -> m_shooter.shootRPM(2720)),
         new InstantCommand(m_intake::intake),
         new RunFeeder(m_shooter).withTimeout(2),
         new InstantCommand(m_shooter::stopFlywheel),
@@ -333,7 +334,7 @@ public class RobotContainer {
       );
       case "Blue 1 ball auto":
       return new SequentialCommandGroup(
-        new InstantCommand(()->m_shooter.shootRPM(2400)), // TODO: change to limelight shoot?
+        new InstantCommand(()->m_shooter.shootRPM(2730)), // TODO: change to limelight shoot?
         new WaitCommand(1),
         new RunFeeder(m_shooter).withTimeout(1),
         new InstantCommand(m_shooter::stopFlywheel),
@@ -342,8 +343,8 @@ public class RobotContainer {
       case "Blue 5 ball auto":
 
       PathPlannerTrajectory step1 = PathPlanner.loadPath("Blue 5 ball step 1", 5.0, 3.0);
-      PathPlannerTrajectory step2 = PathPlanner.loadPath("Blue 5 ball step 2", 6.0, 3.0);
-      PathPlannerTrajectory step3 = PathPlanner.loadPath("Blue 5 ball step 3", 6.0, 3.0);
+      PathPlannerTrajectory step2 = PathPlanner.loadPath("Blue 5 ball step 2", 5.0, 3.0);
+      PathPlannerTrajectory step3 = PathPlanner.loadPath("Blue 5 ball step 3", 5.0, 3.0);
 
       PathPlannerState first_state = step1.getInitialState();
       Pose2d first_pose = new Pose2d(step1.getInitialPose().getTranslation(), first_state.holonomicRotation);
@@ -351,7 +352,7 @@ public class RobotContainer {
       return new SequentialCommandGroup(
         // Step 1: first 3 balls
         new InstantCommand(m_limelight::limelightAimConfig),
-        new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
+        new InstantCommand(() -> m_shooter.shootRPM(2500)),
         new WaitCommand(0.5),
         new RunFeeder(m_shooter).withTimeout(1.5),
         new InstantCommand(m_shooter::stopFlywheel),
@@ -359,7 +360,7 @@ public class RobotContainer {
         new InstantCommand(m_intake::intake),
         new FollowPath(m_drivetrain, step1).withTimeout(6.5).beforeStarting(new InstantCommand(() -> m_drivetrain.resetOdometry(first_pose))), // path following to pick up 2 balls
         new InstantCommand(m_intake::stop),
-      //  new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // try no LL target to keep path accurate
+        new LimelightTarget(m_limelight, m_drivetrain).withTimeout(1), // try no LL target to keep path accurate
         new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY())),
         new WaitCommand(1),
         new InstantCommand(m_intake::intake),
@@ -370,7 +371,7 @@ public class RobotContainer {
         new FollowPath(
           m_drivetrain, 
           step2).withTimeout(4), // path following back to terminal
-        new WaitCommand(0.5), // give human player a chance to roll er in
+        new WaitCommand(1.0), // give human player a chance to roll er in
        
         // Step 3: drive to hub to shoot
         new FollowPath(m_drivetrain, step3).withTimeout(4),
@@ -409,10 +410,10 @@ public class RobotContainer {
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.06);
+    value = deadband(value, 0.055);
 
     // Square the axis
-    value = Math.copySign(value * value, value);
+  //  value = Math.copySign(value * value, value);
 
     return value;
   }

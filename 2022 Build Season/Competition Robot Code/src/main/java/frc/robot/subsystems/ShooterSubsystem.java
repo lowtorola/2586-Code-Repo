@@ -27,7 +27,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private RelativeEncoder m_encoder;
     private SparkMaxPIDController m_pidController;
     int feederState;
-    double m_targetRPM;
+    double m_targetRPM = 2700;
 
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
@@ -149,7 +149,7 @@ public class ShooterSubsystem extends SubsystemBase {
  */
   public double quadReg(double input) {
     if(input > 5.0) {
-      return 2620.0;
+      return 2700.0;
     } else {
     return ((KQUADRATIC * Math.pow(input, 2)) + (input * KLINEAR) + KCONSTANT);
     }

@@ -36,7 +36,7 @@ public class FollowPath extends ParallelCommandGroup {
                 Drivetrain.m_kinematics, 
                 new PIDController(0.1, 0, 0.0), // tune this
                 new PIDController(0.1, 0, 0.0), // and this
-                new ProfiledPIDController(1.5, 0, 0.0, new Constraints(6.5, 4.5)), // and this....
+                new ProfiledPIDController(1.5, 0, 0.0, new Constraints(7.0, 4.5)), // and this....
                 (states) -> m_drivetrain.driveFromSpeeds(Drivetrain.m_kinematics.toChassisSpeeds(states), false), 
                 m_drivetrain)
             // home gyro before starting

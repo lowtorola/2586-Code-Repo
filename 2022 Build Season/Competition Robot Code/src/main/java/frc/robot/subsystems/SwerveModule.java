@@ -27,9 +27,9 @@ public class SwerveModule {
   private static final int kDistEncoderResolution = 2048;
   private static final int kTurnEncoderResolution = 4096;
 
-  private static final double kModuleMaxAngularVelocity = Drivetrain.MAX_VELOCITY_METERS_PER_SECOND;
+  private static final double kModuleMaxAngularVelocity = Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 1.5;
   private static final double kModuleMaxAngularAcceleration =
-     Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND; // radians per second squared TODO: change back to 2 * Math.PI
+     Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 1.5; // radians per second squared TODO: change back to 2 * Math.PI
 
   private final WPI_TalonFX m_driveMotor;
   private final WPI_TalonFX m_turningMotor;
@@ -104,9 +104,9 @@ public class SwerveModule {
     m_turningMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 20);
 
     // Set current limits for drive and turn motors
-    m_driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 45, 0.5));
-    m_driveMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 40, 45, 0.5));
-    m_turningMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 25, 30, 0.5));
+    m_driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 45, 0.75));
+    m_driveMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 40, 45, 0.75));
+    m_turningMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 30, 35, 0.5));
     m_turningMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 35, 0.5));
 
     // Set the distance per pulse for the drive encoder. We can simply use the

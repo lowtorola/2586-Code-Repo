@@ -26,7 +26,7 @@ public class LimelightSubsystem extends SubsystemBase{
         m_limelight = new Limelight();
      //   m_limelight.setLEDMode(LedMode.kforceOff);
      //   m_limelight.setCamMode(CamMode.kdriver);
-        limelightDriveConfig();
+        limelightAimConfig(); // FIXME: start with LL on, keep it on!
         System.out.println("LL set!");
     }
 

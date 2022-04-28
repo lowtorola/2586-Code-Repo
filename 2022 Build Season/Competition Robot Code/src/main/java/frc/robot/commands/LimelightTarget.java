@@ -61,6 +61,7 @@ public class LimelightTarget extends CommandBase {
     public void end(boolean interrupted) {
         // we always want to go back to driver LL mode when we stop targeting
       //  m_limelight.limelightDriveConfig();
+      m_drivetrain.driveFromSpeeds(new ChassisSpeeds(), false);
     }
 
 }
