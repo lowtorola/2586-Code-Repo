@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OIConstants.DS4;
 import frc.robot.Constants.OIConstants.FightStick;
 import frc.robot.commands.AdvanceFeeder;
@@ -64,6 +65,8 @@ public class RobotContainer {
 
   private final SendableChooser<String> m_autoChooser = new SendableChooser<>();
 
+  private final SendableChooser<String> m_driveModeChooser = new SendableChooser<>();
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Set up the default command for the drivetrain.
@@ -95,6 +98,13 @@ public class RobotContainer {
     m_autoChooser.addOption("5 Ball", "Blue 5 ball auto");
     m_autoChooser.setDefaultOption("2 Ball", "Blue 2 ball auto");
 
+    // DEMO MODE: This sets up the drive mode chooser
+    SmartDashboard.putData("Drive Mode Chooser", m_driveModeChooser);
+    // add options to drive mode chooser
+    m_driveModeChooser.setDefaultOption("Comp Mode", "DriveMode");
+    m_driveModeChooser.addOption("75% Mode", "75Percent");
+    m_driveModeChooser.addOption("Demo Mode", "DemoMode");
+
   }
 
   /**
@@ -119,6 +129,35 @@ public class RobotContainer {
       () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
       false
   ));
+
+    // DEMO MODE: This will select the appropriate drive mode based on a sendablechooser
+      // Comp speed drive/accel
+    new Trigger(()->m_driveModeChooser.getSelected().equals("DriveMode"))
+    .whileActiveOnce(new DriveCommand(
+      m_drivetrain,
+      () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+      true
+  )); 
+      // 75 Percent drive/accel
+      new Trigger(()->m_driveModeChooser.getSelected().equals("75Percent"))
+      .whileActiveOnce(new DriveCommand(
+        m_drivetrain,
+        () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
+        () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
+        () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.75,
+        true
+    )); 
+      // Demo speed drive/accel
+      new Trigger(()->m_driveModeChooser.getSelected().equals("DemoMode"))
+      .whileActiveOnce(new DriveCommand(
+        m_drivetrain,
+        () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_Y)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 0.5,
+        () -> -modifyAxis(m_driver.getRawAxis(DS4.L_STICK_X)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND * 0.5,
+        () -> -modifyAxis(m_driver.getRawAxis(DS4.R_STICK_X)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.5,
+        true
+    )); 
 
     // operator right bumper lowers intake when pressed, raises when released
     new JoystickButton(m_operator, DS4.R_BUMPER)
@@ -188,24 +227,9 @@ public class RobotContainer {
        // new InstantCommand(m_limelight::limelightDriveConfig) FIXME: don't want to turn off LL!
       ));
 
-    // // new auto limelight and shoot code. Only run after doing RPM regression!
-    new JoystickButton(m_driver, DS4.L_BUMPER)
-    .whenHeld(
-      // begin all paths simultaneously
-      new ParallelCommandGroup(
-        // target, then run the feeder. If needed, just run the feeder unconditionally instead of by atSpeed
-        new SequentialCommandGroup(
-          new LimelightTarget(m_limelight, m_drivetrain)
-          )
-    ))
-    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY()))
-        .alongWith(new ConditionalCommand(
-          new RunFeeder(m_shooter), 
-          new InstantCommand(m_shooter::stopFeeder), 
-          // only feed once we're locked in everywhere !
-          ()->(m_shooter.atSpeed() && m_limelight.inPositionX() && m_limelight.inPositionY()) )))
-    .whenReleased(new InstantCommand(m_shooter::stopFlywheel)); // .alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
-
+    
+    // DEMO MODE: We have no use for these controls in this mode
+/*
     // Fight stick Left bumper goes to traverse height
     new JoystickButton(m_fightStick, FightStick.L_BUMPER)
     .whileHeld(new InstantCommand(m_climber::teleTraverse), true);
@@ -240,27 +264,29 @@ public class RobotContainer {
     // fight stick down POV retracts pivot
     new POVButton(m_fightStick, 180)
     .whenPressed(new InstantCommand(m_climber::retractPivot));
-    
-/*
-    // Fight stick Left POV extends pivot
-      new POVButton(m_fightStick, 0)
-      .whenActive(new InstantCommand(m_climber::extendPivot));
-    
-    // fight stick right POV retracts pivot
-      new POVButton(m_fightStick, 180)
-      .whenActive(new InstantCommand(m_climber::retractPivot));
 
-    // Fight stick x button retractsleft
-    new JoystickButton(m_fightStick, FightStick.X)
-    .whileHeld(new InstantCommand(m_climber::setLeftTele))
-    .whenReleased(new InstantCommand(m_climber::stopLeft));
+        // // new auto limelight and shoot code. Only run after doing RPM regression!
+    new JoystickButton(m_driver, DS4.L_BUMPER)
+    .whenHeld(
+      // begin all paths simultaneously
+      new ParallelCommandGroup(
+        // target, then run the feeder. If needed, just run the feeder unconditionally instead of by atSpeed
+        new SequentialCommandGroup(
+          new LimelightTarget(m_limelight, m_drivetrain)
+          )
+    ))
+    .whileHeld(new InstantCommand(() -> m_shooter.shootAuto(m_limelight.getAngleErrorY()))
+        .alongWith(new ConditionalCommand(
+          new RunFeeder(m_shooter), 
+          new InstantCommand(m_shooter::stopFeeder), 
+          // only feed once we're locked in everywhere !
+          ()->(m_shooter.atSpeed() && m_limelight.inPositionX() && m_limelight.inPositionY()) )))
+    .whenReleased(new InstantCommand(m_shooter::stopFlywheel)); // .alongWith(new InstantCommand(m_limelight::limelightDriveConfig)));
+*/
 
-    // Fight Stick A button retractsright
-    new JoystickButton(m_fightStick, FightStick.A)
-    .whileHeld(new InstantCommand(m_climber::retractTele))
-    .whenReleased(new InstantCommand(m_climber::stopTele));
 
-    */
+
+
   }
 
   /**
@@ -270,6 +296,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
+    return null;
+
+    // DEMO MODE: We don't need to run auton during demos
+/*
     String chosenAuto = m_autoChooser.getSelected();
 
     SmartDashboard.putString("Chosen Auto", chosenAuto);
@@ -388,7 +418,7 @@ public class RobotContainer {
       return null;
 
     }
-
+*/
 
 
 
