@@ -189,7 +189,7 @@ public class RobotContainer {
       ));
 
     // // new auto limelight and shoot code. Only run after doing RPM regression!
-    new JoystickButton(m_driver, DS4.L_BUMPER)
+    new JoystickButton(m_operator, DS4.CIRCLE)
     .whenHeld(
       // begin all paths simultaneously
       new ParallelCommandGroup(
